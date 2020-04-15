@@ -6,7 +6,7 @@ library("tidyverse")
 library("rjt.misc")
 library("BIEN", quietly = TRUE)
 library("traitstrap")
-library("PFTCFunctions")
+library("dataDownloader")
 
 # more required packages
 requireNamespace("visNetwork")
