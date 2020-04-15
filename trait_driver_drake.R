@@ -1,10 +1,15 @@
 #trait driver theory
 
+#load packages
 library("drake")
 library("tidyverse")
 library("rjt.misc")
 library("BIEN", quietly = TRUE)
 library("traitstrap")
+library("PFTCFunctions")
+
+# more required packages
+requireNamespace("visNetwork")
 
 #drake configuration
 pkgconfig::set_config("drake::strings_in_dots" = "literals")
@@ -13,25 +18,11 @@ pkgconfig::set_config("drake::strings_in_dots" = "literals")
 #options(future.fork.enable = TRUE)
 future::plan(future::multiprocess) 
 
+#source subplans
+source("R/data_import.R")
+
 #drake plan
-trait_plan <- drake_plan(
-  ##TODO - move import code to use database/csv files
-  
-  #import community
-  community = get(load("trait_driver_analyses/data/Community.Rdata")), 
-  
-  #import trait data
-  traits0 = get(load("trait_driver_analyses/data/traits.Rdata")),
-  
-  traits = traits0 %>% 
-    select(-Full_Envelope_Name, -Envelope_Name_Corrected, -Date, -Elevation, -P_FILE_NAME, -matches("Flag$"), -allComments, -FileName, -Taxon_written_on_envelopes, -CN_FILE_NAME , -StoichLabel, -P_Std_Dev, -P_Co_Var, -LeafID) %>% 
-    select(-matches("Leaf_Thickness_\\d_mm")) %>% 
-    pivot_longer(cols = -(Site:Leaf_number), names_to = "trait", values_to = "value") %>% 
-    filter(!is.na(value)) %>% 
-    mutate(Site = factor(Site, levels = levels(community$originSiteID))),
-  #TODO clean impossible trait values using BIEN
-  #calculate derived traits
-  #transform
+analysis_plan <- drake_plan(
   
   #Histograms - shows need for cleaning
   trait_histograms = traits %>% 
@@ -39,9 +30,6 @@ trait_plan <- drake_plan(
     geom_histogram() + 
     facet_wrap(~trait, scales = "free") +
     labs(title = "Clean me"),
-  
-  #import environmental data
-  env  = get(load("trait_driver_analyses/data/climate_month.Rdata")),
   
   #impute traits for control and pre-transplant
   imputed_traits = {
@@ -85,13 +73,21 @@ trait_plan <- drake_plan(
     geom_boxplot() +
     facet_wrap(~trait, scales = "free_y"), 
   
-  plot = bootstrapped_trait_moments %>% filter(!TTtreat %in% c("control", "local", "OTC")) %>%group_by(year, turfID, TTtreat, trait, Site) %>% summarise(mean = mean(mean)) %>% ggplot(aes(x = year, y = mean, colour = TTtreat, group = turfID)) +
-    geom_line() +
-    facet_grid(trait~Site, scales = "free_y")
+  plot = bootstrapped_trait_moments %>% 
+    filter(!TTtreat %in% c("control", "local", "OTC")) %>%
+    group_by(year, turfID, TTtreat, trait, Site) %>% 
+    summarise(mean = mean(mean)) %>% 
+    ggplot(aes(x = year, y = mean, colour = TTtreat, group = turfID)) +
+      geom_line() +
+      facet_grid(trait~Site, scales = "free_y")
   
 )
 
-#configure and make drake plan
+#### combine plans ####
+trait_plan <- bind_rows(import_plan, 
+                        bootstrap_moment_plan,
+                        analysis_plan)
+
+#### configure drake plan ####
 trait_config <- drake_config(plan = trait_plan, jobs = 2, parallelism = "future", keep_going = TRUE)
 trait_config
-
