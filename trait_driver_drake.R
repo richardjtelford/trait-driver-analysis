@@ -19,7 +19,9 @@ pkgconfig::set_config("drake::strings_in_dots" = "literals")
 future::plan(future::multiprocess) 
 
 #source subplans
-source("R/data_import.R")
+source("R/download_plan.R")
+source("R/data_import_plan.R")
+source("R/bootstrap_moment_plan.R")
 
 #drake plan
 analysis_plan <- drake_plan(
@@ -30,28 +32,7 @@ analysis_plan <- drake_plan(
     geom_histogram() + 
     facet_wrap(~trait, scales = "free") +
     labs(title = "Clean me"),
-  
-  #impute traits for control and pre-transplant
-  imputed_traits = {
-    imputed_traits_home = community %>%
-      filter(year == min(year) | TTtreat %in% c("control", "local", "OTC")) %>% 
-      select(Site = originSiteID, Location = originBlockID, turfID, year, TTtreat, Taxon = speciesName, cover) %>% 
-      trait_impute(traits = traits, scale_hierarchy = c("Site", "Location"), taxon_col = "Taxon", value_col = "value", abundance_col = "cover", other_col = c("TTtreat", "year", "turfID"))
-      
-    imputed_traits_transplant = community %>%
-      filter(year > min(year), !TTtreat %in% c("control", "local", "OTC")) %>%
-      select(Site = destSiteID, Location = destBlockID, turfID, year, TTtreat, Taxon = speciesName, cover) %>% 
-      trait_impute(traits = traits, scale_hierarchy = c("Site", "Location"), taxon_col = "Taxon", value_col = "value", abundance_col = "cover", other_col = c("year", "TTtreat", "turfID"))
-    
-    
-    x <- bind_rows(imputed_traits_home, imputed_traits_transplant)
-    attr(x, "attrib") <- attr(imputed_traits_home, "attrib")
-    x
-  },
 
-  #traits moments 
-  bootstrapped_trait_moments  = trait_np_bootstrap(imputed_traits, nrep = 100),  
-  
   #space/time R2 relationship
   
   #means
@@ -84,7 +65,8 @@ analysis_plan <- drake_plan(
 )
 
 #### combine plans ####
-trait_plan <- bind_rows(import_plan, 
+trait_plan <- bind_plans(download_plan, 
+                        import_plan, 
                         bootstrap_moment_plan,
                         analysis_plan)
 

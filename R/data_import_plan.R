@@ -1,19 +1,21 @@
 ## import and process data
 
 ##TODO - 
-# download from osf TRAIT, COMMUNITY
 # import and process osf files TRAIT COMMUNITY
-# trigger on osf change TRAIT COMMUNITY CLIMATE
 # clean against BIEN
 
 import_plan <- drake_plan(
-
   
   #import community
-  community = get(load("trait_driver_analyses/data/Community.Rdata")), 
+  community = community_download, 
   
   #import trait data
-  traits0 = get(load("trait_driver_analyses/data/traits.Rdata")),
+  traits0 = {
+      
+    #import
+    leaf_traits = read_csv(traits_leaf_download)
+    chemical_traits = read_csv(traits_chemical_download)
+    },
   
   traits = traits0 %>% 
     select(-Full_Envelope_Name, -Envelope_Name_Corrected, -Date, -Elevation, -P_FILE_NAME, -matches("Flag$"), -allComments, -FileName, -Taxon_written_on_envelopes, -CN_FILE_NAME , -StoichLabel, -P_Std_Dev, -P_Co_Var, -LeafID) %>% 
@@ -27,9 +29,7 @@ import_plan <- drake_plan(
   
   #import environmental data
   env = {
-    #download from osf
-    get_file(node = "4hjzu", remote_path = ".", file = "climate_month.Rdata", path = "data") 
     #import
-    get(load("data/climate_month.Rdata"))
+    get(load(env_download))
     }
 )
