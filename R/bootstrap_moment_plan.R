@@ -7,12 +7,22 @@ bootstrap_moment_plan <- drake_plan(
     imputed_traits_home = community %>%
       filter(year == min(year) | TTtreat %in% c("control", "local", "OTC")) %>% 
       select(Site = originSiteID, Location = originBlockID, turfID, year, TTtreat, Taxon = speciesName, cover) %>% 
-      trait_impute(traits = traits, scale_hierarchy = c("Site", "Location"), taxon_col = "Taxon", value_col = "value", abundance_col = "cover", other_col = c("TTtreat", "year", "turfID"))
+      trait_impute(traits = traits, 
+                   scale_hierarchy = c("Site", "Location"),
+                   taxon_col = "Taxon", 
+                   value_col = "value", 
+                   abundance_col = "cover", 
+                   other_col = c("TTtreat", "year", "turfID"))
     
     imputed_traits_transplant = community %>%
       filter(year > min(year), !TTtreat %in% c("control", "local", "OTC")) %>%
       select(Site = destSiteID, Location = destBlockID, turfID, year, TTtreat, Taxon = speciesName, cover) %>% 
-      trait_impute(traits = traits, scale_hierarchy = c("Site", "Location"), taxon_col = "Taxon", value_col = "value", abundance_col = "cover", other_col = c("year", "TTtreat", "turfID"))
+      trait_impute(traits = traits, 
+                   scale_hierarchy = c("Site", "Location"),
+                   taxon_col = "Taxon",
+                   value_col = "value",
+                   abundance_col = "cover",
+                   other_col = c("year", "TTtreat", "turfID"))
     
     
     x <- bind_rows(imputed_traits_home, imputed_traits_transplant)
