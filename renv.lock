@@ -325,15 +325,15 @@
     },
     "dataDownloader": {
       "Package": "dataDownloader",
-      "Version": "0.0.0.9001",
+      "Version": "0.0.0.9002",
       "Source": "GitHub",
       "RemoteType": "github",
       "RemoteHost": "api.github.com",
       "RemoteRepo": "dataDownloader",
       "RemoteUsername": "Between-the-Fjords",
       "RemoteRef": "master",
-      "RemoteSha": "24987db7380e1525ef6609a4b4288ec58ad743f9",
-      "Hash": "11f219e0b12b9bd9a6ed736b5519ae15"
+      "RemoteSha": "e887b5ac75cc904ae241e00f67a644e8575e1cb4",
+      "Hash": "29329cc12b901c66204beee82d2f2a03"
     },
     "dbplyr": {
       "Package": "dbplyr",
@@ -364,10 +364,10 @@
     },
     "drake": {
       "Package": "drake",
-      "Version": "7.9.0",
+      "Version": "7.12.0",
       "Source": "Repository",
       "Repository": "CRAN",
-      "Hash": "8ac1244dd17164863658075c249f8e22"
+      "Hash": "56abc5fbb1031d6eb69808a17af3d60e"
     },
     "e1071": {
       "Package": "e1071",
@@ -583,13 +583,6 @@
       "Source": "Repository",
       "Repository": "CRAN",
       "Hash": "2d7691222f82f41e93f6d30f169bd5e1"
-    },
-    "htmlwidgets": {
-      "Package": "htmlwidgets",
-      "Version": "1.5.1",
-      "Source": "Repository",
-      "Repository": "CRAN",
-      "Hash": "41bace23583fbc25089edae324de2dc3"
     },
     "httpcode": {
       "Package": "httpcode",
@@ -1215,13 +1208,6 @@
       "Source": "Repository",
       "Repository": "CRAN",
       "Hash": "ce4f6271baa94776db692f1cb2055bee"
-    },
-    "visNetwork": {
-      "Package": "visNetwork",
-      "Version": "2.0.8",
-      "Source": "Repository",
-      "Repository": "CRAN",
-      "Hash": "180decb253c153f4b2d5469061c3318d"
     },
     "visreg": {
       "Package": "visreg",
