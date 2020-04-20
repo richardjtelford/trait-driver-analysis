@@ -58,40 +58,6 @@
       "Repository": "CRAN",
       "Hash": "87cc6e9aa4c81e4c0f2d1df89d3561a8"
     },
-    "PFTCFunctions": {
-      "Package": "PFTCFunctions",
-      "Version": "0.1.1",
-      "Source": "GitHub",
-      "Remotes": "Between-the-Fjords/downloader",
-      "RemoteType": "github",
-      "RemoteHost": "api.github.com",
-      "RemoteRepo": "PFTCFunctions",
-      "RemoteUsername": "Plant-Functional-Trait-Course",
-      "RemoteRef": "master",
-      "RemoteSha": "52214a98fad4dfb0e63b723ffa1d6d860f87cc5c",
-      "Hash": "ae5cc1700feeafdb449529adf59d41c4"
-    },
-    "R.methodsS3": {
-      "Package": "R.methodsS3",
-      "Version": "1.7.1",
-      "Source": "Repository",
-      "Repository": "CRAN",
-      "Hash": "525c2e4d8915038c0ca7f9c1eedbd47a"
-    },
-    "R.oo": {
-      "Package": "R.oo",
-      "Version": "1.23.0",
-      "Source": "Repository",
-      "Repository": "CRAN",
-      "Hash": "6be65e89d25f79fb4d147d65e19601e8"
-    },
-    "R.utils": {
-      "Package": "R.utils",
-      "Version": "2.9.2",
-      "Source": "Repository",
-      "Repository": "CRAN",
-      "Hash": "63cdbbf467a00d0ed2aa3391f4918d6e"
-    },
     "R6": {
       "Package": "R6",
       "Version": "2.4.1",
@@ -119,6 +85,13 @@
       "Source": "Repository",
       "Repository": "CRAN",
       "Hash": "82cb7737c081ed6b5e528a37f536d864"
+    },
+    "RSQLite": {
+      "Package": "RSQLite",
+      "Version": "2.2.0",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "2e813101e637bfd423f763d20350ed3d"
     },
     "Rcpp": {
       "Package": "Rcpp",
@@ -204,12 +177,33 @@
       "Repository": "CRAN",
       "Hash": "8d96f3da9e7ec851e14e39c0872ad1ab"
     },
+    "bit": {
+      "Package": "bit",
+      "Version": "1.1-15.2",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "eb6c52d8cc44463085a4cde1c63df163"
+    },
+    "bit64": {
+      "Package": "bit64",
+      "Version": "0.9-7",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "3338d4a9b1352f5a613e2bdcefe784ea"
+    },
     "bitops": {
       "Package": "bitops",
       "Version": "1.0-6",
       "Source": "Repository",
       "Repository": "CRAN",
       "Hash": "0b118d5900596bae6c4d4865374536a6"
+    },
+    "blob": {
+      "Package": "blob",
+      "Version": "1.2.1",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "9addc7e2c5954eca5719928131fed98c"
     },
     "boot": {
       "Package": "boot",
@@ -273,13 +267,6 @@
       "Source": "Repository",
       "Repository": "CRAN",
       "Hash": "db63a44aab5aadcb6bf2f129751d129a"
-    },
-    "codetools": {
-      "Package": "codetools",
-      "Version": "0.2-16",
-      "Source": "Repository",
-      "Repository": "CRAN",
-      "Hash": "89cf4b8207269ccf82fbeb6473fd662b"
     },
     "colorspace": {
       "Package": "colorspace",
@@ -432,13 +419,6 @@
       "Repository": "CRAN",
       "Hash": "0e26be4558dbbc713d7cfe4a4c361f38"
     },
-    "future": {
-      "Package": "future",
-      "Version": "1.16.0",
-      "Source": "Repository",
-      "Repository": "CRAN",
-      "Hash": "20c20385da360f28c07364f2d099a6d7"
-    },
     "gdata": {
       "Package": "gdata",
       "Version": "2.18.0",
@@ -520,13 +500,6 @@
       "Source": "Repository",
       "Repository": "CRAN",
       "Hash": "789be5d8c2b0421da79a21e89eae8656"
-    },
-    "globals": {
-      "Package": "globals",
-      "Version": "0.12.5",
-      "Source": "Repository",
-      "Repository": "CRAN",
-      "Hash": "e9e529fb7a579ad4b4ff65e052e76ed8"
     },
     "glue": {
       "Package": "glue",
@@ -653,13 +626,6 @@
       "Source": "Repository",
       "Repository": "CRAN",
       "Hash": "361811f31f71f8a617a9a68bf63f1f42"
-    },
-    "listenv": {
-      "Package": "listenv",
-      "Version": "0.8.0",
-      "Source": "Repository",
-      "Repository": "CRAN",
-      "Hash": "0bde42ee282efb18c7c4e63822f5b4f7"
     },
     "lme4": {
       "Package": "lme4",
@@ -814,6 +780,13 @@
       "Source": "Repository",
       "Repository": "CRAN",
       "Hash": "01f28d4278f15c76cddbea05899c5d6f"
+    },
+    "plogr": {
+      "Package": "plogr",
+      "Version": "0.2.0",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "09eb987710984fc2905c7129c7d85e65"
     },
     "plotrix": {
       "Package": "plotrix",
@@ -1184,16 +1157,15 @@
     },
     "vctrs": {
       "Package": "vctrs",
-      "Version": "0.2.99.9010",
+      "Version": "0.2.99.9011",
       "Source": "GitHub",
-      "Remotes": "r-lib/pillar",
       "RemoteType": "github",
       "RemoteHost": "api.github.com",
-      "RemoteRepo": "vctrs",
       "RemoteUsername": "r-lib",
+      "RemoteRepo": "vctrs",
       "RemoteRef": "master",
-      "RemoteSha": "cdf921c8060bf288ce8e40a5cd9d39703595e8c9",
-      "Hash": "8e51d2c917081c3c7465147bb4f779bb"
+      "RemoteSha": "b17f2011d94f02136afd844bb3049aa7481a1886",
+      "Hash": "55c108aebd563c2e1068a7c9e07c599d"
     },
     "vegan": {
       "Package": "vegan",
