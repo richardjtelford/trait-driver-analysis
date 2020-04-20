@@ -7,6 +7,7 @@ library("rjt.misc")
 library("BIEN", quietly = TRUE)
 library("traitstrap")
 library("dataDownloader")
+library("DBI")
 
 # more required packages
 requireNamespace("visNetwork")
@@ -14,14 +15,13 @@ requireNamespace("visNetwork")
 #drake configuration
 pkgconfig::set_config("drake::strings_in_dots" = "literals")
 
-#set up parallel processing for drake
-#options(future.fork.enable = TRUE)
-future::plan(future::multiprocess) 
-
 #source subplans
 source("R/download_plan.R")
 source("R/data_import_plan.R")
 source("R/bootstrap_moment_plan.R")
+
+#source extra function
+source("R/functions/load_comm.R")
 
 #drake plan
 analysis_plan <- drake_plan(
@@ -71,5 +71,5 @@ trait_plan <- bind_plans(download_plan,
                         analysis_plan)
 
 #### configure drake plan ####
-trait_config <- drake_config(plan = trait_plan, jobs = 2, parallelism = "future", keep_going = TRUE)
+trait_config <- drake_config(plan = trait_plan, keep_going = TRUE)
 trait_config
