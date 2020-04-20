@@ -4,7 +4,7 @@ bootstrap_moment_plan <- drake_plan(
   
   #impute traits for control and pre-transplant
   imputed_traits = {
-    imputed_traits_home = community %>%
+    imputed_traits_home <- community %>%
       filter(year == min(year) | TTtreat %in% c("control", "local", "OTC")) %>% 
       select(Site = originSiteID, Location = originBlockID, turfID, year, TTtreat, Taxon = speciesName, cover) %>% 
       trait_impute(traits = traits, 
@@ -14,7 +14,7 @@ bootstrap_moment_plan <- drake_plan(
                    abundance_col = "cover", 
                    other_col = c("TTtreat", "year", "turfID"))
     
-    imputed_traits_transplant = community %>%
+    imputed_traits_transplant <- community %>%
       filter(year > min(year), !TTtreat %in% c("control", "local", "OTC")) %>%
       select(Site = destSiteID, Location = destBlockID, turfID, year, TTtreat, Taxon = speciesName, cover) %>% 
       trait_impute(traits = traits, 
@@ -25,7 +25,11 @@ bootstrap_moment_plan <- drake_plan(
                    other_col = c("year", "TTtreat", "turfID"))
     
     
-    x <- bind_rows(imputed_traits_home, imputed_traits_transplant)
+    x <- bind_rows(
+      imputed_traits_home %>% select(everything()),#hack to deal with new vctrs 
+      imputed_traits_transplant %>% select(everything()))
+    class(x) <- class(imputed_traits_home)# recover traits
+      
     attr(x, "attrib") <- attr(imputed_traits_home, "attrib")
     x
   },
