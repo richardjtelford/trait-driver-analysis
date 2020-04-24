@@ -1,8 +1,8 @@
 ## import and process data
 
 ##TODO - 
-# import and process osf files TRAIT COMMUNITY
 # clean against BIEN
+# transform traits as appropriate
 
 import_plan <- drake_plan(
   
