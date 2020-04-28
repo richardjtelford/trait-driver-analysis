@@ -27,42 +27,6 @@ source("R/functions/load_comm.R")
 #drake plan
 analysis_plan <- drake_plan(
   
-  #Histograms - shows need for cleaning
-  trait_histograms = traits %>% 
-    ggplot(aes(x = value, fill = Site)) + 
-    geom_histogram() + 
-    facet_wrap(~trait, scales = "free") +
-    labs(title = "Clean me"),
-
-  #space/time R2 relationship
-  
-  #means
-  mean_plot = bootstrapped_trait_moments %>% ggplot(aes(x = Site, y = mean)) +
-    geom_boxplot() +
-    facet_wrap(~trait, scales = "free_y"),
-  
-  #bootstrapped_trait_moments %>% filter(trait == "Leaf_Thickness_Ave_mm") %>% 
-  #  ggplot(aes(x = year, y = value, fill = TTtreat)) + facet_wrap(~Site)
-  
-  #variance
-  
-  #skewness
-  
-  #kurtois
-  
-  
-  moments_plot = bootstrapped_trait_moments %>% ggplot(aes(x = Site, y = mean)) +
-    geom_boxplot() +
-    facet_wrap(~trait, scales = "free_y"), 
-  
-  plot = bootstrapped_trait_moments %>% 
-    filter(!TTtreat %in% c("control", "local", "OTC")) %>%
-    group_by(year, turfID, TTtreat, trait, Site) %>% 
-    summarise(mean = mean(mean)) %>% 
-    ggplot(aes(x = year, y = mean, colour = TTtreat, group = turfID)) +
-      geom_line() +
-      facet_grid(trait~Site, scales = "free_y")
-  
 )
 
 #### combine plans ####

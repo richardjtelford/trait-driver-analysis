@@ -47,7 +47,7 @@ import_plan <- drake_plan(
   env = get(load(env_download)) %>% 
     filter(
       variable %in% c("Tair", "Tsoil0"),
-      month(month) %in% 5:9 #May to September
+      lubridate::month(month) %in% 5:9 #May to September
       ) %>% 
     group_by(logger, variable, site) %>% 
     summarise(value = mean(value, na.rm = TRUE))
