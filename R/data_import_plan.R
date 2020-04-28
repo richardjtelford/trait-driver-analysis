@@ -41,6 +41,7 @@ import_plan <- drake_plan(
   #calculate derived traits
   #transform
   traits = traits0 %>% 
+    filter(Treatment == "LOCAL") %>% # only gradient plots
     rename(Location = destBlockID),
   
   #import environmental data
