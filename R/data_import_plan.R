@@ -44,5 +44,12 @@ import_plan <- drake_plan(
     rename(Location = destBlockID),
   
   #import environmental data
-  env = get(load(env_download))
+  env = get(load(env_download)) %>% 
+    filter(
+      variable %in% c("Tair", "Tsoil0"),
+      month(month) %in% 5:9 #May to September
+      ) %>% 
+    group_by(logger, variable, site) %>% 
+    summarise(value = mean(value, na.rm = TRUE))
+  
 )

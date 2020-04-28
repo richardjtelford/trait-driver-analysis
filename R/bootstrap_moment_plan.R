@@ -35,5 +35,13 @@ bootstrap_moment_plan <- drake_plan(
   },
   
   #traits moments 
-  bootstrapped_trait_moments  = trait_np_bootstrap(imputed_traits, nrep = 100)
+  bootstrapped_trait_moments  = trait_np_bootstrap(imputed_traits, nrep = 100),
+  
+  #traits with climate
+  bootstrapped_trait_moments_climate = bootstrapped_trait_moments %>% 
+    left_join(env, by = c("Site" = "site")) %>% 
+    filter(
+      (logger == "otc" & TTtreat == "OTC") | (logger != "otc" & TTtreat != "OTC")) %>% 
+    select(-logger)#no longer needed
+  
 )
