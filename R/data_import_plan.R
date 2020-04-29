@@ -70,9 +70,8 @@ import_plan <- drake_plan(
       )),
   
   #import environmental data
-  env = get(load(env_download)) %>% 
+  env = read_csv(env_download) %>% 
     filter(
-      variable %in% c("Tair", "Tsoil0"),
       lubridate::month(month) %in% 5:9 #May to September
       ) %>% 
     group_by(logger, variable, site) %>% 

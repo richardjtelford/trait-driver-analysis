@@ -63,9 +63,9 @@ download_plan <- drake_plan(
   #import environmental data
   env_download = target(
     get_file(
-      node = "4hjzu",
-      remote_path = ".",
-      file = "climate_month.Rdata",
+      node = "f3knq",
+      remote_path = "Climate",
+      file = "China_2013_2016_AirTemp_month.csv",
       path = "data"
     ),
     format = "file",
