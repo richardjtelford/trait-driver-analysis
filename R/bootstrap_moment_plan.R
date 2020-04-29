@@ -2,7 +2,7 @@
 
 bootstrap_moment_plan <- drake_plan(
   
-  #impute traits for control and pre-transplant
+  #impute traits for control, OTC, and pre-transplant
   imputed_traits = {
     imputed_traits_home <- community %>%
       filter(year == min(year) | TTtreat %in% c("control", "local", "OTC")) %>% 
@@ -14,6 +14,7 @@ bootstrap_moment_plan <- drake_plan(
                    abundance_col = "cover", 
                    other_col = c("TTtreat", "year", "turfID"))
     
+    #impute traits for transplanted turfs
     imputed_traits_transplant <- community %>%
       filter(year > min(year), !TTtreat %in% c("control", "local", "OTC")) %>%
       select(Site = destSiteID, Location = destBlockID, turfID, year, TTtreat, Taxon = speciesName, cover) %>% 
@@ -36,6 +37,9 @@ bootstrap_moment_plan <- drake_plan(
   
   #traits moments 
   bootstrapped_trait_moments  = trait_np_bootstrap(imputed_traits, nrep = 100),
+  
+  #summarise bootstrap moments
+  summarised_boot_moments = trait_summarise_boot_moments(bootstrapped_trait_moments),
   
   #traits with climate
   bootstrapped_trait_moments_climate = bootstrapped_trait_moments %>% 
