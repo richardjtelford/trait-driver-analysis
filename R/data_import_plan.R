@@ -52,7 +52,7 @@ import_plan <- drake_plan(
           "Leaf_Area_cm2",
           "Leaf_Thickness_Ave_mm"
         ), 
-        true = suppressWarnings(log(value)),
+        true = suppressWarnings(log(value)),# suppress warnings from log(-value) in isotopes (these are calculated but not kept)
         false = value
       ), 
       trait_trans = recode(
