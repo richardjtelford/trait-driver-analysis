@@ -22,13 +22,19 @@ import_plan <- drake_plan(
     select(-Envelope_Name_Corrected, -Date, -matches("Flag$"), -allComments) %>% 
     #remove leaf-thickness measurement (keep mean)
     select(-matches("Leaf_Thickness_\\d_mm")) %>% 
-    filter() %>% 
-    pivot_longer(cols = c("Wet_Mass_g", "Dry_Mass_g", "Leaf_Thickness_Ave_mm", "Leaf_Area_cm2", "SLA_cm2_g", "LDMC"), names_to = "trait", values_to = "value"),
+    pivot_longer(
+      cols = c("Wet_Mass_g", "Dry_Mass_g", "Leaf_Thickness_Ave_mm", "Leaf_Area_cm2", "SLA_cm2_g", "LDMC"), 
+      names_to = "trait", 
+      values_to = "value"),
   
   traits_chemical = traits_chemical0 %>% 
     select(-Date, -n) %>%
     filter() %>% 
-    pivot_longer(cols = c("P_percent", "C_percent", "N_percent", "CN_ratio", "dN15_permil", "dC13_permil"), names_to = "trait", values_to = "value"),
+    pivot_longer(
+      cols = c("P_percent", "C_percent", "N_percent", "CN_ratio", "dN15_permil", "dC13_permil"),
+      names_to = "trait",
+      values_to = "value"
+    ),
   
   #combine leaf and chemical traits
   traits0 = bind_rows(traits_leaf,
