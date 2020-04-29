@@ -2,9 +2,9 @@
 plot_plan <- drake_plan(
   #Histograms - shows need for cleaning
   trait_histograms = traits %>% 
-    ggplot(aes(x = value, fill = Site)) + 
+    ggplot(aes(x = value_trans, fill = Site)) + 
     geom_histogram() + 
-    facet_wrap(~ trait, scales = "free") +
+    facet_wrap(~ trait_trans, scales = "free") +
     labs(title = "Clean me"),
   
   #trait coverage
