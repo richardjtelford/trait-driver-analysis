@@ -39,10 +39,12 @@ import_plan <- drake_plan(
   
   #TODO clean impossible trait values using BIEN
   #calculate derived traits
-  #transform
   traits = traits0 %>% 
     filter(Treatment == "LOCAL") %>% # only gradient plots
-    rename(Location = destBlockID),
+    rename(Location = destBlockID) %>% 
+    #log transform size and area traits
+    mutate(value_trans = ifelse(trait %in% c("Wet_Mass_g", "Dry_Mass_g", "Leaf_Area_cm2", "Leaf_Thickness_Ave_mm"), suppressWarnings(log(value)), value),
+           trait_trans = recode(trait, "Wet_Mass_g" = "Wet_Mass_g_log", "Dry_Mass_g" = "Dry_Mass_g_log", "Leaf_Area_cm2" = "Leaf_Area_cm2_log", "Leaf_Thickness_Ave_mm" = "Leaf_Thickness_Ave_mm_log")),
   
   #import environmental data
   env = get(load(env_download)) %>% 
