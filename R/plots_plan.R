@@ -13,7 +13,7 @@ plot_plan <- drake_plan(
   #control means by site
   control_mean_boxplot = bootstrapped_trait_moments %>% 
     filter(TTtreat == "control") %>% 
-    ggplot(aes(x = Site, y = mean, group = Location)) + 
+    ggplot(aes(x = Site, y = mean, group = blockID)) + 
     geom_boxplot() +
     facet_wrap(~trait, scales = "free_y"),
   

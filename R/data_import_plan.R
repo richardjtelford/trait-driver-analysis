@@ -48,7 +48,7 @@ import_plan <- drake_plan(
   #transform
   traits = traits0 %>% 
     filter(Treatment == "LOCAL") %>% # only gradient plots
-    rename(Location = destBlockID) %>% 
+    rename(blockID = destBlockID) %>% 
     #log transform size and area traits
     mutate(
       value_trans = if_else(
