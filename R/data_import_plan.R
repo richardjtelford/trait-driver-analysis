@@ -74,6 +74,7 @@ import_plan <- drake_plan(
     filter(
       lubridate::month(month) %in% 5:9 #May to September
       ) %>% 
+    mutate(site = factor(site, levels = c("H", "A", "M", "L"))) %>% 
     group_by(logger, variable, site) %>% 
     summarise(value = mean(value, na.rm = TRUE))
 )
