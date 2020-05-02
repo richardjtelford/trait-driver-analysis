@@ -8,7 +8,7 @@ plot_plan <- drake_plan(
     labs(title = "Clean me"),
   
   #trait coverage
-  trait_coverage = autoplot(imputed_traits),
+  trait_coverage = autoplot(imputed_traits_div),
   
   #control means by site
   control_mean_boxplot = bootstrapped_trait_moments %>% 
@@ -28,7 +28,7 @@ plot_plan <- drake_plan(
   #kurtois
   
   
-  trait_mean_by_time_plot = bootstrapped_trait_moments %>% 
+  trait_mean_by_time_plot = bootstrapped_trait_moments_div %>% 
     filter(!TTtreat %in% c("control", "local", "OTC")) %>%
     group_by(year, turfID, TTtreat, trait, Site) %>% 
     summarise(mean = mean(mean)) %>% 
