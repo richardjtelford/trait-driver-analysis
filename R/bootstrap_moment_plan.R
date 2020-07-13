@@ -5,9 +5,9 @@ bootstrap_moment_plan <- drake_plan(
   #divergence
   #impute traits for control and pre-transplant
   imputed_traits_div = community %>%
-    select(Site = originSiteID, Location = originBlockID, turfID, year, TTtreat, Taxon = speciesName, cover) %>% 
+    select(Site = originSiteID, blockID = originBlockID, turfID, year, TTtreat, Taxon = speciesName, cover) %>% 
     trait_impute(traits = traits, 
-                 scale_hierarchy = c("Site", "Location"),
+                 scale_hierarchy = c("Site", "blockID"),
                  taxon_col = "Taxon", 
                  value_col = "value", 
                  abundance_col = "cover", 
@@ -16,9 +16,9 @@ bootstrap_moment_plan <- drake_plan(
   #convergence
   #impute traits for control and pre-transplant
   imputed_traits_conv = community %>%
-    select(Site = destSiteID, Location = destBlockID, turfID, year, TTtreat, Taxon = speciesName, cover) %>% 
+    select(Site = destSiteID, blockID = destBlockID, turfID, year, TTtreat, Taxon = speciesName, cover) %>% 
     trait_impute(traits = traits, 
-                 scale_hierarchy = c("Site", "Location"),
+                 scale_hierarchy = c("Site", "blockID"),
                  taxon_col = "Taxon",
                  value_col = "value",
                  abundance_col = "cover",
@@ -29,18 +29,25 @@ bootstrap_moment_plan <- drake_plan(
   bootstrapped_trait_moments_conv  = trait_np_bootstrap(imputed_traits_conv, nrep = 100),
   
   #summarise bootstrap moments
-  sum_boot_moment_div <- trait_summarise_boot_moments(bootstrapped_trait_moments_div),
-  sum_boot_moment_conv <- trait_summarise_boot_moments(bootstrapped_trait_moments_conv),
+  sum_boot_moment_div = trait_summarise_boot_moments(bootstrapped_trait_moments_div),
+  sum_boot_moment_conv = trait_summarise_boot_moments(bootstrapped_trait_moments_conv),
   
   #summarise bootstrap moments with climate
-  summarised_boot_moments_climate = summarised_boot_moments %>% 
+  summarised_boot_moments_climate = bind_rows(
+    divergence = sum_boot_moment_div,
+    convergence = sum_boot_moment_conv, 
+    .id = "direction") %>% 
     left_join(env, by = c("Site" = "site")) %>% 
     filter(
       (logger == "otc" & TTtreat == "OTC") | (logger != "otc" & TTtreat != "OTC")) %>% 
     select(-logger),#no longer needed,
   
   #traits with climate
-  bootstrapped_trait_moments_climate = bootstrapped_trait_moments_div %>% 
+  bootstrapped_trait_moments_climate =
+    bind_rows(
+      divergence = bootstrapped_trait_moments_div,
+      convergence = bootstrapped_trait_moments_conv, 
+      .id = "direction") %>%
     left_join(env, by = c("Site" = "site")) %>% 
     filter(
       (logger == "otc" & TTtreat == "OTC") | (logger != "otc" & TTtreat != "OTC")) %>% 
