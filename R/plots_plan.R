@@ -50,48 +50,48 @@ plot_plan <- drake_plan(
 )
 
 
-summarised_boot_moments_climate %>% 
-  filter(year == 2012,
-         TTtreat %in% c("control", "local")) %>% 
-  select(Site, trait, Mean, value) %>% 
-  #    pivot_longer(cols = c("Mean", "Var", "Skew", "Kurt"), names_to = "moment", values_to = "moment_value") %>% 
-  ggplot(aes(x = value, y = Mean)) +
-  geom_boxplot(aes(group = value)) +
-  geom_point(aes(colour = TTtreat, shape = Site)) +
-  geom_smooth(method = "lm") +
-  facet_wrap(~trait, scales = "free_y")
-
-summarised_boot_moments_climate %>% 
-  filter(year == 2012,
-         TTtreat %in% c("control", "local")) %>% 
-  ggplot(aes(x = value, y = Var)) +
-  geom_boxplot(aes(group = value)) +
-  geom_point(aes(colour = TTtreat, shape = Site)) +
-  geom_smooth(method = "lm") +
-  facet_wrap(~trait, scales = "free_y")
-
-
-summarised_boot_moments_climate %>% 
-  filter(year == 2012,
-         TTtreat %in% c("control", "local")) %>% 
-  ggplot(aes(x = value, y = Kurt)) +
-  geom_boxplot(aes(group = value)) +
-  geom_point(aes(colour = TTtreat, shape = Site)) +
-  geom_smooth(method = "lm") +
-  facet_wrap(~trait, scales = "free_y")
-
-summarised_boot_moments_climate %>% 
-  filter(year == 2012,
-         TTtreat %in% c("control", "local")) %>% 
-  ggplot(aes(x = value, y = Skew)) +
-  geom_boxplot(aes(group = value)) +
-  geom_point(aes(colour = TTtreat, shape = Site)) +
-  geom_smooth(method = "lm") +
-  facet_wrap(~trait, scales = "free_y")
-
-
-summarised_boot_moments_climate %>% 
-  ggplot(aes(x = year, y = Mean)) +
-  geom_line(aes(colour = Site, group = turfID)) +
-#  geom_smooth(method = "lm") +
-  facet_grid(trait ~ TTtreat, scales = "free_y")
+# summarised_boot_moments_climate %>% 
+#   filter(year == 2012,
+#          TTtreat %in% c("control", "local")) %>% 
+#   select(Site, trait, Mean, value) %>% 
+#   #    pivot_longer(cols = c("Mean", "Var", "Skew", "Kurt"), names_to = "moment", values_to = "moment_value") %>% 
+#   ggplot(aes(x = value, y = Mean)) +
+#   geom_boxplot(aes(group = value)) +
+#   geom_point(aes(colour = TTtreat, shape = Site)) +
+#   geom_smooth(method = "lm") +
+#   facet_wrap(~trait, scales = "free_y")
+# 
+# summarised_boot_moments_climate %>% 
+#   filter(year == 2012,
+#          TTtreat %in% c("control", "local")) %>% 
+#   ggplot(aes(x = value, y = Var)) +
+#   geom_boxplot(aes(group = value)) +
+#   geom_point(aes(colour = TTtreat, shape = Site)) +
+#   geom_smooth(method = "lm") +
+#   facet_wrap(~trait, scales = "free_y")
+# 
+# 
+# summarised_boot_moments_climate %>% 
+#   filter(year == 2012,
+#          TTtreat %in% c("control", "local")) %>% 
+#   ggplot(aes(x = value, y = Kurt)) +
+#   geom_boxplot(aes(group = value)) +
+#   geom_point(aes(colour = TTtreat, shape = Site)) +
+#   geom_smooth(method = "lm") +
+#   facet_wrap(~trait, scales = "free_y")
+# 
+# summarised_boot_moments_climate %>% 
+#   filter(year == 2012,
+#          TTtreat %in% c("control", "local")) %>% 
+#   ggplot(aes(x = value, y = Skew)) +
+#   geom_boxplot(aes(group = value)) +
+#   geom_point(aes(colour = TTtreat, shape = Site)) +
+#   geom_smooth(method = "lm") +
+#   facet_wrap(~trait, scales = "free_y")
+# 
+# 
+# summarised_boot_moments_climate %>% 
+#   ggplot(aes(x = year, y = Mean)) +
+#   geom_line(aes(colour = Site, group = turfID)) +
+# #  geom_smooth(method = "lm") +
+#   facet_grid(trait ~ TTtreat, scales = "free_y")
