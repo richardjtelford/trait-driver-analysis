@@ -11,10 +11,11 @@ plot_plan <- drake_plan(
   trait_coverage = autoplot(imputed_traits_div),
   
   #control means by site
-  control_mean_boxplot = bootstrapped_trait_moments %>% 
+  control_mean_boxplot = bootstrapped_trait_moments_div %>% 
     filter(TTtreat == "control") %>% 
     ggplot(aes(x = Site, y = mean, group = blockID)) + 
     geom_boxplot() +
+    labs(title = "Divergence") + 
     facet_wrap(~trait, scales = "free_y"),
   
 
@@ -40,8 +41,6 @@ plot_plan <- drake_plan(
   moments_by_climate = summarised_boot_moments_climate %>% 
     filter(year == 2012,
            TTtreat %in% c("control", "local")) %>% 
-    select(Site, trait, Mean, value) %>% 
-#    pivot_longer(cols = c("Mean", "Var", "Skew", "Kurt"), names_to = "moment", values_to = "moment_value") %>% 
     ggplot(aes(x = value, y = Mean)) +
     geom_boxplot(aes(group = value)) +
     geom_point(aes(colour = TTtreat, shape = Site)) +
