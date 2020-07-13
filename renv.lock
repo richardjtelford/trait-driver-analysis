@@ -1,6 +1,6 @@
 {
   "R": {
-    "Version": "3.6.1",
+    "Version": "3.6.3",
     "Repositories": [
       {
         "Name": "CRAN",
@@ -338,16 +338,10 @@
     },
     "dplyr": {
       "Package": "dplyr",
-      "Version": "0.8.99.9002",
-      "Source": "GitHub",
-      "Remotes": "r-lib/rlang, r-lib/vctrs",
-      "RemoteType": "github",
-      "RemoteHost": "api.github.com",
-      "RemoteRepo": "dplyr",
-      "RemoteUsername": "tidyverse",
-      "RemoteRef": "master",
-      "RemoteSha": "c7f29366c27a63bbccb711523067fd27dc5340e9",
-      "Hash": "c8776e5133f9ec2de446b938d1c5e156"
+      "Version": "1.0.0",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "4011f62581a34080e44105d4aa05a97f"
     },
     "drake": {
       "Package": "drake",
@@ -958,15 +952,10 @@
     },
     "rlang": {
       "Package": "rlang",
-      "Version": "0.4.5.9000",
-      "Source": "GitHub",
-      "RemoteType": "github",
-      "RemoteHost": "api.github.com",
-      "RemoteRepo": "rlang",
-      "RemoteUsername": "tidyverse",
-      "RemoteRef": "master",
-      "RemoteSha": "a90b04b9d6a17f1aabadaed357784efc22116d2a",
-      "Hash": "c975e5178b0d5a5498f62f6dbbbc3dfd"
+      "Version": "0.4.7",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "c06d2a6887f4b414f8e927afd9ee976a"
     },
     "rmarkdown": {
       "Package": "rmarkdown",
@@ -1054,10 +1043,10 @@
     },
     "stringi": {
       "Package": "stringi",
-      "Version": "1.4.3",
+      "Version": "1.4.6",
       "Source": "Repository",
       "Repository": "CRAN",
-      "Hash": "74a50760af835563fb2c124e66aa134e"
+      "Hash": "e99d8d656980d2dd416a962ae55aec90"
     },
     "stringr": {
       "Package": "stringr",
@@ -1089,10 +1078,10 @@
     },
     "tidyselect": {
       "Package": "tidyselect",
-      "Version": "1.0.0",
+      "Version": "1.1.0",
       "Source": "Repository",
       "Repository": "CRAN",
-      "Hash": "7d4b0f1ab542d8cb7a40c593a4de2f36"
+      "Hash": "6ea435c354e8448819627cf686f66e0a"
     },
     "tidyverse": {
       "Package": "tidyverse",
@@ -1117,15 +1106,15 @@
     },
     "traitstrap": {
       "Package": "traitstrap",
-      "Version": "0.0.0.9003",
+      "Version": "0.0.0.9005",
       "Source": "GitHub",
       "RemoteType": "github",
       "RemoteHost": "api.github.com",
-      "RemoteRepo": "traitstrap",
       "RemoteUsername": "richardjtelford",
+      "RemoteRepo": "traitstrap",
       "RemoteRef": "master",
-      "RemoteSha": "8279874b58c6c412f02eb6c78f4d8eafb2b47249",
-      "Hash": "04dc8e536ec8ad03798568255971d8b6"
+      "RemoteSha": "36efcae91b5515fe4bd888d125fc02fcc15a0c7b",
+      "Hash": "bcda144b176b929dbabf4df4c88e869a"
     },
     "triebeard": {
       "Package": "triebeard",
@@ -1157,15 +1146,10 @@
     },
     "vctrs": {
       "Package": "vctrs",
-      "Version": "0.2.99.9011",
-      "Source": "GitHub",
-      "RemoteType": "github",
-      "RemoteHost": "api.github.com",
-      "RemoteUsername": "r-lib",
-      "RemoteRepo": "vctrs",
-      "RemoteRef": "master",
-      "RemoteSha": "b17f2011d94f02136afd844bb3049aa7481a1886",
-      "Hash": "55c108aebd563c2e1068a7c9e07c599d"
+      "Version": "0.3.1",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "1739235995f08583db4095a28c357207"
     },
     "vegan": {
       "Package": "vegan",
