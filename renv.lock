@@ -924,12 +924,10 @@
     },
     "rgdal": {
       "Package": "rgdal",
-      "Version": "1.2-18",
+      "Version": "1.5-16",
       "Source": "Repository",
       "Repository": "CRAN",
-      "RemoteType": "local",
-      "RemoteUrl": "/home/gbsrt/Documents/DATA/zabinskie/packrat/src/rgdal/rgdal_1.2-18.tar.gz",
-      "Hash": "e9d2f9dedd82c20a3e1032ab217e451a"
+      "Hash": "3f840ce3afbcb78ad2a728558dba2078"
     },
     "rgeos": {
       "Package": "rgeos",
