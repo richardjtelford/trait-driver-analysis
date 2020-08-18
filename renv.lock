@@ -933,10 +933,10 @@
     },
     "rgeos": {
       "Package": "rgeos",
-      "Version": "0.5-2",
+      "Version": "0.5-3",
       "Source": "Repository",
       "Repository": "CRAN",
-      "Hash": "dc2f6aa3dcc81a47fee312acd9afa2b0"
+      "Hash": "4b63e0cfe930613d0b28bb0761e84aad"
     },
     "rjt.misc": {
       "Package": "rjt.misc",
