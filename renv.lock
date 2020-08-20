@@ -488,13 +488,6 @@
       "RemoteSha": "4b73ec10782f9c3611680dee38c0559e9b01b65c",
       "Hash": "7efd151915d0bac98ba2cbc389429b82"
     },
-    "glmulti": {
-      "Package": "glmulti",
-      "Version": "1.0.7.1",
-      "Source": "Repository",
-      "Repository": "CRAN",
-      "Hash": "789be5d8c2b0421da79a21e89eae8656"
-    },
     "glue": {
       "Package": "glue",
       "Version": "1.3.2",
@@ -837,41 +830,6 @@
       "Source": "Repository",
       "Repository": "CRAN",
       "Hash": "22aca7d1181718e927d403a8c2d69d62"
-    },
-    "qdap": {
-      "Package": "qdap",
-      "Version": "2.3.6",
-      "Source": "Repository",
-      "Repository": "CRAN",
-      "Hash": "eabb36ba20f868971a15ef2fbb2b1db5"
-    },
-    "qdapDictionaries": {
-      "Package": "qdapDictionaries",
-      "Version": "1.0.7",
-      "Source": "Repository",
-      "Repository": "CRAN",
-      "Hash": "09b5328822fce8e94ef54eb590e0470e"
-    },
-    "qdapRegex": {
-      "Package": "qdapRegex",
-      "Version": "0.7.2",
-      "Source": "Repository",
-      "Repository": "CRAN",
-      "Hash": "1960074d1432ca46e15e7c1e79368680"
-    },
-    "qdapTools": {
-      "Package": "qdapTools",
-      "Version": "1.3.3",
-      "Source": "Repository",
-      "Repository": "CRAN",
-      "Hash": "194359575febf1ddfa29ac0ea11bf2bc"
-    },
-    "rJava": {
-      "Package": "rJava",
-      "Version": "0.9-6",
-      "Source": "Repository",
-      "Repository": "CRAN",
-      "Hash": "1130caf2567644223d444e99ed1a216a"
     },
     "readr": {
       "Package": "readr",
