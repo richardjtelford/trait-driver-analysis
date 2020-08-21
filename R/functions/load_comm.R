@@ -7,6 +7,14 @@
 ## ---- load_comm
 
 load_comm <- function(con, cover = TRUE) {
+  #import taxon table
+  #make connection to database
+  con <- dbConnect(RSQLite::SQLite(), dbname = "data/transplant.sqlite")
+  #import
+  taxon <- dbReadTable(con, "taxon") %>% 
+    select(speciesName, functionalGroup) %>% 
+    collect()
+  
   ##cover data
   coverQ <-
     "SELECT sites.siteID AS originSiteID, blocks.blockID AS originBlockID, plots.plotID AS originPlotID, turfs.turfID, plots_1.plotID AS destPlotID, blocks_1.blockID AS destBlockID, sites_1.siteID AS destSiteID, turfs.TTtreat, turfCommunity.year, turfCommunity.species, turfCommunity.cover, turfCommunity.flag, taxon.speciesName
