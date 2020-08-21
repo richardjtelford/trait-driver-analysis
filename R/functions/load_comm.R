@@ -30,6 +30,8 @@ load_comm <- function(con, cover = TRUE) {
     originSiteID = factor(originSiteID, levels = c("H", "A", "M", "L")),
     destSiteID = factor(destSiteID, levels = c("H", "A", "M", "L"))
   ) %>% 
+    # remove graminoids
+    filter(!grepl('Agrostis|Fargesia|Carex|Festuca|Juncus|Kobresia|Luzula|Poa', speciesName)) %>% 
     as_tibble()
   
   cover.thin
