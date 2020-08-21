@@ -31,7 +31,9 @@ load_comm <- function(con, cover = TRUE) {
     destSiteID = factor(destSiteID, levels = c("H", "A", "M", "L"))
   ) %>% 
     # remove graminoids
-    filter(!grepl('Agrostis|Fargesia|Carex|Festuca|Juncus|Kobresia|Luzula|Poa', speciesName)) %>% 
+    left_join(taxon, by = "speciesName") %>% 
+    filter(!functionalGroup %in% c("gramineae", "sedge")) %>% 
+    select(-functionalGroup) %>% 
     as_tibble()
   
   cover.thin

@@ -5,6 +5,15 @@
 # transform traits as appropriate
 
 import_plan <- drake_plan(
+  #import taxon table
+  taxon = {
+    #make connection to database
+    con = dbConnect(RSQLite::SQLite(), community_download, create = FALSE)
+    #import
+    taxon = dbReadTable(con, "taxon") %>% 
+      select(speciesName, functionalGroup) %>% 
+      collect()
+  }, 
   
   #import community
   community = {
