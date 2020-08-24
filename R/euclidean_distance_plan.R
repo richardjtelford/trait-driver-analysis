@@ -1,5 +1,4 @@
 ## euclidean distance plan
-library("vegan")
 euclidean_distance_plan <- drake_plan(
   
   #join bootstraped moments
@@ -21,7 +20,7 @@ euclidean_distance_plan <- drake_plan(
     rowid_to_column(),
   
   #select only traits
-  only_traits <- fat_table %>% 
+  only_traits = fat_table %>% 
     ungroup() %>% 
     select(C_percent:Wet_Mass_g),
   
@@ -37,7 +36,7 @@ euclidean_distance_plan <- drake_plan(
     left_join(fat_meta, by = c("col" = "rowid"), suffix = c(".row", ".col")) %>% 
     #sfilter distances within the same block
     filter(blockID.row == blockID.col) %>% # not sure if this step is needed...?
-    mutate(TTtreat.row = factor(TTtreat.row, levels = c("control", "local", "OTC", "warm1", "warm3", "cool1", "cool3"))) %>% # need to change delete local here!!!
+    mutate(TTtreat.row = factor(TTtreat.row, levels = c("control", "OTC", "warm1", "warm3", "cool1", "cool3"))) %>%
     #filter for change trough time (same turf and direction)
     filter(turfID.row == turfID.col,
            direction.row == direction.col)

@@ -20,7 +20,7 @@ plot_plan <- drake_plan(
   
 
   #H1Q2 + 3: Conv/div along gradient and across treatments
-  Site <- c(H = "High Alpine",
+  Site = c(H = "High Alpine",
             A = "Alpine",        
             M = "Middle",
             L = "Lowland"),
