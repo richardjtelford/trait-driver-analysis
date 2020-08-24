@@ -25,11 +25,11 @@ euclidean_distance_plan <- drake_plan(
     select(C_percent:Wet_Mass_g),
   
   #scale, calculate euclidean distance
-  d = dist(scale(only_traits)),
-  D = as.matrix(d),
-  distances = tibble(row = as.vector(row(D)), 
-                      col = as.vector(col(D)), 
-                      dist = as.vector(D)) %>% 
+  dist = dist(scale(only_traits)),
+  dist2 = as.matrix(dist),
+  distances = tibble(row = as.vector(row(dist2)), 
+                      col = as.vector(col(dist2)), 
+                      dist = as.vector(dist2)) %>% 
     filter(row > col) %>% # one half of the matrix
     # join meta data by row and col
     left_join(fat_meta, by = c("row" = "rowid")) %>% 
