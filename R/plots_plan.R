@@ -19,6 +19,18 @@ plot_plan <- drake_plan(
     facet_wrap(~trait, scales = "free_y"),
   
 
+  #H1Q2 + 3: Conv/div along gradient and across treatments
+  Site <- c(H = "High Alpine",
+            A = "Alpine",        
+            M = "Middle",
+            L = "Lowland"),
+  euclidean_distance = distances %>% 
+    ggplot(aes(x = TTtreat.row, y = dist, fill = TTtreat.row)) +
+    geom_boxplot() + 
+    scale_fill_manual(values = c("black", "grey", "orange", "pink", "red", "lightblue", "blue"), name = "") +
+    labs(title = "Distance over time", y = "Eucleading distance over time", x = "") +
+    facet_grid(direction.row ~ Site.row, labeller = labeller(Site.row = Site)) +
+    theme_minimal(),
   
   #space/time R2 relationship
   
