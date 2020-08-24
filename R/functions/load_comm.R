@@ -21,11 +21,11 @@ load_comm <- function(con, cover = TRUE) {
     mutate(
       TTtreat = plyr::mapvalues(TTtreat,
                               from = c("C", "O", "1", "2", "3", "4", "OTC")  ,
-                              to  = c("control", "local", "warm1", "cool1", "warm3", "cool3", "OTC")
+                              to  = c("control", "control", "warm1", "cool1", "warm3", "cool3", "OTC")
     ), 
     TTtreat = factor(
       TTtreat,
-      levels = c("control", "local", "warm1", "cool1", "warm3", "cool3", "OTC")
+      levels = c("control", "warm1", "cool1", "warm3", "cool3", "OTC")
     ),
     originSiteID = factor(originSiteID, levels = c("H", "A", "M", "L")),
     destSiteID = factor(destSiteID, levels = c("H", "A", "M", "L"))
