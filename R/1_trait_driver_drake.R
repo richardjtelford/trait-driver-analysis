@@ -3,6 +3,8 @@
 #load packages
 library("drake")
 library("tidyverse")
+library("broom")
+library("knitr")
 library("rjt.misc")
 library("BIEN", quietly = TRUE)
 library("traitstrap")
