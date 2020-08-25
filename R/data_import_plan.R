@@ -45,7 +45,7 @@ import_plan <- drake_plan(
   
   
   #clean impossible trait values using BIEN
-  trait_outliers = check_BIEN_trait_values(traits0),
+  #trait_outliers = check_BIEN_trait_values(traits0), # finds 5000 - not useful
   
   #calculate derived traits
   #transform
