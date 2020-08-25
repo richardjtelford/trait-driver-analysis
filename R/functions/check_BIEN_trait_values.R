@@ -6,8 +6,7 @@ check_BIEN_trait_values <- function(traits){
   genus_list <- traits0 %>% 
     mutate(Genus = word(Taxon, 1)) %>% 
     distinct(Genus) %>% 
-    as.list() %>% 
-    unlist()
+    pull()
   
   #downloads relevant traits from BIEN using the genus_list
   bien_traits <- BIEN_trait_traitbygenus(genus = genus_list, 
@@ -60,6 +59,7 @@ check_BIEN_trait_values <- function(traits){
   
   trait_outliers <- traits0 %>% 
     left_join(bien_traits, by = c("trait" = "trait_name")) %>% 
-    filter(value > max_value)
+    filter(value > max_value,
+           value < min_value)
   
 }
