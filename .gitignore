@@ -37,5 +37,9 @@ data/
 # renv library
 renv/library/
 
+#old code
+bootstrapping/
+trait_distributions/
+
 # Mac
 *.DS_Store
