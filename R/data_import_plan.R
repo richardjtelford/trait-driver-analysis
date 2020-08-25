@@ -30,8 +30,9 @@ import_plan <- drake_plan(
   traits_chemical = traits_chemical0 %>% 
     select(-Date, -n) %>%
     filter() %>% 
+    mutate(NP_ratio = N_percent / P_percent) %>% 
     pivot_longer(
-      cols = c("P_percent", "C_percent", "N_percent", "CN_ratio", "dN15_permil", "dC13_permil"),
+      cols = c("P_percent", "C_percent", "N_percent", "CN_ratio", "NP_ratio", "dN15_permil", "dC13_permil"),
       names_to = "trait",
       values_to = "value"
     ),
