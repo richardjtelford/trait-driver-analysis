@@ -9,7 +9,7 @@ bootstrap_moment_plan <- drake_plan(
     trait_impute(traits = traits, 
                  scale_hierarchy = c("Site", "blockID"),
                  taxon_col = "Taxon", 
-                 value_col = "value", 
+                 value_col = "value_trans", 
                  abundance_col = "cover", 
                  other_col = c("TTtreat", "year", "turfID")),
   
@@ -20,7 +20,7 @@ bootstrap_moment_plan <- drake_plan(
     trait_impute(traits = traits, 
                  scale_hierarchy = c("Site", "blockID"),
                  taxon_col = "Taxon",
-                 value_col = "value",
+                 value_col = "value_trans",
                  abundance_col = "cover",
                  other_col = c("year", "TTtreat", "turfID")),
   
