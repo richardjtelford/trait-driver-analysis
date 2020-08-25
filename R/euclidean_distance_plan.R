@@ -11,8 +11,8 @@ euclidean_distance_plan <- drake_plan(
     pivot_wider(names_from = trait, values_from = Mean) %>% 
     filter(!is.na(C_percent),
            year %in% c(2012, 2016),
-           !c(direction == "convergence" & Site == "L"),
-           !c(direction == "convergence" & TTtreat == "OTC")),
+           !(direction == "convergence" & Site == "L"),
+           !(direction == "convergence" & TTtreat == "OTC")),
   
   #separate meta data
   fat_meta = fat_table %>% 
@@ -25,17 +25,14 @@ euclidean_distance_plan <- drake_plan(
     select(C_percent:Wet_Mass_g),
   
   #scale, calculate euclidean distance
-  dist = dist(scale(only_traits)),
-  dist2 = as.matrix(dist),
-  distances = tibble(row = as.vector(row(dist2)), 
-                      col = as.vector(col(dist2)), 
-                      dist = as.vector(dist2)) %>% 
+  dist = as.matrix(dist(scale(only_traits))),
+  distances = tibble(row = as.vector(row(dist)), 
+                      col = as.vector(col(dist)), 
+                      dist = as.vector(dist)) %>% 
     filter(row > col) %>% # one half of the matrix
     # join meta data by row and col
     left_join(fat_meta, by = c("row" = "rowid")) %>% 
     left_join(fat_meta, by = c("col" = "rowid"), suffix = c(".row", ".col")) %>% 
-    #sfilter distances within the same block
-    filter(blockID.row == blockID.col) %>% # not sure if this step is needed...?
     mutate(TTtreat.row = factor(TTtreat.row, levels = c("control", "OTC", "warm1", "warm3", "cool1", "cool3"))) %>%
     #filter for change trough time (same turf and direction)
     filter(turfID.row == turfID.col,
