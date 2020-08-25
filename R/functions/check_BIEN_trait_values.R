@@ -21,6 +21,8 @@ check_BIEN_trait_values <- function(traits){
                                                    "leaf carbon content per leaf dry mass")) %>% 
     #convert units 
     select(scrubbed_genus, trait_name, trait_value, unit) %>% 
+    #remove trait_values == "*" to prevent warning message on conversion
+    filter(trait_value != "*") %>% 
     #fix units (mass: not needed; area: mm2 to cm2; SLA: m2/kg to cm2/g; LDMC: mg g-1 to g/g; nitrogen: mg.g-1 to percent)
     mutate(trait_value = as.numeric(trait_value),
            trait_value = case_when(trait_name == "leaf fresh mass" ~ trait_value * 1,
@@ -59,7 +61,7 @@ check_BIEN_trait_values <- function(traits){
   
   trait_outliers <- traits0 %>% 
     left_join(bien_traits, by = c("trait" = "trait_name")) %>% 
-    filter(value > max_value,
-           value < min_value)
+    filter(!between(value, min_value, max_value))
   
+  return(trait_outliers)
 }
