@@ -44,7 +44,9 @@ import_plan <- drake_plan(
     mutate(Site = factor(Site, levels = levels(community$originSiteID))), 
   
   
-  #TODO clean impossible trait values using BIEN
+  #clean impossible trait values using BIEN
+  trait_outliers = check_BIEN_trait_values(traits0),
+  
   #calculate derived traits
   #transform
   traits = traits0 %>% 

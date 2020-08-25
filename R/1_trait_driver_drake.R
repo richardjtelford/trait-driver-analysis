@@ -23,6 +23,7 @@ source("R/plots_plan.R")
 
 #source extra function
 source("R/functions/load_comm.R")
+source("R/functions/check_BIEN_trait_values.R")
 
 #drake plan
 analysis_plan <- drake_plan(
