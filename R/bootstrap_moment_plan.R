@@ -8,6 +8,7 @@ bootstrap_moment_plan <- drake_plan(
     select(Site = originSiteID, blockID = originBlockID, turfID, year, TTtreat, Taxon = speciesName, cover) %>% 
     trait_impute(traits = traits, 
                  scale_hierarchy = c("Site", "blockID"),
+                 trait_col = "trait_trans",
                  taxon_col = "Taxon", 
                  value_col = "value_trans", 
                  abundance_col = "cover", 
@@ -19,6 +20,7 @@ bootstrap_moment_plan <- drake_plan(
     select(Site = destSiteID, blockID = destBlockID, turfID, year, TTtreat, Taxon = speciesName, cover) %>% 
     trait_impute(traits = traits, 
                  scale_hierarchy = c("Site", "blockID"),
+                 trait_col = "trait_trans",
                  taxon_col = "Taxon",
                  value_col = "value_trans",
                  abundance_col = "cover",
