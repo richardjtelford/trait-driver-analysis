@@ -60,7 +60,7 @@ check_BIEN_trait_values <- function(traits){
   
   
   trait_outliers <- traits0 %>% 
-    left_join(bien_traits, by = c("trait" = "trait_name")) %>% 
+    inner_join(bien_traits, by = c("trait" = "trait_name")) %>% 
     filter(!between(value, min_value, max_value))
   
   return(trait_outliers)
