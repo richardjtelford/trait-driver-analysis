@@ -8,6 +8,9 @@ library("BIEN", quietly = TRUE)
 library("traitstrap")
 library("dataDownloader")
 library("DBI")
+library("vegan")
+library("ggvegan")
+library("patchwork")
 
 # more required packages
 requireNamespace("visNetwork")
@@ -24,6 +27,7 @@ source("R/plots_plan.R")
 #source extra function
 source("R/functions/load_comm.R")
 source("R/functions/check_BIEN_trait_values.R")
+source("R/functions/trait_ordination_fun.R")
 
 #drake plan
 analysis_plan <- drake_plan(

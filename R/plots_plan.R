@@ -10,6 +10,14 @@ plot_plan <- drake_plan(
   #trait coverage
   trait_coverage = autoplot(imputed_traits_div),
   
+  #trait ordinations
+  treat_colours = c("grey50", "pink", "lightblue", "purple"),
+  AH = twoSites(data = sum_boot_moment_conv, low = "A", high = "H"),
+  MA = twoSites(data = sum_boot_moment_conv, low = "M", high = "A"),
+  LM = twoSites(data = sum_boot_moment_conv, low = "L", high = "M"),
+  LH = twoSites(data = sum_boot_moment_conv, low = "L", high = "H", treat_colours = c("grey50", "red", "blue")),
+  trait_ordination_plot = (AH + MA) / (LM + LH),
+  
   #control means by site
   control_mean_boxplot = bootstrapped_trait_moments_div %>% 
     filter(TTtreat == "control") %>% 
