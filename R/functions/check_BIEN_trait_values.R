@@ -20,7 +20,7 @@ check_BIEN_trait_values <- function(traits){
                                                    "leaf phosphorus content per leaf dry mass", 
                                                    "leaf carbon content per leaf dry mass")) %>% 
     #convert units 
-    select(scrubbed_genus, trait_name, trait_value, unit) %>% 
+    select(genus = scrubbed_genus, trait_name, trait_value, unit) %>% 
     #remove trait_values == "*" to prevent warning message on conversion
     filter(trait_value != "*") %>% 
     #fix units (mass: not needed; area: mm2 to cm2; SLA: m2/kg to cm2/g; LDMC: mg g-1 to g/g; nitrogen: mg.g-1 to percent)
@@ -45,7 +45,7 @@ check_BIEN_trait_values <- function(traits){
                                 trait_name == "leaf phosphorus content per leaf dry mass" ~ "percent",
                                 trait_name == "leaf carbon content per leaf dry mass" ~ "percent")) %>% 
     #calc min and max (not sure if min is relevant)
-    group_by(trait_name, unit, new_unit) %>% 
+    group_by(genus, trait_name, unit, new_unit) %>% 
     summarise(min_value = min(trait_value, na.rm = TRUE),
               max_value = max(trait_value, na.rm = TRUE)) %>% 
     mutate(trait_name = recode(trait_name, "leaf fresh mass" = "Wet_Mass_g",
@@ -60,8 +60,10 @@ check_BIEN_trait_values <- function(traits){
   
   
   trait_outliers <- traits0 %>% 
-    inner_join(bien_traits, by = c("trait" = "trait_name")) %>% 
-    filter(!between(value, min_value, max_value))
+    mutate(Genus = word(Taxon, 1)) %>% 
+    inner_join(bien_traits, by = c("Genus" = "genus", "trait" = "trait_name")) %>% 
+    #filter(!between(value, min_value, max_value)) %>% 
+    filter(value > max_value | value < min_value)
   
   return(trait_outliers)
 }
