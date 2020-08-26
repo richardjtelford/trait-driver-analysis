@@ -4,7 +4,7 @@ twoSites <- function(data, low, high, treat_colours){
   cwm_fat <- data %>% 
     ungroup() %>% 
     select(Site:Mean, -n) %>% 
-    spread(key = trait, value = Mean) %>% 
+    spread(key = trait_trans, value = Mean) %>% 
     filter(!is.na(C_percent))
   
   #chose extreme or short distance

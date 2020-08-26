@@ -7,8 +7,8 @@ euclidean_distance_plan <- drake_plan(
     divergence = sum_boot_moment_div, 
     .id = "direction") %>%
     ungroup() %>% 
-    select(direction, Site, blockID, trait, TTtreat, year, turfID, Mean) %>% 
-    pivot_wider(names_from = trait, values_from = Mean) %>% 
+    select(direction, Site, blockID, trait_trans, TTtreat, year, turfID, Mean) %>% 
+    pivot_wider(names_from = trait_trans, values_from = Mean) %>% 
     filter(!is.na(C_percent),
            year %in% c(2012, 2016),
            !(direction == "convergence" & Site == "L"),
@@ -22,7 +22,7 @@ euclidean_distance_plan <- drake_plan(
   #select only traits
   only_traits = fat_table %>% 
     ungroup() %>% 
-    select(C_percent:Wet_Mass_g),
+    select(C_percent:Wet_Mass_g_log),
   
   #scale, calculate euclidean distance
   dist = as.matrix(dist(scale(only_traits))),
