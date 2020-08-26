@@ -5,11 +5,13 @@ library("drake")
 library("tidyverse")
 library("broom")
 library("rjt.misc")
-library("BIEN", quietly = TRUE)
 library("traitstrap")
 library("dataDownloader")
 library("DBI")
 library("nlme")
+library("vegan")
+library("ggvegan")
+library("patchwork")
 
 # more required packages
 requireNamespace("visNetwork")
@@ -21,10 +23,13 @@ pkgconfig::set_config("drake::strings_in_dots" = "literals")
 source("R/download_plan.R")
 source("R/data_import_plan.R")
 source("R/bootstrap_moment_plan.R")
+source("R/euclidean_distance_plan.R")
 source("R/plots_plan.R")
 
 #source extra function
 source("R/functions/load_comm.R")
+source("R/functions/trait_ordination_fun.R")
+
 
 #drake plan
 analysis_plan <- drake_plan(
@@ -35,6 +40,7 @@ analysis_plan <- drake_plan(
 trait_plan <- bind_plans(download_plan, 
                         import_plan, 
                         bootstrap_moment_plan,
+                        euclidean_distance_plan,
                         analysis_plan, 
                         plot_plan)
 #quick plot

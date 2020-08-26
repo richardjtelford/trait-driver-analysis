@@ -10,6 +10,14 @@ plot_plan <- drake_plan(
   #trait coverage
   trait_coverage = autoplot(imputed_traits_div),
   
+  #trait ordinations
+  treat_colours = c("grey50", "pink", "lightblue", "purple"),
+  AH = twoSites(data = sum_boot_moment_conv, low = "A", high = "H"),
+  MA = twoSites(data = sum_boot_moment_conv, low = "M", high = "A"),
+  LM = twoSites(data = sum_boot_moment_conv, low = "L", high = "M"),
+  LH = twoSites(data = sum_boot_moment_conv, low = "L", high = "H", treat_colours = c("grey50", "red", "blue")),
+  trait_ordination_plot = (AH + MA) / (LM + LH),
+  
   #control means by site
   control_mean_boxplot = bootstrapped_trait_moments_div %>% 
     filter(TTtreat == "control") %>% 
@@ -19,6 +27,18 @@ plot_plan <- drake_plan(
     facet_wrap(~trait, scales = "free_y"),
   
 
+  #H1Q2 + 3: Conv/div along gradient and across treatments
+  Site = c(H = "High Alpine",
+            A = "Alpine",        
+            M = "Middle",
+            L = "Lowland"),
+  euclidean_distance = distances %>% 
+    ggplot(aes(x = TTtreat.row, y = dist, fill = TTtreat.row)) +
+    geom_boxplot() + 
+    scale_fill_manual(values = c("grey", "orange", "pink", "red", "lightblue", "blue"), name = "") +
+    labs(title = "Distance over time", y = "Eucleading distance over time", x = "") +
+    facet_grid(direction.row ~ Site.row, labeller = labeller(Site.row = Site)) +
+    theme_minimal(),
   
   #space/time R2 relationship
   

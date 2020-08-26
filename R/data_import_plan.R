@@ -30,8 +30,9 @@ import_plan <- drake_plan(
   traits_chemical = traits_chemical0 %>% 
     select(-Date, -n) %>%
     filter() %>% 
+    mutate(NP_ratio = N_percent / P_percent) %>% 
     pivot_longer(
-      cols = c("P_percent", "C_percent", "N_percent", "CN_ratio", "dN15_permil", "dC13_permil"),
+      cols = c("P_percent", "C_percent", "N_percent", "CN_ratio", "NP_ratio", "dN15_permil", "dC13_permil"),
       names_to = "trait",
       values_to = "value"
     ),
@@ -43,7 +44,9 @@ import_plan <- drake_plan(
     mutate(Site = factor(Site, levels = levels(community$originSiteID))), 
   
   
-  #TODO clean impossible trait values using BIEN
+  #clean impossible trait values using BIEN
+  #trait_outliers = check_BIEN_trait_values(traits0), # finds 5000 - not useful
+  
   #calculate derived traits
   #transform
   traits = traits0 %>% 
