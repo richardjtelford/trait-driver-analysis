@@ -4,12 +4,12 @@
 library("drake")
 library("tidyverse")
 library("broom")
-library("knitr")
 library("rjt.misc")
 library("BIEN", quietly = TRUE)
 library("traitstrap")
 library("dataDownloader")
 library("DBI")
+library("nlme")
 
 # more required packages
 requireNamespace("visNetwork")

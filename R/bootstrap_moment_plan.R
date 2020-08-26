@@ -53,24 +53,24 @@ bootstrap_moment_plan <- drake_plan(
       (logger == "otc" & TTtreat == "OTC") | (logger != "otc" & TTtreat != "OTC")) %>% 
     select(-logger),#no longer needed
   
-  
   #H1Q1: moments by climate regressions (Table 1)
-  trait_climate_regression= summarised_boot_moments_climate %>% 
+  trait_climate_regression = summarised_boot_moments_climate %>% 
     filter(year == 2012,
            TTtreat %in% c("control"),
            direction == "convergence") %>% 
     select(Site:Mean, variable, value, -n) %>% 
-    nest(data = -c(trait)) %>% 
-    mutate(mod = map(data, ~lm(Mean ~ value, .x)), result = map(mod, tidy)) %>% 
+    nest(data = -c(trait_trans)) %>% 
+    # mutate(mod = map(data, ~lme(Mean ~ value, random = ~1|Site, data = .x)),
+    #        result = map(mod, tidy, "fixed")) %>% 
+    mutate(mod = map(data, ~lm(Mean ~ value + Site, data = .x)),
+           result = map(mod, tidy)) %>% 
     unnest(result) %>% 
-    filter(term == "value") %>% 
-    mutate(std.error = round(std.error, 3),
-           significance = case_when(p.value < 0.0001 ~ "***",
-                                    p.value < 0.001 ~ "**",
-                                    p.value <= 0.05 ~ "*",
-                                    TRUE ~ " "),
-           estimate = paste(round(estimate, 2), significance)) %>% 
-    select(trait, estimate, std.error, p.value) %>% 
-    kable()
+    filter(term == "value",
+           p.value < 0.05)
   
 )
+
+
+
+fit <- lme(Mean ~ value, random = ~1|Site, data = summarised_boot_moments_climate)
+summary(fit)
