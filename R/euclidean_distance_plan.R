@@ -8,7 +8,7 @@ euclidean_distance_plan <- drake_plan(
     .id = "direction") %>%
     ungroup() %>% 
     select(direction, Site, blockID, trait_trans, TTtreat, year, turfID, Mean) %>% 
-    pivot_wider(names_from = trait_trans, values_from = Mean) %>% 
+    pivot_wider(names_from = "trait_trans", values_from = "Mean") %>% 
     filter(!is.na(C_percent),
            year %in% c(2012, 2016),
            !(direction == "convergence" & Site == "L"),
