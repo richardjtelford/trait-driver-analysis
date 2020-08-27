@@ -13,9 +13,6 @@ library("vegan")
 library("ggvegan")
 library("patchwork")
 
-# more required packages
-requireNamespace("visNetwork")
-
 #drake configuration
 pkgconfig::set_config("drake::strings_in_dots" = "literals")
 
