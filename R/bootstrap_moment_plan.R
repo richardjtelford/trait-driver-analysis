@@ -74,5 +74,5 @@ bootstrap_moment_plan <- drake_plan(
 
 
 
-fit <- lme(Mean ~ value, random = ~1|Site, data = summarised_boot_moments_climate)
-summary(fit)
+#fit <- lme(Mean ~ value, random = ~1|Site, data = summarised_boot_moments_climate)
+#summary(fit)
