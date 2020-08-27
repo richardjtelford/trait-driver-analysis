@@ -53,6 +53,26 @@ bootstrap_moment_plan <- drake_plan(
     left_join(env, by = c("Site" = "site")) %>% 
     filter(
       (logger == "otc" & TTtreat == "OTC") | (logger != "otc" & TTtreat != "OTC")) %>% 
-    select(-logger)#no longer needed
+    select(-logger),#no longer needed
+  
+  #H1Q1: moments by climate regressions (Table 1)
+  trait_climate_regression = summarised_boot_moments_climate %>% 
+    filter(year == 2012,
+           TTtreat %in% c("control"),
+           direction == "convergence") %>% 
+    select(Site:Mean, variable, value, -n) %>% 
+    nest(data = -c(trait_trans)) %>% 
+    # mutate(mod = map(data, ~lme(Mean ~ value, random = ~1|Site, data = .x)),
+    #        result = map(mod, tidy, "fixed")) %>% 
+    mutate(mod = map(data, ~lm(Mean ~ value + Site, data = .x)),
+           result = map(mod, tidy)) %>% 
+    unnest(result) %>% 
+    filter(term == "value",
+           p.value < 0.05)
   
 )
+
+
+
+fit <- lme(Mean ~ value, random = ~1|Site, data = summarised_boot_moments_climate)
+summary(fit)

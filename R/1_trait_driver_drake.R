@@ -3,10 +3,12 @@
 #load packages
 library("drake")
 library("tidyverse")
+library("broom")
 library("rjt.misc")
 library("traitstrap")
 library("dataDownloader")
 library("DBI")
+library("nlme")
 library("vegan")
 library("ggvegan")
 library("patchwork")

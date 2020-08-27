@@ -60,12 +60,12 @@ plot_plan <- drake_plan(
   #moments by climate in original plots
   moments_by_climate = summarised_boot_moments_climate %>% 
     filter(year == 2012,
-           TTtreat %in% c("control", "local")) %>% 
+           TTtreat %in% c("control")) %>% 
     ggplot(aes(x = value, y = Mean)) +
     geom_boxplot(aes(group = value)) +
     geom_point(aes(colour = TTtreat, shape = Site)) +
     geom_smooth(method = "lm") +
-    facet_wrap(~trait, scales = "free_y")
+    facet_wrap(~trait_trans, scales = "free_y")
 )
 
 
