@@ -24,7 +24,7 @@ plot_plan <- drake_plan(
     ggplot(aes(x = Site, y = mean, group = blockID)) + 
     geom_boxplot() +
     labs(title = "Divergence") + 
-    facet_wrap(~trait, scales = "free_y"),
+    facet_wrap(~trait_trans, scales = "free_y"),
   
 
   #H1Q2 + 3: Conv/div along gradient and across treatments
@@ -51,11 +51,11 @@ plot_plan <- drake_plan(
   
   trait_mean_by_time_plot = bootstrapped_trait_moments_div %>% 
     filter(!TTtreat %in% c("control", "local", "OTC")) %>%
-    group_by(year, turfID, TTtreat, trait, Site) %>% 
+    group_by(year, turfID, TTtreat, trait_trans, Site) %>% 
     summarise(mean = mean(mean)) %>% 
     ggplot(aes(x = year, y = mean, colour = TTtreat, group = turfID)) +
     geom_line() +
-    facet_grid(trait~Site, scales = "free_y"),
+    facet_grid(trait_trans~Site, scales = "free_y"),
   
   #moments by climate in original plots
   moments_by_climate = summarised_boot_moments_climate %>% 
