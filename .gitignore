@@ -33,6 +33,7 @@ data/
 *.html
 *.pdf
 *.jpeg
+*.md
 
 # renv library
 renv/library/

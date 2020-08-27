@@ -1,0 +1,30 @@
+---
+title: "Untitled"
+author: "Richard J. Telford"
+date: "8/27/2020"
+output: pdf_document
+classoption: a4paper
+bibliography: Rmd/TDT2.bib
+csl: Rmd/elsevier-harvard_rjt.csl
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Methods
+
+### Software
+
+All analyses were done in R v. `r getRversion()` [@R] and used
+traitstrap v. `r packageVersion("traitstrap")` [@traitstrap] to impute traits,
+e1071 v. `r packageVersion("e1071")` [@e1071] to calculate moments,
+and tidyverse v. `r packageVersion("tidyverse")` [@tidyverse].
+Packages drake v. `r packageVersion("drake")` [@drake], 
+rmarkdown `r packageVersion("rmarkdown")` [@rmarkdown1] and
+renv v. `r packageVersion("renv")` [@renv] were used to ensure reproducibility.
+Code to reproduce all the analyses is archived at [https://github.com/richardjtelford/trait-driver-analysis](https://github.com/richardjtelford/trait-driver-analysis).
+
+## Results
+
+## References
