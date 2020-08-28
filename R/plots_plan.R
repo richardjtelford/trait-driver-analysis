@@ -26,6 +26,16 @@ plot_plan <- drake_plan(
     labs(title = "Divergence") + 
     facet_wrap(~trait_trans, scales = "free_y"),
   
+  #H1Q1: gradient predicts treatment effect
+  gradient_treatment_plot = treatment_effect %>% 
+    left_join(trait_climate_regression %>% filter(term == "slope"), by = "trait_trans", suffix = c(".treatment", ".gradient")) %>% 
+    mutate(term.treatment = factor(term.treatment, levels = c("warm3", "warm1", "OTC", "cool1", "cool3"))) %>% 
+    ggplot(aes(x = estimate.gradient, y = estimate.treatment, colour = trait_trans)) +
+    geom_point() +
+    geom_abline(slope = 1, intercept = 0, colour = "grey", linetype = "dashed") +
+    #scale_colour_manual(values = c("lightblue", "blue", "orange", "pink", "red"), name = "") +
+    facet_grid(direction ~ term.treatment, scales = "free_y") +
+    theme_bw(),
 
   #H1Q2 + 3: Conv/div along gradient and across treatments
   Site = c(H = "High Alpine",
