@@ -21,6 +21,7 @@ source("R/download_plan.R")
 source("R/data_import_plan.R")
 source("R/bootstrap_moment_plan.R")
 source("R/euclidean_distance_plan.R")
+source("R/analysis_plan.R")
 source("R/plots_plan.R")
 
 #source extra function
