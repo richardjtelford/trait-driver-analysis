@@ -55,9 +55,9 @@ bootstrap_moment_plan <- drake_plan(
   
   
   #effect of experiment over time
-  treatment_time_effect <- effect_size %>% 
+  treatment_time_effect = effect_size %>% 
     nest(data = -c(direction, trait_trans)) %>% 
-    mutate(mod = map(data, ~lme(mean ~ TTtreat*year, random = ~1|Site, data = .x)),
+    mutate(mod = map(data, ~lme(mean ~ year*TTtreat, random = ~1|Site, data = .x)),
            result = map(mod, tidy, "fixed")) %>% 
     unnest(result)
 )
