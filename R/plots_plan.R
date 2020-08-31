@@ -37,7 +37,7 @@ plot_plan <- drake_plan(
     facet_grid(direction ~ term.treatment, scales = "free_y") +
     theme_bw(),
 
-  #H1Q2 + 3: Conv/div along gradient and across treatments
+  #H1Q2 + 3: Conv/div along gradient and across treatments (multivariate)
   Site = c(H = "High Alpine",
             A = "Alpine",        
             M = "Middle",
@@ -49,6 +49,21 @@ plot_plan <- drake_plan(
     labs(title = "Distance over time", y = "Eucleading distance over time", x = "") +
     facet_grid(direction.row ~ Site.row, labeller = labeller(Site.row = Site)) +
     theme_minimal(),
+  
+  #H1Q2+3: Conv/div (univariate)
+  conv_div_plot = effect_size %>% 
+    filter(year %in% c(2012, 2016)) %>% 
+    group_by(direction, TTtreat, year, trait_trans) %>% 
+    summarise(mean = mean(mean)) %>% 
+    ggplot(aes(x = year, y = mean, colour = TTtreat)) +
+    geom_line() +
+    scale_colour_manual(values = c("lightblue", "blue", "orange", "pink", "red"), name = "") +
+    geom_hline(yintercept = 0, colour = "grey", linetype = "dashed") +
+    facet_grid(trait_trans ~ direction, scales = "free_y") +
+    theme_bw(),
+  
+  treatment_time_effect %>% 
+    
   
   #space/time R2 relationship
   
