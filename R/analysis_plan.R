@@ -1,6 +1,6 @@
 #data analysis plan
 
-bootstrap_moment_plan <- drake_plan(
+analysis_plan <- drake_plan(
   #calculate effect size (control - treatment per block)
   effect_size = summarised_boot_moments_climate %>% 
     ungroup() %>% 
@@ -33,6 +33,7 @@ bootstrap_moment_plan <- drake_plan(
     unnest(result) %>% 
     mutate(term = plyr::mapvalues(term, from = c("(Intercept)", "value"),
                                   to = c("intercept", "slope"))),
+  
   
   #effect of experiments across all elevations (only 2016)
   treatment_effect = effect_size %>%

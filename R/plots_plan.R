@@ -38,7 +38,7 @@ plot_plan <- drake_plan(
     theme_bw(),
 
   #H1Q2 + 3: Conv/div along gradient and across treatments (multivariate)
-  Site = c(H = "High Alpine",
+  Site_order = c(H = "High Alpine",
             A = "Alpine",        
             M = "Middle",
             L = "Lowland"),
@@ -47,7 +47,7 @@ plot_plan <- drake_plan(
     geom_boxplot() + 
     scale_fill_manual(values = c("grey", "orange", "pink", "red", "lightblue", "blue"), name = "") +
     labs(title = "Distance over time", y = "Eucleading distance over time", x = "") +
-    facet_grid(direction.row ~ Site.row, labeller = labeller(Site.row = Site)) +
+    facet_grid(direction.row ~ Site.row, labeller = labeller(Site.row = Site_order)) +
     theme_minimal(),
   
   #H1Q2+3: Conv/div (univariate)
@@ -62,7 +62,7 @@ plot_plan <- drake_plan(
     facet_grid(trait_trans ~ direction, scales = "free_y") +
     theme_bw(),
   
-  treatment_time_effect %>% 
+  #treatment_time_effect %>% 
     
   
   #space/time R2 relationship
