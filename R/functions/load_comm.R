@@ -7,8 +7,6 @@
 ## ---- load_comm
 
 load_comm <- function(con, cover = TRUE) {
-  #make connection to database
-  con <- dbConnect(RSQLite::SQLite(), dbname = "data/transplant.sqlite")
   #import taxon table
   taxon <- dbReadTable(con, "taxon") %>% 
     select(speciesName, functionalGroup) %>% 
