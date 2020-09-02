@@ -62,7 +62,7 @@ plot_plan <- drake_plan(
     facet_grid(trait_trans ~ direction, scales = "free_y") +
     theme_bw(),
   
-  treatment_time_effect %>% 
+  #treatment_time_effect %>% 
     
   
   #space/time R2 relationship
