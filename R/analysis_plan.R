@@ -28,8 +28,8 @@ analysis_plan <- drake_plan(
            direction == "convergence") %>% 
     select(Site:Mean, variable, value, -n) %>% 
     nest(data = -c(trait_trans)) %>% 
-    mutate(mod = map(data, ~lme(Mean ~ value, random = ~1|Site, data = .x)),
-           result = map(mod, tidy, "fixed")) %>%
+    mutate(mod = map(data, ~lm(Mean ~ value, data = .x)),
+           result = map(mod, tidy)) %>%
     unnest(result) %>% 
     mutate(term = plyr::mapvalues(term, from = c("(Intercept)", "value"),
                                   to = c("intercept", "slope"))),

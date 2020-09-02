@@ -85,12 +85,22 @@ plot_plan <- drake_plan(
   #moments by climate in original plots
   moments_by_climate = summarised_boot_moments_climate %>% 
     filter(year == 2012,
-           TTtreat %in% c("control")) %>% 
-    ggplot(aes(x = value, y = Mean)) +
-    geom_boxplot(aes(group = value)) +
-    geom_point(aes(colour = TTtreat, shape = Site)) +
+           TTtreat %in% c("control"),
+           direction == "divergence") %>% 
+    ungroup() %>% 
+    left_join(trait_climate_regression %>% 
+                filter(term == "slope"), 
+              by = "trait_trans") %>% 
+    select(Site:Mean, -n, term, estimate, p.value, value) %>% 
+    mutate(signi = if_else(p.value < 0.05, "significant", "non-signigicant")) %>% 
+    ggplot(aes(x = value, y = Mean, linetype = signi, colour = signi)) +
+    #geom_boxplot(aes(group = value)) +
+    geom_point(aes(shape = Site), colour = "grey") +
     geom_smooth(method = "lm") +
-    facet_wrap(~trait_trans, scales = "free_y")
+    scale_linetype_manual(name = "", values = c("dashed", "solid")) +
+    scale_colour_manual(name = "", values = c("grey50", "red")) +
+    facet_wrap(~trait_trans, scales = "free_y") +
+    theme_bw()
 )
 
 
