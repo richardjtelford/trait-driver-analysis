@@ -30,10 +30,6 @@ source("R/functions/trait_ordination_fun.R")
 
 
 #drake plan
-analysis_plan <- drake_plan(
-  
-)
-
 # manuscript plan
 manuscript_plan <- drake_plan(
   #add extra packages to bibliography
