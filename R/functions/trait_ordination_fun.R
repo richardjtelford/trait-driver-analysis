@@ -3,8 +3,8 @@ twoSites <- function(data, low, high, treat_colours){
   #make fat table
   cwm_fat <- data %>% 
     ungroup() %>% 
-    select(Site:Mean, -n) %>% 
-    pivot_wider(names_from = "trait_trans", values_from = "Mean") %>% 
+    select(Site:mean, -n) %>% 
+    pivot_wider(names_from = "trait_trans", values_from = "mean") %>% 
     filter(!is.na(C_percent))
   
   #chose extreme or short distance
@@ -16,7 +16,7 @@ twoSites <- function(data, low, high, treat_colours){
       filter(Site %in% c(low, high), !TTtreat %in% c("warm3", "cool3"))
   }
   
-  high_pca <-  cwm_sites %>% 
+  high_pca <- cwm_sites %>% 
     select(-(Site:turfID)) %>% rda(scale = TRUE)
   
   high_sites <- bind_cols(
