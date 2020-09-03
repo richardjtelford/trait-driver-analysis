@@ -105,6 +105,7 @@ plot_plan <- drake_plan(
     geom_smooth(method = "lm") +
     scale_linetype_manual(name = "", values = c("dashed", "solid")) +
     scale_colour_manual(name = "", values = c("grey50", "red")) +
+    labs(x = "", y = "Mean trait value") +
     facet_wrap(~trait_trans, scales = "free_y") +
     theme_minimal()
 )
