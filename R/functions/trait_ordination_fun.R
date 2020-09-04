@@ -5,7 +5,8 @@ twoSites <- function(data, low, high, treat_colours){
     ungroup() %>% 
     select(Site:mean, -n) %>% 
     pivot_wider(names_from = "trait_trans", values_from = "mean") %>% 
-    filter(!is.na(C_percent))
+    filter(!is.na(C_percent),
+           !is.na(LDMC))
   
   #chose extreme or short distance
   if(low == "L" & high == "H"){

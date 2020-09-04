@@ -4,9 +4,9 @@ analysis_plan <- drake_plan(
   #calculate effect size (control - treatment per block)
   effect_size = summarised_boot_moments_climate %>% 
     ungroup() %>% 
-    select(-global, -n, -turfID, -c(CIlow.mean:CIhigh.Kurt)) %>%
+    select(-global, -n, -turfID, -c(ci_low_mean:ci_high_Kurt)) %>%
     group_by(direction, year, trait_trans, TTtreat, Site, blockID) %>% 
-    summarise(mean = mean(Mean, na.rm = TRUE)) %>% 
+    summarise(mean = mean(mean, na.rm = TRUE)) %>% 
     pivot_wider(names_from = "TTtreat", values_from = "mean") %>% 
     mutate(warm1 = warm1 - control,
            cool1 = cool1 - control,
@@ -26,9 +26,9 @@ analysis_plan <- drake_plan(
     filter(year == 2016,
            TTtreat %in% c("control"),
            direction == "convergence") %>% 
-    select(Site:Mean, variable, value, -n) %>% 
+    select(Site:mean, variable, value, -n) %>% 
     nest(data = -c(trait_trans)) %>% 
-    mutate(mod = map(data, ~lm(Mean ~ value, data = .x)),
+    mutate(mod = map(data, ~lm(mean ~ value, data = .x)),
            result = map(mod, tidy)) %>%
     unnest(result) %>% 
     mutate(term = plyr::mapvalues(term, from = c("(Intercept)", "value"),
