@@ -97,10 +97,10 @@ plot_plan <- drake_plan(
     left_join(trait_climate_regression %>% 
                 filter(term == "slope"), 
               by = "trait_trans") %>% 
-    select(Site:Mean, -n, term, estimate, p.value, value) %>% 
+    select(Site:mean, -n, term, estimate, p.value, value) %>% 
     mutate(signi = if_else(p.value < 0.05, "significant", "non-signigicant"),
            trait_trans = factor(trait_trans, levels = trait_order$trait_trans)) %>% 
-    ggplot(aes(x = value, y = Mean, linetype = signi, colour = signi)) +
+    ggplot(aes(x = value, y = mean, linetype = signi, colour = signi)) +
     geom_point(aes(shape = Site), colour = "grey") +
     geom_smooth(method = "lm") +
     scale_linetype_manual(name = "", values = c("dashed", "solid")) +
