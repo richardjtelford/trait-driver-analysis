@@ -51,16 +51,71 @@ plot_plan <- drake_plan(
     theme_minimal(),
   
   #H1Q2+3: Conv/div (univariate)
-  conv_div_plot = effect_size %>% 
+  sign_pos <- trait_order %>% 
+    filter(signi == "significant", estimate > 0) %>% 
+    select(trait_trans),
+  
+  sign_neg <- trait_order %>% 
+    filter(signi == "significant", estimate < 0) %>% 
+    select(trait_trans),
+  
+  non_sig <- trait_order %>% 
+    filter(signi == "non-signigicant") %>% 
+    select(trait_trans),
+  
+  conv_div_plot_1 = effect_size %>% 
     filter(year %in% c(2012, 2016)) %>% 
     group_by(direction, TTtreat, year, trait_trans) %>% 
     summarise(mean = mean(mean)) %>% 
-    ggplot(aes(x = year, y = mean, colour = TTtreat)) +
+    left_join(treatment_effect, by = c("direction", "trait_trans", "TTtreat" = "term")) %>% 
+    inner_join(sign_pos, by = "trait_trans") %>% 
+    mutate(direction = factor(direction, levels = c("divergence", "convergence"))) %>% 
+    ggplot(aes(x = year, y = mean, colour = TTtreat, linetype = signi)) +
     geom_line() +
     scale_colour_manual(values = c("lightblue", "blue", "orange", "pink", "red"), name = "") +
+    scale_linetype_manual(values = c("dotted", "solid"), name = "") +
     geom_hline(yintercept = 0, colour = "grey", linetype = "dashed") +
+    ggtitle("Signficant positive slope") +
     facet_grid(trait_trans ~ direction, scales = "free_y") +
-    theme_bw(),
+    theme_bw() +
+    theme(legend.position = "none"),
+  
+  conv_div_plot_2 = effect_size %>% 
+    filter(year %in% c(2012, 2016)) %>% 
+    group_by(direction, TTtreat, year, trait_trans) %>% 
+    summarise(mean = mean(mean)) %>% 
+    left_join(treatment_effect, by = c("direction", "trait_trans", "TTtreat" = "term")) %>% 
+    inner_join(sign_neg, by = "trait_trans") %>% 
+    mutate(direction = factor(direction, levels = c("divergence", "convergence"))) %>% 
+    ggplot(aes(x = year, y = mean, colour = TTtreat, linetype = signi)) +
+    geom_line() +
+    scale_colour_manual(values = c("lightblue", "blue", "orange", "pink", "red"), name = "") +
+    scale_linetype_manual(values = c("dotted", "solid"), name = "") +
+    geom_hline(yintercept = 0, colour = "grey", linetype = "dashed") +
+    ggtitle("Signficant negative slope") +
+    facet_grid(trait_trans ~ direction, scales = "free_y") +
+    theme_bw() +
+    theme(legend.position = "none"),
+  
+  conv_div_plot_3 = effect_size %>% 
+    filter(year %in% c(2012, 2016)) %>% 
+    group_by(direction, TTtreat, year, trait_trans) %>% 
+    summarise(mean = mean(mean)) %>% 
+    left_join(treatment_effect, by = c("direction", "trait_trans", "TTtreat" = "term")) %>% 
+    inner_join(non_sig, by = "trait_trans") %>% 
+    mutate(direction = factor(direction, levels = c("divergence", "convergence"))) %>% 
+    ggplot(aes(x = year, y = mean, colour = TTtreat, linetype = signi)) +
+    geom_line() +
+    scale_colour_manual(values = c("lightblue", "blue", "orange", "pink", "red"), name = "") +
+    scale_linetype_manual(values = c("dotted", "solid"), name = "") +
+    geom_hline(yintercept = 0, colour = "grey", linetype = "dashed") +
+    ggtitle("None-signficant slope") +
+    facet_grid(trait_trans ~ direction, scales = "free_y") +
+    theme_bw() +
+    theme(legend.position = "bottom"),
+
+    conv_div_plot = conv_div_plot_1 / conv_div_plot_2 / conv_div_plot_3,
+  
   
   #treatment_time_effect %>% 
     
@@ -86,7 +141,7 @@ plot_plan <- drake_plan(
   trait_order = trait_climate_regression %>% 
     filter(term == "slope") %>% 
     select(trait_trans, estimate, p.value) %>% 
-    mutate(signi = if_else(p.value < 0.05, "significant", "non-signigicant")) %>% 
+    mutate(signi = if_else(p.value < 0.05, "significant", "non-significant")) %>% 
     arrange(desc(signi), desc(estimate)),
   
   moments_by_climate = summarised_boot_moments_climate %>% 
