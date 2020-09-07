@@ -22,8 +22,9 @@ import_plan <- drake_plan(
     select(-Envelope_Name_Corrected, -Date, -matches("Flag$"), -allComments) %>% 
     #remove leaf-thickness measurement (keep mean)
     select(-matches("Leaf_Thickness_\\d_mm")) %>% 
+    rename("Thickness_mm" = "Leaf_Thickness_Ave_mm") %>% 
     pivot_longer(
-      cols = c("Wet_Mass_g", "Dry_Mass_g", "Leaf_Thickness_Ave_mm", "Leaf_Area_cm2", "SLA_cm2_g", "LDMC"), 
+      cols = c("Wet_Mass_g", "Dry_Mass_g", "Thickness_mm", "Leaf_Area_cm2", "SLA_cm2_g", "LDMC"), 
       names_to = "trait", 
       values_to = "value"),
   
@@ -65,7 +66,7 @@ import_plan <- drake_plan(
           "Wet_Mass_g",
           "Dry_Mass_g",
           "Leaf_Area_cm2",
-          "Leaf_Thickness_Ave_mm"
+          "Thickness_mm"
         ), 
         true = suppressWarnings(log(value)),# suppress warnings from log(-value) in isotopes (these are calculated but not kept)
         false = value
@@ -75,7 +76,7 @@ import_plan <- drake_plan(
         "Wet_Mass_g" = "Wet_Mass_g_log",
         "Dry_Mass_g" = "Dry_Mass_g_log",
         "Leaf_Area_cm2" = "Leaf_Area_cm2_log",
-        "Leaf_Thickness_Ave_mm" = "Leaf_Thickness_Ave_mm_log"
+        "Thickness_mm" = "Thickness_mm_log"
       )),
   
   #import environmental data
