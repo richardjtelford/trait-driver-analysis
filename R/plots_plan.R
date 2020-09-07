@@ -39,16 +39,20 @@ plot_plan <- drake_plan(
 
   #H1Q2 + 3: Conv/div along gradient and across treatments (multivariate)
   Site_order = c(H = "High Alpine",
-            A = "Alpine",        
-            M = "Middle",
-            L = "Lowland"),
+                 A = "Alpine",        
+                 M = "Middle",
+                 L = "Lowland"),
+  
   euclidean_distance = distances %>% 
+    mutate(direction.row = factor(direction.row, levels = c("divergence", "convergence"))) %>% 
     ggplot(aes(x = TTtreat.row, y = dist, fill = TTtreat.row)) +
     geom_boxplot() + 
     scale_fill_manual(values = c("grey", "orange", "pink", "red", "lightblue", "blue"), name = "") +
     labs(title = "Distance over time", y = "Eucleading distance over time", x = "") +
     facet_grid(direction.row ~ Site.row, labeller = labeller(Site.row = Site_order)) +
-    theme_minimal(),
+    theme_minimal() +
+    theme(axis.text.x=element_blank(),
+          legend.position = "bottom"),
   
   #H1Q2+3: Conv/div (univariate)
   conv_div_plot = effect_size %>% 
