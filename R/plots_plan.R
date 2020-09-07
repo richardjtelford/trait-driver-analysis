@@ -51,15 +51,15 @@ plot_plan <- drake_plan(
     theme_minimal(),
   
   #H1Q2+3: Conv/div (univariate)
-  sign_pos <- trait_order %>% 
+  sign_pos = trait_order %>% 
     filter(signi == "significant", estimate > 0) %>% 
     select(trait_trans),
   
-  sign_neg <- trait_order %>% 
+  sign_neg = trait_order %>% 
     filter(signi == "significant", estimate < 0) %>% 
     select(trait_trans),
   
-  non_sig <- trait_order %>% 
+  non_sig = trait_order %>% 
     filter(signi == "non-signigicant") %>% 
     select(trait_trans),
   
