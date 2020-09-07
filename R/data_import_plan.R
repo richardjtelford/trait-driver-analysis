@@ -50,7 +50,13 @@ import_plan <- drake_plan(
   #calculate derived traits
   #transform
   traits = traits0 %>% 
-    filter(Treatment == "LOCAL") %>% # only gradient plots
+    filter(Treatment %in% c("LOCAL", "C", "0")) %>% # only gradient plots
+    mutate(Treatment = case_when(Treatment %in% c("LOCAL", "C", "0") ~ "control",
+                                 Treatment == "1" ~ "warm1",
+                                 Treatment == "2" ~ "cool1",
+                                 Treatment == "3" ~ "warm3",
+                                 Treatment == "4" ~ "cool3",
+                                 Treatment == "OTC" ~ "OTC")) %>% 
     rename(blockID = destBlockID) %>% 
     #log transform size and area traits
     mutate(
