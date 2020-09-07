@@ -64,7 +64,7 @@ plot_plan <- drake_plan(
     select(trait_trans),
   
   non_sig = trait_order %>% 
-    filter(signi == "non-signigicant") %>% 
+    filter(signi == "non-significant") %>% 
     select(trait_trans),
   
   conv_div_plot_1 = effect_size %>% 
@@ -82,7 +82,8 @@ plot_plan <- drake_plan(
     ggtitle("Signficant positive slope") +
     facet_grid(trait_trans ~ direction, scales = "free_y") +
     theme_bw() +
-    theme(legend.position = "none"),
+    theme(legend.position = "none",
+          strip.text.y = element_text(angle=360)),
   
   conv_div_plot_2 = effect_size %>% 
     filter(year %in% c(2012, 2016)) %>% 
@@ -99,7 +100,8 @@ plot_plan <- drake_plan(
     ggtitle("Signficant negative slope") +
     facet_grid(trait_trans ~ direction, scales = "free_y") +
     theme_bw() +
-    theme(legend.position = "none"),
+    theme(legend.position = "none",
+          strip.text.y = element_text(angle=360)),
   
   conv_div_plot_3 = effect_size %>% 
     filter(year %in% c(2012, 2016)) %>% 
@@ -116,7 +118,8 @@ plot_plan <- drake_plan(
     ggtitle("None-signficant slope") +
     facet_grid(trait_trans ~ direction, scales = "free_y") +
     theme_bw() +
-    theme(legend.position = "bottom"),
+    theme(legend.position = "bottom",
+          strip.text.y = element_text(angle=360)),
 
     conv_div_plot = conv_div_plot_1 / conv_div_plot_2 / conv_div_plot_3,
   
