@@ -129,13 +129,8 @@ plot_plan <- drake_plan(
   
   #space/time R2 relationship
   
-  #variance
-  
-  #skewness
-  
-  #kurtois
-  
-  
+  #temporal trait change
+  #mean
   trait_mean_by_time_plot = bootstrapped_trait_moments_div %>% 
     filter(!TTtreat %in% c("control", "local", "OTC")) %>%
     group_by(year, turfID, TTtreat, trait_trans, Site) %>% 
@@ -143,6 +138,46 @@ plot_plan <- drake_plan(
     ggplot(aes(x = year, y = mean, colour = TTtreat, group = turfID)) +
     geom_line() +
     facet_grid(trait_trans~Site, scales = "free_y"),
+  
+  #variance
+  variance_plot = happymoments %>%
+    filter(direction == "divergence", 
+           happymoment == "var") %>% #,
+           #trait_trans %in% c("SLA_cm2_g", "Thickness_mm_log", "Leaf_Area_cm2_log")) %>% 
+    inner_join(happymoment_effect, by = c("direction", "trait_trans", "happymoment", "TTtreat" = "term")) %>% 
+    mutate(TTtreat = factor(TTtreat, levels = c("control", "warm3", "warm1", "OTC", "cool1", "cool3"))) %>% 
+    ggplot(aes(x = factor(year), y = value, fill = signi)) +
+    geom_boxplot() +
+    scale_fill_manual(name = "Treatment * year interaction", values = c("grey", "red")) +
+    labs(title = "Temporal change in variance", x = "", y = "Variance") +
+    facet_grid(trait_trans ~ TTtreat, scales = "free_y") +
+    theme_bw(),
+  
+  #skewness
+  skewness_plot = happymoments %>%
+    filter(direction == "divergence", 
+           happymoment == "skew") %>% 
+    inner_join(happymoment_effect, by = c("direction", "trait_trans", "happymoment", "TTtreat" = "term")) %>% 
+    mutate(TTtreat = factor(TTtreat, levels = c("control", "warm3", "warm1", "OTC", "cool1", "cool3"))) %>% 
+    ggplot(aes(x = factor(year), y = value, fill = signi)) +
+    geom_boxplot() +
+    scale_fill_manual(name = "Treatment * year interaction", values = c("grey", "red")) +
+    labs(title = "Temporal change in skewness", x = "", y = "Skewness") +
+    facet_grid(trait_trans ~ TTtreat, scales = "free_y") +
+    theme_bw(),
+  
+  #kurtois
+  kurtosis_plot = happymoments %>%
+    filter(direction == "divergence", 
+           happymoment == "kurt") %>% 
+    inner_join(happymoment_effect, by = c("direction", "trait_trans", "happymoment", "TTtreat" = "term")) %>% 
+    mutate(TTtreat = factor(TTtreat, levels = c("control", "warm3", "warm1", "OTC", "cool1", "cool3"))) %>% 
+    ggplot(aes(x = factor(year), y = value, fill = signi)) +
+    geom_boxplot() +
+    scale_fill_manual(name = "Treatment * year interaction", values = c("grey", "red")) +
+    labs(title = "Temporal change in kurtosis", x = "", y = "Kurtosis") +
+    facet_grid(trait_trans ~ TTtreat, scales = "free_y") +
+    theme_bw(),
   
   #moments by climate in original plots
   trait_order = trait_climate_regression %>% 

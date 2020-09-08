@@ -36,7 +36,7 @@ analysis_plan <- drake_plan(
   
   
   #effect of experiments across all elevations (only 2016)
-  treatment_effect = effect_size %>%
+  treatment_effect = effect_size %>% 
     nest(data = -c(direction, trait_trans)) %>% 
     mutate(mod = map(data, ~lm(mean ~ TTtreat*year, data = .x)),
            result = map(mod, tidy)) %>% 
@@ -60,5 +60,25 @@ analysis_plan <- drake_plan(
     nest(data = -c(direction, trait_trans)) %>% 
     mutate(mod = map(data, ~lme(mean ~ year*TTtreat, random = ~1|Site, data = .x)),
            result = map(mod, tidy, "fixed")) %>% 
-    unnest(result)
+    unnest(result),
+  
+  #happy higher moment - treatment and time
+  happymoments = bind_rows(
+    divergence = sum_boot_moment_div,
+    convergence = sum_boot_moment_conv, 
+    .id = "direction") %>%
+    ungroup() %>% 
+    select(direction, Site, blockID, trait_trans, TTtreat, year, turfID, var, skew, kurt) %>% 
+    pivot_longer(cols = c(var, skew, kurt), names_to = "happymoment", values_to = "value"),
+    
+    happymoment_effect = happymoments %>% 
+      nest(data = -c(direction, trait_trans, happymoment)) %>% 
+    mutate(mod = map(data, ~ lm(value ~ TTtreat*year, data = .x)),
+           result = map(mod, tidy)) %>% 
+    unnest(result) %>% 
+    mutate(term = plyr::mapvalues(term, from = c("(Intercept)", "TTtreatwarm1", "TTtreatcool1", "TTtreatcool3", "TTtreatwarm3", "TTtreatOTC", "year", "TTtreatwarm1:year", "TTtreatcool1:year", "TTtreatwarm3:year", "TTtreatcool3:year", "TTtreatOTC:year"),
+                                  to = c("Tcontrol", "Twarm1", "Tcool1", "Tcool3", "Twarm3", "TOTC", "control", "warm1", "cool1", "warm3", "cool3", "OTC")),
+           signi = if_else(p.value < 0.05, "significant", "non-signigicant"))
+    
+  
 )
