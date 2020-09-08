@@ -42,7 +42,7 @@ plot_plan <- drake_plan(
                  A = "Alpine",        
                  M = "Middle",
                  L = "Lowland"),
-  
+  ## ----eucledian
   euclidean_distance = distances %>% 
     mutate(direction.row = factor(direction.row, levels = c("divergence", "convergence"))) %>% 
     ggplot(aes(x = TTtreat.row, y = dist, fill = TTtreat.row)) +
@@ -53,6 +53,7 @@ plot_plan <- drake_plan(
     theme_minimal() +
     theme(axis.text.x=element_blank(),
           legend.position = "bottom"),
+  ## ----
   
   #H1Q2+3: Conv/div (univariate)
   sign_pos = trait_order %>% 
@@ -120,9 +121,9 @@ plot_plan <- drake_plan(
     theme_bw() +
     theme(legend.position = "bottom",
           strip.text.y = element_text(angle=360)),
-
+    ## ----conv-div
     conv_div_plot = conv_div_plot_1 / conv_div_plot_2 / conv_div_plot_3,
-  
+    ## ----
   
   #treatment_time_effect %>% 
     
@@ -139,6 +140,7 @@ plot_plan <- drake_plan(
     geom_line() +
     facet_grid(trait_trans~Site, scales = "free_y"),
   
+  ## ----var-ske-kurt
   #variance
   variance_plot = happymoments %>%
     filter(direction == "divergence", 
@@ -178,6 +180,7 @@ plot_plan <- drake_plan(
     labs(title = "Temporal change in kurtosis", x = "", y = "Kurtosis") +
     facet_grid(trait_trans ~ TTtreat, scales = "free_y") +
     theme_bw(),
+  ## ----
   
   #moments by climate in original plots
   trait_order = trait_climate_regression %>% 
@@ -186,6 +189,7 @@ plot_plan <- drake_plan(
     mutate(signi = if_else(p.value < 0.05, "significant", "non-significant")) %>% 
     arrange(desc(signi), desc(estimate)),
   
+  ## ----trait-climate
   moments_by_climate = summarised_boot_moments_climate %>% 
     filter(year == 2016,
            TTtreat %in% c("control"),
@@ -205,4 +209,5 @@ plot_plan <- drake_plan(
     labs(x = "", y = "Mean trait value") +
     facet_wrap(~trait_trans, scales = "free_y") +
     theme_minimal()
+  ## ----
 )
