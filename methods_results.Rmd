@@ -10,6 +10,8 @@ csl: Rmd/elsevier-harvard_rjt.csl
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+library("drake")
+loadd(moments_by_climate)
 ```
 
 ## Methods
@@ -26,5 +28,28 @@ renv v. `r packageVersion("renv")` [@renv] were used to ensure reproducibility.
 Code to reproduce all the analyses is archived at [https://github.com/richardjtelford/trait-driver-analysis](https://github.com/richardjtelford/trait-driver-analysis).
 
 ## Results
+
+### Figure 2
+```{r trait-climate, eval = TRUE, echo = FALSE}
+readd(moments_by_climate)
+```
+
+### Figure 4
+```{r conv-div, eval = TRUE, echo = FALSE, fig.height = 15}
+readd(conv_div_plot)
+```
+
+### Figure 5
+```{r eucledian, eval = TRUE, echo = FALSE}
+readd(euclidean_distance)
+```
+
+### Figure 6
+```{r var-ske-kurt, eval = TRUE, echo = FALSE, fig.height = 10}
+readd(variance_plot)
+readd(skewness_plot)
+readd(kurtosis_plot)
+```
+
 
 ## References
