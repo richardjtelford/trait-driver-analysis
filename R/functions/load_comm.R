@@ -33,7 +33,8 @@ load_comm <- function(con, cover = TRUE) {
       levels = c("control", "warm1", "cool1", "warm3", "cool3", "OTC")
     ),
     originSiteID = factor(originSiteID, levels = c("H", "A", "M", "L")),
-    destSiteID = factor(destSiteID, levels = c("H", "A", "M", "L"))
+    destSiteID = factor(destSiteID, levels = c("H", "A", "M", "L")),
+    Genus = word(speciesName, 1)
   ) %>% 
     # remove graminoids
     left_join(taxon, by = "speciesName") %>% 

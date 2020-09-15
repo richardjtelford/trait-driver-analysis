@@ -57,7 +57,8 @@ import_plan <- drake_plan(
                                  Treatment == "2" ~ "cool1",
                                  Treatment == "3" ~ "warm3",
                                  Treatment == "4" ~ "cool3",
-                                 Treatment == "OTC" ~ "OTC")) %>% 
+                                 Treatment == "OTC" ~ "OTC"),
+           Genus = word(Taxon, 1)) %>% 
     rename(blockID = destBlockID) %>% 
     #log transform size and area traits
     mutate(
