@@ -4,27 +4,29 @@ bootstrap_moment_plan <- drake_plan(
   
   #divergence
   #impute traits for control and pre-transplant
-  imputed_traits_div = community %>%
-    select(Site = originSiteID, blockID = originBlockID, turfID, year, TTtreat, Taxon = speciesName, cover) %>% 
-    trait_impute(traits = traits, 
-                 scale_hierarchy = c("Site", "blockID"),
-                 trait_col = "trait_trans",
-                 taxon_col = "Taxon", 
-                 value_col = "value_trans", 
-                 abundance_col = "cover", 
-                 other_col = c("TTtreat", "year", "turfID")),
+  community_div = community %>%
+    select(Site = originSiteID, blockID = originBlockID, turfID, year, TTtreat, Taxon = speciesName, cover),
+  imputed_traits_div =  trait_impute(comm = community_div,
+                                     traits = traits, 
+                                     scale_hierarchy = c("Site", "blockID"),
+                                     trait_col = "trait_trans",
+                                     taxon_col = "Taxon", 
+                                     value_col = "value_trans", 
+                                     abundance_col = "cover", 
+                                     other_col = c("TTtreat", "year", "turfID")),
   
   #convergence
   #impute traits for control and pre-transplant
-  imputed_traits_conv = community %>%
-    select(Site = destSiteID, blockID = destBlockID, turfID, year, TTtreat, Taxon = speciesName, cover) %>% 
-    trait_impute(traits = traits, 
-                 scale_hierarchy = c("Site", "blockID"),
-                 trait_col = "trait_trans",
-                 taxon_col = "Taxon",
-                 value_col = "value_trans",
-                 abundance_col = "cover",
-                 other_col = c("year", "TTtreat", "turfID")),
+  community_conv = community %>%
+    select(Site = destSiteID, blockID = destBlockID, turfID, year, TTtreat, Taxon = speciesName, cover),
+  imputed_traits_conv =  trait_impute(comm = community_conv,
+                                      traits = traits,
+                                      scale_hierarchy = c("Site", "blockID"),
+                                      trait_col = "trait_trans",
+                                      taxon_col = "Taxon",
+                                      value_col = "value_trans",
+                                      abundance_col = "cover",
+                                      other_col = c("TTtreat", "year", "turfID")),
   
   #traits moments 
   bootstrapped_trait_moments_div  = trait_np_bootstrap(imputed_traits_div, nrep = 100),
