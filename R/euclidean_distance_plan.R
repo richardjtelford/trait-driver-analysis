@@ -11,7 +11,6 @@ euclidean_distance_plan <- drake_plan(
     pivot_wider(names_from = "trait_trans", values_from = "mean") %>% 
     filter(!is.na(C_percent),
            year %in% c(2012, 2016),
-           !(direction == "convergence" & Site == "L"),
            !(direction == "convergence" & TTtreat == "OTC")),
   
   #separate meta data

@@ -48,7 +48,7 @@ plot_plan <- drake_plan(
     ggplot(aes(x = TTtreat.row, y = dist, fill = TTtreat.row)) +
     geom_boxplot() + 
     scale_fill_manual(values = c("grey", "orange", "pink", "red", "lightblue", "blue"), name = "") +
-    labs(title = "Distance over time", y = "Eucleading distance over time", x = "") +
+    labs(title = "Distance over time", y = "Euclidean distance over time", x = "") +
     facet_grid(direction.row ~ Site.row, labeller = labeller(Site.row = Site_order)) +
     theme_minimal() +
     theme(axis.text.x=element_blank(),
