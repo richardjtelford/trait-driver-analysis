@@ -195,7 +195,7 @@ plot_plan <- drake_plan(
     arrange(slope, desc(estimate)),
   
   ## ----trait-climate
-  moments_by_climate = summarised_boot_moments_climate %>% 
+  moments_by_climate_plot = summarised_boot_moments_climate %>% 
     filter(year == 2016,
            TTtreat %in% c("control"),
            direction == "divergence") %>% 
@@ -211,8 +211,13 @@ plot_plan <- drake_plan(
     geom_smooth(method = "lm") +
     scale_linetype_manual(name = "", values = c("dashed", "solid")) +
     scale_colour_manual(name = "", values = c("grey50", "red")) +
-    labs(x = "", y = "Mean trait value") +
+    labs(y = "Mean trait value", x = "Summer air temperature in °C") +
     facet_wrap(~trait_trans, scales = "free_y") +
-    theme_minimal()
+    theme_minimal(),
+  
+  moments_by_climate_table = trait_climate_regression %>% 
+    mutate(trait_trans = factor(trait_trans, levels = c("dN15_permil", "Wet_Mass_g_log", "Leaf_Area_cm2_log", "Dry_Mass_g_log", "C_percent", "SLA_cm2_g", "NP_ratio", "LDMC", "P_percent", "N_percent", "dC13_permil", "Thickness_mm_log", "CN_ratio"))) %>% 
+    select(trait_trans, term:p.value)
+    
   ## ----
 )
