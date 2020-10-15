@@ -186,8 +186,13 @@ plot_plan <- drake_plan(
   trait_order = trait_climate_regression %>% 
     filter(term == "slope") %>% 
     select(trait_trans, estimate, p.value) %>% 
-    mutate(signi = if_else(p.value < 0.05, "significant", "non-significant")) %>% 
-    arrange(desc(signi), desc(estimate)),
+    mutate(signi = case_when(p.value < 0.05 ~ "significant",
+                             p.value > 0.05 ~ "non-significant"),
+           slope = case_when(p.value < 0.05 & estimate > 0 ~ "positive slope",
+                             p.value < 0.05 & estimate < 0 ~ "negative slope",
+                             p.value > 0.05 ~ "no slope"),
+           slope = factor(slope, levels = c("positive slope", "no slope", "negative slope"))) %>% 
+    arrange(slope, desc(estimate)),
   
   ## ----trait-climate
   moments_by_climate = summarised_boot_moments_climate %>% 
