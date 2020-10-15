@@ -35,12 +35,12 @@ analysis_plan <- drake_plan(
                                   to = c("intercept", "slope"))),
   
   
-  #effect of experiments across all elevations (only 2016)
+  #effect of experiments across all elevations
   treatment_effect = effect_size %>% 
     nest(data = -c(direction, trait_trans)) %>% 
     mutate(mod = map(data, ~lm(mean ~ TTtreat*year, data = .x)),
            result = map(mod, tidy)) %>% 
-    unnest(result) %>% 
+    unnest(result) %>% select(term)
     mutate(term = plyr::mapvalues(term, from = c("(Intercept)", "TTtreatcool3", "TTtreatOTC", "TTtreatwarm1", "TTtreatwarm3", "year", "TTtreatcool3:year", "TTtreatOTC:year", "TTtreatwarm1:year", "TTtreatwarm3:year"),
                                   to = c("Tcool1", "Tcool3", "TOTC", "Twarm1", "Twarm3", "cool1", "cool3", "OTC", "warm1", "warm3")),
            signi = if_else(p.value < 0.05, "significant", "non-signigicant")),
