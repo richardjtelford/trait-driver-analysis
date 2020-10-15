@@ -33,6 +33,7 @@ data/
 *.html
 *.pdf
 *.jpeg
+*.jpg
 *.md
 *2.bib
 
