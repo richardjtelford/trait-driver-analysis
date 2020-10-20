@@ -30,7 +30,6 @@ Code to reproduce all the analyses is archived at [https://github.com/richardjte
 ## Results
 
 ### New Figure 2
-
 ```{r trait-climate, eval = TRUE, echo = FALSE, fig.cap="Relationship between functional traits and summer air temperature (2m above ground). The trait values are bootstrapped community weighted traits from control plots in 2016. The regression line is shown (grey dashed) and significant relationships are indicated with a solid red line. The shaded area displays the confidence interval. The traits are sorted from positive slope, no significant to negative slope."}
 readd(moments_by_climate_plot)
 ```
