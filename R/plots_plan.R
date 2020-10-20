@@ -89,7 +89,7 @@ plot_plan <- drake_plan(
            trait_trans = factor(trait_trans, levels = c("Positive slope", "dN15_permil", "Wet_Mass_g_log", "Leaf_Area_cm2_log", "Dry_Mass_g_log", "C_percent", "No slope", "SLA_cm2_g", "NP_ratio", "LDMC", "Negative slope", "P_percent", "N_percent", "dC13_permil", "Thickness_mm_log", "CN_ratio")),
            TTtreat = factor(TTtreat, levels = c("cool3", "cool1", "OTC", "warm1", "warm3", "none"))) %>% 
     ggplot(aes(x = year, y = mean, colour = TTtreat, linetype = signi)) +
-    geom_rect(data = dd %>% filter(trait_trans %in% c("Positive slope", "Negative slope", "No slope")), aes(fill = trait_trans), xmin = -Inf, xmax = Inf, ymin = -Inf, ymax = Inf, alpha = 0.6, fill = "grey90") +
+    geom_rect(data = . %>% filter(trait_trans %in% c("Positive slope", "Negative slope", "No slope")), aes(fill = trait_trans), xmin = -Inf, xmax = Inf, ymin = -Inf, ymax = Inf, alpha = 0.6, fill = "grey90") +
     geom_line() +
     scale_colour_manual(values = c("lightblue", "blue", "grey", "orange", "pink", "red"), name = "") +
     scale_linetype_manual(values = c("dotted", "solid"), name = "") +

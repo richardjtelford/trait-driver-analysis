@@ -23,7 +23,7 @@ source("R/bootstrap_moment_plan.R")
 source("R/euclidean_distance_plan.R")
 source("R/analysis_plan.R")
 source("R/plots_plan.R")
-source("R/resutls_plan.R")
+source("R/results_plan.R")
 
 #source extra function
 source("R/functions/load_comm.R")
