@@ -43,7 +43,7 @@ plot_plan <- drake_plan(
                  M = "Middle",
                  L = "Lowland"),
   ## ----eucledian
-  euclidean_distance = distances %>% 
+  euclidean_distance_plot = distances %>% 
     mutate(direction.row = factor(direction.row, levels = c("divergence", "convergence"))) %>% 
     ggplot(aes(x = TTtreat.row, y = dist, fill = TTtreat.row)) +
     geom_boxplot() + 
