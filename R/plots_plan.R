@@ -43,12 +43,12 @@ plot_plan <- drake_plan(
                  M = "Middle",
                  L = "Lowland"),
   ## ----eucledian
-  euclidean_distance = distances %>% 
+  euclidean_distance_plot = distances %>% 
     mutate(direction.row = factor(direction.row, levels = c("divergence", "convergence"))) %>% 
     ggplot(aes(x = TTtreat.row, y = dist, fill = TTtreat.row)) +
     geom_boxplot() + 
     scale_fill_manual(values = c("grey", "orange", "pink", "red", "lightblue", "blue"), name = "") +
-    labs(title = "Distance over time", y = "Eucleading distance over time", x = "") +
+    labs(title = "Distance over time", y = "Euclidean distance over time", x = "") +
     facet_grid(direction.row ~ Site.row, labeller = labeller(Site.row = Site_order)) +
     theme_minimal() +
     theme(axis.text.x=element_blank(),
@@ -56,74 +56,51 @@ plot_plan <- drake_plan(
   ## ----
   
   #H1Q2+3: Conv/div (univariate)
-  sign_pos = trait_order %>% 
-    filter(signi == "significant", estimate > 0) %>% 
-    select(trait_trans),
   
-  sign_neg = trait_order %>% 
-    filter(signi == "significant", estimate < 0) %>% 
-    select(trait_trans),
+  # make boxes with predictions
+  pred_pos = tibble(direction = c(rep("divergence", 4), rep("convergence", 4)),
+                     TTtreat = c(rep("warm3", 2), rep("cool3", 2), rep("warm3", 2), rep("cool3", 2)),
+                     year = rep(c(2012, 2016), 4),
+                     trait_trans = rep("Positive slope", 8),
+                     mean = c(0,0.5,0,-0.5,-0.5,0,0.5,0),
+                     signi = rep("significant", 8)),
+  pred_neg = tibble(direction = c(rep("divergence", 4), rep("convergence", 4)),
+                     TTtreat = c(rep("cool3", 2), rep("warm3", 2), rep("cool3", 2), rep("warm3", 2)),
+                     year = rep(c(2012, 2016), 4),
+                     trait_trans = rep("Negative slope", 8),
+                     mean = c(0,0.5,0,-0.5,-0.5,0,0.5,0),
+                     signi = rep("significant", 8)),
+  pred_no = tibble(direction = c(rep("divergence", 4), rep("convergence", 4)),
+                    TTtreat = c(rep("none", 8)),
+                    year = rep(c(2012, 2016), 4),
+                    trait_trans = rep("No slope", 8),
+                    mean = rep(0, 8),
+                    signi = rep("non-signigicant", 8)),
   
-  non_sig = trait_order %>% 
-    filter(signi == "non-significant") %>% 
-    select(trait_trans),
-  
-  conv_div_plot_1 = effect_size %>% 
+  #divergence-convergence plot
+  conv_div_plot = effect_size %>% 
     filter(year %in% c(2012, 2016)) %>% 
+    ungroup() %>% 
     group_by(direction, TTtreat, year, trait_trans) %>% 
     summarise(mean = mean(mean)) %>% 
     left_join(treatment_effect, by = c("direction", "trait_trans", "TTtreat" = "term")) %>% 
-    inner_join(sign_pos, by = "trait_trans") %>% 
-    mutate(direction = factor(direction, levels = c("divergence", "convergence"))) %>% 
+    bind_rows(pred_pos, pred_neg, pred_no) %>% 
+    mutate(direction = factor(direction, levels = c("divergence", "convergence")),
+           trait_trans = factor(trait_trans, levels = c("Positive slope", "dN15_permil", "Wet_Mass_g_log", "Leaf_Area_cm2_log", "Dry_Mass_g_log", "C_percent", "No slope", "SLA_cm2_g", "NP_ratio", "LDMC", "Negative slope", "P_percent", "N_percent", "dC13_permil", "Thickness_mm_log", "CN_ratio")),
+           TTtreat = factor(TTtreat, levels = c("cool3", "cool1", "OTC", "warm1", "warm3", "none"))) %>% 
     ggplot(aes(x = year, y = mean, colour = TTtreat, linetype = signi)) +
+    geom_rect(data = dd %>% filter(trait_trans %in% c("Positive slope", "Negative slope", "No slope")), aes(fill = trait_trans), xmin = -Inf, xmax = Inf, ymin = -Inf, ymax = Inf, alpha = 0.6, fill = "grey90") +
     geom_line() +
-    scale_colour_manual(values = c("lightblue", "blue", "orange", "pink", "red"), name = "") +
+    scale_colour_manual(values = c("lightblue", "blue", "grey", "orange", "pink", "red"), name = "") +
     scale_linetype_manual(values = c("dotted", "solid"), name = "") +
     geom_hline(yintercept = 0, colour = "grey", linetype = "dashed") +
-    ggtitle("Signficant positive slope") +
+    labs(x = "", y = "Mean trait value") +
     facet_grid(trait_trans ~ direction, scales = "free_y") +
     theme_bw() +
     theme(legend.position = "none",
           strip.text.y = element_text(angle=360)),
-  
-  conv_div_plot_2 = effect_size %>% 
-    filter(year %in% c(2012, 2016)) %>% 
-    group_by(direction, TTtreat, year, trait_trans) %>% 
-    summarise(mean = mean(mean)) %>% 
-    left_join(treatment_effect, by = c("direction", "trait_trans", "TTtreat" = "term")) %>% 
-    inner_join(sign_neg, by = "trait_trans") %>% 
-    mutate(direction = factor(direction, levels = c("divergence", "convergence"))) %>% 
-    ggplot(aes(x = year, y = mean, colour = TTtreat, linetype = signi)) +
-    geom_line() +
-    scale_colour_manual(values = c("lightblue", "blue", "orange", "pink", "red"), name = "") +
-    scale_linetype_manual(values = c("dotted", "solid"), name = "") +
-    geom_hline(yintercept = 0, colour = "grey", linetype = "dashed") +
-    ggtitle("Signficant negative slope") +
-    facet_grid(trait_trans ~ direction, scales = "free_y") +
-    theme_bw() +
-    theme(legend.position = "none",
-          strip.text.y = element_text(angle=360)),
-  
-  conv_div_plot_3 = effect_size %>% 
-    filter(year %in% c(2012, 2016)) %>% 
-    group_by(direction, TTtreat, year, trait_trans) %>% 
-    summarise(mean = mean(mean)) %>% 
-    left_join(treatment_effect, by = c("direction", "trait_trans", "TTtreat" = "term")) %>% 
-    inner_join(non_sig, by = "trait_trans") %>% 
-    mutate(direction = factor(direction, levels = c("divergence", "convergence"))) %>% 
-    ggplot(aes(x = year, y = mean, colour = TTtreat, linetype = signi)) +
-    geom_line() +
-    scale_colour_manual(values = c("lightblue", "blue", "orange", "pink", "red"), name = "") +
-    scale_linetype_manual(values = c("dotted", "solid"), name = "") +
-    geom_hline(yintercept = 0, colour = "grey", linetype = "dashed") +
-    ggtitle("None-signficant slope") +
-    facet_grid(trait_trans ~ direction, scales = "free_y") +
-    theme_bw() +
-    theme(legend.position = "bottom",
-          strip.text.y = element_text(angle=360)),
-    ## ----conv-div
-    conv_div_plot = conv_div_plot_1 / conv_div_plot_2 / conv_div_plot_3,
     ## ----
+  
   
   #treatment_time_effect %>% 
     
@@ -186,11 +163,16 @@ plot_plan <- drake_plan(
   trait_order = trait_climate_regression %>% 
     filter(term == "slope") %>% 
     select(trait_trans, estimate, p.value) %>% 
-    mutate(signi = if_else(p.value < 0.05, "significant", "non-significant")) %>% 
-    arrange(desc(signi), desc(estimate)),
+    mutate(signi = case_when(p.value < 0.05 ~ "significant",
+                             p.value > 0.05 ~ "non-significant"),
+           slope = case_when(p.value < 0.05 & estimate > 0 ~ "positive slope",
+                             p.value < 0.05 & estimate < 0 ~ "negative slope",
+                             p.value > 0.05 ~ "no slope"),
+           slope = factor(slope, levels = c("positive slope", "no slope", "negative slope"))) %>% 
+    arrange(slope, desc(estimate)),
   
   ## ----trait-climate
-  moments_by_climate = summarised_boot_moments_climate %>% 
+  moments_by_climate_plot = summarised_boot_moments_climate %>% 
     filter(year == 2016,
            TTtreat %in% c("control"),
            direction == "divergence") %>% 
@@ -206,8 +188,9 @@ plot_plan <- drake_plan(
     geom_smooth(method = "lm") +
     scale_linetype_manual(name = "", values = c("dashed", "solid")) +
     scale_colour_manual(name = "", values = c("grey50", "red")) +
-    labs(x = "", y = "Mean trait value") +
+    labs(y = "Mean trait value", x = "Summer air temperature in °C") +
     facet_wrap(~trait_trans, scales = "free_y") +
-    theme_minimal()
+    theme_minimal(),
+    
   ## ----
 )

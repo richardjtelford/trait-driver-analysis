@@ -29,26 +29,45 @@ Code to reproduce all the analyses is archived at [https://github.com/richardjte
 
 ## Results
 
-### Figure 2
-```{r trait-climate, eval = TRUE, echo = FALSE}
-readd(moments_by_climate)
+### New Figure 2
+```{r trait-climate, eval = TRUE, echo = FALSE, fig.cap="Relationship between functional traits and summer air temperature (2m above ground). The trait values are bootstrapped community weighted traits from control plots in 2016. The regression line is shown (grey dashed) and significant relationships are indicated with a solid red line. The shaded area displays the confidence interval. The traits are sorted from positive slope, no significant to negative slope."}
+readd(moments_by_climate_plot)
 ```
 
-### Figure 4
-```{r conv-div, eval = TRUE, echo = FALSE, fig.height = 15}
+
+```{r trait-climate-table, eval = TRUE, echo = FALSE}
+readd(moments_by_climate_table)
+```
+
+
+### New Figure 4
+```{r conv-div_table, eval = TRUE, echo = FALSE, fig.height = 15, fig.cap="Testing for convergence and divergence in each pair-wise trait value as a function of year since transplant. Temporal variation in effect sizes for each measured trait. The first column shows traits divergence and the second column trait convergence. The grey panels labeled with Positive slope, No slope and Negative slopes show the predicted outcome according to TDT, depending on the traits relationship with summer air temperature (see New Fig. 2). The colour of the lines indicates the transplant treatment: transplant to 1.75°C warmer (red), transplant to 0.5°C warmer (pink), OTC (orange), transplant to 0.5°C colder (light blue), transplant to 1.75°C colder (dark blue). Solid lines indicate a significant change in effect size over time."}
 readd(conv_div_plot)
 ```
 
-### Figure 5
-```{r eucledian, eval = TRUE, echo = FALSE}
-readd(euclidean_distance)
+
+```{r conv-div_table, eval = TRUE, echo = FALSE, fig.height = 15}
+readd(treatment_effect_table)
 ```
+
+
+### New Figure 5
+```{r rda_plot, eval = TRUE, echo = FALSE, fig.cap="..."}
+readd()
+```
+
+
+
+### New Multivariate Figure
+```{r eucledian_plot, eval = TRUE, echo = FALSE, fig.cap="Euclidean distance in functional trait composition since transplant (2012 - 2016) for control plots and treatments at each site. The colours indicate the different treatments control (grey), transplant to 1.75°C warmer (red), transplant to 0.5°C warmer (pink), OTC (orange), transplant to 0.5°C colder (light blue), transplant to 1.75°C colder (dark blue). The two columns show two scenarios of trait plasticity. Divergence reflects a conservative scenario, where treatments are compared to the origin control and do not allow for trait plasticity. Contrary, convergence reflects full plasticity where treatments are compared to the destination controls."}
+readd(euclidean_distance_plot)
+```
+
+
 
 ### Figure 6
 ```{r var-ske-kurt, eval = TRUE, echo = FALSE, fig.height = 10}
-readd(variance_plot)
-readd(skewness_plot)
-readd(kurtosis_plot)
+
 ```
 
 

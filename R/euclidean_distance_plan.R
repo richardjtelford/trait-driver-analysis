@@ -11,7 +11,6 @@ euclidean_distance_plan <- drake_plan(
     pivot_wider(names_from = "trait_trans", values_from = "mean") %>% 
     filter(!is.na(C_percent),
            year %in% c(2012, 2016),
-           !(direction == "convergence" & Site == "L"),
            !(direction == "convergence" & TTtreat == "OTC")),
   
   #separate meta data
@@ -36,5 +35,17 @@ euclidean_distance_plan <- drake_plan(
     mutate(TTtreat.row = factor(TTtreat.row, levels = c("control", "OTC", "warm1", "warm3", "cool1", "cool3"))) %>%
     #filter for change trough time (same turf and direction)
     filter(turfID.row == turfID.col,
-           direction.row == direction.col)
+           direction.row == direction.col),
+  
+  # analyze euclidean distance
+  distances %>% 
+    #mutate(direction.row = factor(direction.row, levels = c("divergence", "convergence"))) 
+    select(direction.row:turfID.row, dist) %>% 
+    nest(data = -c(direction.row, Site.row)) %>% 
+    mutate(mod = map(data, ~lm(dist ~ TTtreat.row, data = .x)),
+           result = map(mod, tidy)) %>%
+    unnest(result)
+    
+    
+    
 )

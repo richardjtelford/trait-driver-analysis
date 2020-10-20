@@ -23,6 +23,7 @@ source("R/bootstrap_moment_plan.R")
 source("R/euclidean_distance_plan.R")
 source("R/analysis_plan.R")
 source("R/plots_plan.R")
+source("R/resutls_plan.R")
 
 #source extra function
 source("R/functions/load_comm.R")
@@ -54,7 +55,8 @@ trait_plan <- bind_plans(download_plan,
                         bootstrap_moment_plan,
                         euclidean_distance_plan,
                         analysis_plan, 
-                        plot_plan, 
+                        plot_plan,
+                        results_plan,
                         manuscript_plan)
 #quick plot
 plot(trait_plan)

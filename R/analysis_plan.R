@@ -25,7 +25,7 @@ analysis_plan <- drake_plan(
     ungroup() %>% 
     filter(year == 2016,
            TTtreat %in% c("control"),
-           direction == "convergence") %>% 
+           direction == "divergence") %>% 
     select(Site:mean, variable, value, -n) %>% 
     nest(data = -c(trait_trans)) %>% 
     mutate(mod = map(data, ~lm(mean ~ value, data = .x)),
@@ -35,7 +35,7 @@ analysis_plan <- drake_plan(
                                   to = c("intercept", "slope"))),
   
   
-  #effect of experiments across all elevations (only 2016)
+  #effect of experiments across all elevations
   treatment_effect = effect_size %>% 
     nest(data = -c(direction, trait_trans)) %>% 
     mutate(mod = map(data, ~lm(mean ~ TTtreat*year, data = .x)),
