@@ -65,7 +65,7 @@ rda_plan <- drake_plan(
            TTtreat = factor(TTtreat, levels = c("control", "cool1", "cool3", "control_H"))),
   
   #only traits
-  trait_cool_data <- trait_cool_fat %>% select(C_percent:Wet_Mass_g_log),
+  trait_cool_data = trait_cool_fat %>% select(C_percent:Wet_Mass_g_log),
   
   #prc
   fit_Cool = prc(response = trait_cool_data, treatment = trait_cool_fat$TTtreat, time = trait_cool_fat$year, scale = TRUE),
@@ -89,9 +89,9 @@ rda_plan <- drake_plan(
           axis.ticks.x = element_blank(),
           axis.text.x = element_blank()),
   
-  TraitRDA_Cooling = gridExtra::grid.arrange(p2, p3,
+  TraitRDA_Cooling = gridExtra::grid.arrange(c2, c3,
                                               layout_matrix = rbind(c(1,1,1,1,1,2,2))),
   
   #patchwork together
-  TraitRDA = TraitRDA_Warming + TraitRDA_Cooling
+  TraitRDA = gridExtra::grid.arrange(TraitRDA_Warming, TraitRDA_Cooling, nrow = 1)
 )
