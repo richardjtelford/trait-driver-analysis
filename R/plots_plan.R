@@ -190,7 +190,8 @@ plot_plan <- drake_plan(
     scale_colour_manual(name = "", values = c("grey50", "red")) +
     labs(y = "Mean trait value", x = "Summer air temperature in °C") +
     facet_wrap(~trait_trans, scales = "free_y") +
-    theme_minimal(),
+    theme_minimal() +
+    theme(legend.position="top"),
     
   ## ----
 )
