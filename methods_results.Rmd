@@ -51,10 +51,27 @@ readd(treatment_effect_table)
 ```
 
 
-<!-- ### New Figure 5 -->
-<!-- ```{r rda_plot, eval = TRUE, echo = FALSE, fig.cap="..."} -->
-<!-- #readd() -->
-<!-- ``` -->
+### New Figure 5
+```{r rda_plot, eval = TRUE, echo = FALSE, fig.cap=""}
+readd(TraitRDA)
+```
+
+
+**New Table 4:** Testing difference in trait composition over time among treatments and the origin control turfs using a permutation test with 999 permutations.
+
+```{r rda_result, eval = TRUE, echo = FALSE, fig.cap=""}
+loadd(perm_warm)
+loadd(perm_cool)
+
+tibble(Treatment = c("warming", "cooling"),
+       Variance = c(perm_warm$Variance[1], perm_cool$Variance[1]),
+       Fvalue = c(perm_warm$F[1], perm_cool$F[1]),
+       Pvalue = c(perm_warm$`Pr(>F)`[1], perm_cool$`Pr(>F)`[1])) %>% 
+  mutate(Variance = round(Variance, 3),
+         Fvalue = round(Fvalue, 3)) %>% 
+  knitr::kable()
+  
+```
 
 
 
