@@ -27,6 +27,7 @@ vignettes/*.pdf
 
 #data
 data/
+*.docx
 
 #figures & output
 *.png

@@ -35,6 +35,10 @@ readd(moments_by_climate_plot)
 ```
 
 
+
+
+**Stats for New Figure 2:** Results from regression between functional traits and summer air temperature.
+
 ```{r trait-climate-table, eval = TRUE, echo = FALSE}
 readd(moments_by_climate_table)
 ```
@@ -45,6 +49,10 @@ readd(moments_by_climate_table)
 readd(conv_div_plot)
 ```
 
+
+
+
+**Stats for New Figure 4:** Results from regression of convergence and divergence in each pair-wise trait value as a function of year since transplant.
 
 ```{r conv-div_table, eval = TRUE, echo = FALSE}
 readd(treatment_effect_table)
