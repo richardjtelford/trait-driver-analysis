@@ -22,11 +22,6 @@ rda_plan <- drake_plan(
   fit_Warming = prc(response = trait_warm_data, treatment = trait_warm_fat$TTtreat, time = trait_warm_fat$year, scale = TRUE),
   
   #make plots
-  # w1 = autoplot.prcCustom(fit_Warming, xlab = "", ylab = "Effect of treatment", legend.position="top") +
-  #   scale_colour_manual(values = c("orange", "pink2", "red", "red")) +
-  #   scale_linetype_manual(values = c("solid", "dashed", "dashed", "solid")) +
-  #   scale_y_continuous(breaks = pretty(fortify(fit_Warming)$Response, n = 5)),
-  
   w2 = autoplot.prcWithoutSP(fit_Warming, xlab = "", ylab = "Treatment effect on \n  trait composition") +
     scale_colour_manual(values = c("orange", "pink2", "red", "red")) +
     scale_linetype_manual(values = c("solid", "dashed", "dashed", "solid")) +
@@ -44,8 +39,6 @@ rda_plan <- drake_plan(
     theme(panel.background = element_blank(),
           axis.ticks.x = element_blank(),
           axis.text.x = element_blank()),
-  
-  # prcLegend = cowplot::get_legend(w1),
   
   TraitRDA_Warming = gridExtra::grid.arrange(w2, w3,
                                               layout_matrix = rbind(c(2,2,2,2,2,3,3))),
@@ -93,7 +86,7 @@ rda_plan <- drake_plan(
                                               layout_matrix = rbind(c(1,1,1,1,1,2,2))),
   
   #patchwork together
-  TraitRDA = gridExtra::grid.arrange(TraitRDA_Warming, TraitRDA_Cooling, nrow = 1),
+  TraitRDA = (TraitRDA_Warming + TraitRDA_Cooling),
   
   
   
