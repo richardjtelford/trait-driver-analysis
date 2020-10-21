@@ -11,10 +11,10 @@ plot_plan <- drake_plan(
   trait_coverage = autoplot(imputed_traits_div),
   
   #trait ordinations
-  treat_colours = c("grey50", "pink", "lightblue", "purple"),
-  AH = twoSites(data = sum_boot_moment_conv, low = "A", high = "H"),
-  MA = twoSites(data = sum_boot_moment_conv, low = "M", high = "A"),
-  LM = twoSites(data = sum_boot_moment_conv, low = "L", high = "M"),
+  treat_colours = c("grey50", "pink", "lightblue", "orange"),
+  AH = twoSites(data = sum_boot_moment_conv, low = "A", high = "H", treat_colours = treat_colours),
+  MA = twoSites(data = sum_boot_moment_conv, low = "M", high = "A", treat_colours = treat_colours),
+  LM = twoSites(data = sum_boot_moment_conv, low = "L", high = "M", treat_colours = treat_colours),
   LH = twoSites(data = sum_boot_moment_conv, low = "L", high = "H", treat_colours = c("grey50", "red", "blue")),
   trait_ordination_plot = (AH + MA) / (LM + LH),
   

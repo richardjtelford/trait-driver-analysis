@@ -44,6 +44,13 @@ readd(moments_by_climate_table)
 ```
 
 
+### New Figure S2 or New Figure 3 (???)
+```{r trait_ordination_plot, eval = TRUE, echo = FALSE, fig.cap="New Fig. S2: Multivariate Principal Component Analysis of community trait composition for each of the elevational gradient sites and experimental transplants. "}
+readd(trait_ordination_plot)
+```
+
+
+
 ### New Figure 4
 ```{r conv-div_plot, eval = TRUE, echo = FALSE, fig.height=17, fig.cap="New Fig. 4: Testing for convergence and divergence in each pair-wise trait value as a function of year since transplant. Temporal variation in effect sizes for each measured trait. The first column shows traits divergence and the second column trait convergence. The grey panels labeled with Positive slope, No slope and Negative slopes show the predicted outcome according to TDT, depending on the traits relationship with summer air temperature (see New Fig. 2). The colour of the lines indicates the transplant treatment: transplant to 1.75°C warmer (red), transplant to 0.5°C warmer (pink), OTC (orange), transplant to 0.5°C colder (light blue), transplant to 1.75°C colder (dark blue). Solid lines indicate a significant change in effect size over time."}
 readd(conv_div_plot)
