@@ -1,8 +1,8 @@
 ---
-title: "Untitled"
+title: "TDT Paper - Results"
 author: "Richard J. Telford"
 date: "8/27/2020"
-output: pdf_document
+output: word_document
 classoption: a4paper
 bibliography: Rmd/TDT2.bib
 csl: Rmd/elsevier-harvard_rjt.csl
@@ -87,10 +87,24 @@ readd(euclidean_dist_table)
 
 
 
-### Figure 6
-```{r var-ske-kurt, eval = TRUE, echo = FALSE, fig.height = 10}
-
+### New Figure 6
+```{r variance-plot, eval = TRUE, echo = FALSE, fig.height = 10}
+readd(variance_plot)
 ```
 
+### New Figure 7
+```{r skewness-plot, eval = TRUE, echo = FALSE, fig.height = 10}
+readd(skewness_plot)
+```
+
+### New Figure 8
+```{r kurtosid-plot, eval = TRUE, echo = FALSE, fig.height = 10}
+readd(kurtosis_plot)
+```
+
+
+```{r happymoment_table, eval = TRUE, echo = FALSE}
+readd(happymoment_effect_table)
+```
 
 ## References
