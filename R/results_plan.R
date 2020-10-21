@@ -28,6 +28,23 @@ results_plan <- drake_plan(
                                p.value < 0.01 ~ paste(p.value, "**"),
                                p.value < 0.05 ~ paste(p.value, "*"),
                                p.value >= 0.05 ~ paste(p.value, ""))) %>% 
+    knitr::kable(),
+  
+  
+  #euclidean distance table
+  euclidean_dist_table = results_distance %>% 
+    select(direction.row, Site.row, term:p.value) %>% 
+    rename(direction = direction.row, Site = Site.row) %>% 
+    mutate(term = plyr::mapvalues(term, from = c("(Intercept)", "TTtreat.rowcool1", "TTtreat.rowcool3", "TTtreat.rowwarm1", "TTtreat.rowwarm3", "TTtreat.rowOTC"),
+                                  to = c("Intercept", "cool1", "cool3", "warm1", "warm3", "OTC"))) %>% 
+    mutate(estimate = round(estimate, 2),
+           std.error = round(std.error, 2),
+           statistic = round(statistic, 2),
+           p.value = round(p.value, 3),
+           p.value = case_when(p.value < 0.001 ~ paste(p.value, "***"),
+                               p.value < 0.01 ~ paste(p.value, "**"),
+                               p.value < 0.05 ~ paste(p.value, "*"),
+                               p.value >= 0.05 ~ paste(p.value, ""))) %>% 
     knitr::kable()
   
 )

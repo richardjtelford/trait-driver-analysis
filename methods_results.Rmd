@@ -46,7 +46,7 @@ readd(conv_div_plot)
 ```
 
 
-```{r conv-div_table, eval = TRUE, echo = FALSE, fig.height = 15}
+```{r conv-div_table, eval = TRUE, echo = FALSE}
 readd(treatment_effect_table)
 ```
 
@@ -78,6 +78,11 @@ tibble(Treatment = c("warming", "cooling"),
 ### New Multivariate Figure
 ```{r eucledian_plot, eval = TRUE, echo = FALSE, fig.cap="Euclidean distance in functional trait composition since transplant (2012 - 2016) for control plots and treatments at each site. The colours indicate the different treatments control (grey), transplant to 1.75°C warmer (red), transplant to 0.5°C warmer (pink), OTC (orange), transplant to 0.5°C colder (light blue), transplant to 1.75°C colder (dark blue). The two columns show two scenarios of trait plasticity. Divergence reflects a conservative scenario, where treatments are compared to the origin control and do not allow for trait plasticity. Contrary, convergence reflects full plasticity where treatments are compared to the destination controls."}
 readd(euclidean_distance_plot)
+```
+
+
+```{r eucledian_table, eval = TRUE, echo = FALSE}
+readd(euclidean_dist_table)
 ```
 
 

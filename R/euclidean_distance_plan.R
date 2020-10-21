@@ -38,7 +38,7 @@ euclidean_distance_plan <- drake_plan(
            direction.row == direction.col),
   
   # analyze euclidean distance
-  distances %>% 
+  results_distance = distances %>% 
     #mutate(direction.row = factor(direction.row, levels = c("divergence", "convergence"))) 
     select(direction.row:turfID.row, dist) %>% 
     nest(data = -c(direction.row, Site.row)) %>% 
