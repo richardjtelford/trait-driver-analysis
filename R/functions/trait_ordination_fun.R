@@ -47,6 +47,7 @@ twoSites <- function(data, low, high, treat_colours){
     #  scale_shape_manual(values = c(16, 21)) +
     scale_x_continuous(expand = c(.15, 0)) +
     labs(x = "PC 1", y = "PC 2", shape = "Site", colour = "Treatment", size = "Year", linetype = "Site", title = paste(high, "-", low)) +
-    theme_bw()
+    theme_minimal() +
+    theme(legend.position="none")
   return(g)
 }
