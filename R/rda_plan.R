@@ -99,17 +99,17 @@ rda_plan <- drake_plan(
   
   #permutation test
   #warm
-  trait_warm_fat2 <- trait_warm_fat %>% 
+  trait_warm_fat2 = trait_warm_fat %>% 
     filter(TTtreat != "control_L"),
-  trait_warm_data2 <- trait_warm_fat2 %>% 
+  trait_warm_data2 = trait_warm_fat2 %>% 
     select(-(taxon_level:level)),
   
   perm_warm = anova(prc(response = trait_warm_data2, treatment = trait_warm_fat2$TTtreat, time = trait_warm_fat2$year, scale = TRUE)),
   
   #cool
-  trait_cool_fat2 <- trait_cool_fat %>% 
+  trait_cool_fat2 = trait_cool_fat %>% 
     filter(TTtreat != "control_H"),
-  trait_cool_data2 <- trait_cool_fat2 %>% 
+  trait_cool_data2 = trait_cool_fat2 %>% 
     select(-(taxon_level:level)),
   
   perm_cool = anova(prc(response = trait_cool_data2, treatment = trait_cool_fat2$TTtreat, time = trait_cool_fat2$year, scale = TRUE))
