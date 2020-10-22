@@ -1,109 +1,210 @@
 #make rda
 rda_plan <- drake_plan(
   
-  #warming plot
+  #warming plot - fixed
   #make fat table
-  trait_warm_fat = imputed_traits_div %>% 
+  trait_warm_fat_fixed = sum_boot_moment_fixed %>% 
     ungroup() %>% 
+    select(originSiteID:destSiteID, mean) %>%
     filter(TTtreat %in% c("control", "warm1", "warm3", "OTC")) %>%
-    filter(Site == "H" | Site == "L" & TTtreat == "control") %>% 
-    distinct() %>% 
-    spread(key = trait_trans, value = value_trans, fill = 0) %>% 
-    mutate(TTtreat = case_when(TTtreat == "control" & Site == "L" ~ "control_L",
+    filter(originSiteID == "H" | originSiteID == "L" & TTtreat == "control") %>% 
+    spread(key = trait_trans, value = mean, fill = 0) %>% 
+    mutate(TTtreat = case_when(TTtreat == "control" & originSiteID == "L" ~ "control_L",
                                TRUE ~ as.character(TTtreat)),
            year = factor(year),
            TTtreat = factor(TTtreat, levels = c("control", "OTC", "warm1", "warm3", "control_L"))),
   
   #only traits
-  trait_warm_data = trait_warm_fat %>% 
+  trait_warm_data_fixed = trait_warm_fat_fixed %>% 
     select(C_percent:Wet_Mass_g_log),
   
   #prc
-  fit_Warming = prc(response = trait_warm_data, treatment = trait_warm_fat$TTtreat, time = trait_warm_fat$year, scale = TRUE),
+  fit_Warming_fixed = prc(response = trait_warm_data_fixed, treatment = trait_warm_fat_fixed$TTtreat, time = trait_warm_fat_fixed$year, scale = TRUE),
   
   #make plots
-  w2 = autoplot.prcWithoutSP(fit_Warming, xlab = "", ylab = "Treatment effect on \n  trait composition") +
+  wf2 = autoplot.prcWithoutSP(fit_Warming_fixed, xlab = "", ylab = "Treatment effect on \n  trait composition") +
     scale_colour_manual(values = c("orange", "pink2", "red", "red")) +
     scale_linetype_manual(values = c("solid", "dashed", "dashed", "solid")) +
-    scale_y_continuous(breaks = pretty(fortify(fit_Warming)$Response, n = 5)) +
-    theme(legend.position = c(0.2, 0.2), legend.title = element_blank()),
+    scale_y_continuous(breaks = pretty(fortify(fit_Warming_fixed)$Response, n = 5)) +
+    ggtitle("fixed") +
+    theme_minimal() +
+    theme(legend.position = c(0.2, 0.8), legend.title = element_blank()),
   
-  w3 = fortify(fit_Warming) %>% 
+  wf3 = fortify(fit_Warming_fixed) %>% 
     filter(Score == "Species") %>% 
     mutate(X = 1) %>% 
     ggplot(aes(x = X, y = (Response), label = Label)) +
     geom_text(aes(x = X), size = 4) +
     geom_hline(yintercept = 0) +
-    scale_y_continuous(breaks = pretty(fortify(fit_Warming)$Response, n = 5)) +
+    scale_y_continuous(breaks = pretty(fortify(fit_Warming_fixed)$Response, n = 5)) +
     labs(x = "", y = "") +
     theme(panel.background = element_blank(),
           axis.ticks.x = element_blank(),
           axis.text.x = element_blank()),
   
-  TraitRDA_Warming = gridExtra::grid.arrange(w2, w3,
-                                              layout_matrix = rbind(c(2,2,2,2,2,3,3))),
-
   
-  #cooling plot
-  #fat table
-  trait_cool_fat = imputed_traits_div %>% 
+  #warming plot - plastic
+  #make fat table
+  trait_warm_fat_plastic = sum_boot_moment_plastic %>% 
     ungroup() %>% 
+    select(originSiteID:destSiteID, mean) %>%
+    filter(TTtreat %in% c("control", "warm1", "warm3", "OTC")) %>%
+    filter(originSiteID == "H" | originSiteID == "L" & TTtreat == "control") %>% 
+    spread(key = trait_trans, value = mean, fill = 0) %>% 
+    mutate(TTtreat = case_when(TTtreat == "control" & originSiteID == "L" ~ "control_L",
+                               TRUE ~ as.character(TTtreat)),
+           year = factor(year),
+           TTtreat = factor(TTtreat, levels = c("control", "OTC", "warm1", "warm3", "control_L"))),
+  
+  #only traits
+  trait_warm_data_plastic = trait_warm_fat_plastic %>% 
+    select(C_percent:Wet_Mass_g_log),
+  
+  #prc
+  fit_Warming_plastic = prc(response = trait_warm_data_plastic, treatment = trait_warm_fat_plastic$TTtreat, time = trait_warm_fat_plastic$year, scale = TRUE),
+  
+  #make plots
+  wp2 = autoplot.prcWithoutSP(fit_Warming_plastic, xlab = "", ylab = "Treatment effect on \n  trait composition") +
+    scale_colour_manual(values = c("orange", "pink2", "red", "red")) +
+    scale_linetype_manual(values = c("solid", "dashed", "dashed", "solid")) +
+    scale_y_continuous(breaks = pretty(fortify(fit_Warming_plastic)$Response, n = 5)) +
+    ggtitle("plastic") +
+    theme_minimal() +
+    theme(legend.position = "none"),
+  
+  wp3 = fortify(fit_Warming_plastic) %>% 
+    filter(Score == "Species") %>% 
+    mutate(X = 1) %>% 
+    ggplot(aes(x = X, y = (Response), label = Label)) +
+    geom_text(aes(x = X), size = 4) +
+    geom_hline(yintercept = 0) +
+    scale_y_continuous(breaks = pretty(fortify(fit_Warming_plastic)$Response, n = 5)) +
+    labs(x = "", y = "") +
+    theme(panel.background = element_blank(),
+          axis.ticks.x = element_blank(),
+          axis.text.x = element_blank()),
+  
+  
+  #cooling plot - fixed
+  #fat table
+  trait_cool_fat_fixed = sum_boot_moment_fixed %>% 
+    ungroup() %>% 
+    select(originSiteID:destSiteID, mean) %>%
     filter(TTtreat %in% c("control", "cool1", "cool3")) %>%
-    filter(Site == "L" | Site == "H" & TTtreat == "control") %>% 
+    filter(originSiteID == "L" | originSiteID == "H" & TTtreat == "control") %>% 
     distinct() %>% 
-    spread(key = trait_trans, value = value_trans, fill = 0) %>% 
-    mutate(TTtreat = case_when(TTtreat == "control" & Site == "H" ~ "control_H",
+    spread(key = trait_trans, value = mean, fill = 0) %>% 
+    mutate(TTtreat = case_when(TTtreat == "control" & originSiteID == "H" ~ "control_H",
                                TRUE ~ as.character(TTtreat)),
            year = factor(year),
            TTtreat = factor(TTtreat, levels = c("control", "cool1", "cool3", "control_H"))),
   
   #only traits
-  trait_cool_data = trait_cool_fat %>% select(C_percent:Wet_Mass_g_log),
+  trait_cool_data_fixed = trait_cool_fat_fixed %>% select(C_percent:Wet_Mass_g_log),
   
   #prc
-  fit_Cool = prc(response = trait_cool_data, treatment = trait_cool_fat$TTtreat, time = trait_cool_fat$year, scale = TRUE),
+  fit_Cool_fixed = prc(response = trait_cool_data_fixed, treatment = trait_cool_fat_fixed$TTtreat, time = trait_cool_fat_fixed$year, scale = TRUE),
   
   #make plots
-  c2 = autoplot.prcWithoutSP(fit_Cool, xlab = "", ylab = "") +
+  cf2 = autoplot.prcWithoutSP(fit_Cool_fixed, xlab = "", ylab = "") +
     scale_colour_manual(values = c("steelblue2", "blue", "blue")) +
     scale_linetype_manual(values = c("dashed", "dashed", "solid")) +
-    scale_y_continuous(breaks = pretty(fortify(fit_Cool)$Response, n = 5)) +
-    theme(legend.position = c(0.7, 0.85), legend.title = element_blank()),
+    scale_y_continuous(breaks = pretty(fortify(fit_Cool_fixed)$Response, n = 5)) +
+    ggtitle("fixed") +
+    theme_minimal() +
+    theme(legend.position = c(0.2, 0.4), legend.title = element_blank()),
   
-  c3 = fortify(fit_Cool) %>% 
+  cf3 = fortify(fit_Cool_fixed) %>% 
     filter(Score == "Species") %>% 
     mutate(X = 1) %>% 
     ggplot(aes(x = X, y = Response, label = Label)) +
     geom_text(aes(x = X), size = 4) +
     geom_hline(yintercept = 0) +
-    scale_y_continuous(breaks = pretty(fortify(fit_Cool)$Response, n = 5)) +#, trans = "reverse") +
+    scale_y_continuous(breaks = pretty(fortify(fit_Cool_fixed)$Response, n = 5)) +#, trans = "reverse") +
+    labs(x = "", y = "") +
+    theme(panel.background = element_blank(),
+          axis.ticks.x = element_blank(),
+          axis.text.x = element_blank()),
+
+  #cooling plot - plastic
+  #fat table
+  trait_cool_fat_plastic = sum_boot_moment_plastic %>% 
+    ungroup() %>% 
+    select(originSiteID:destSiteID, mean) %>%
+    filter(TTtreat %in% c("control", "cool1", "cool3")) %>%
+    filter(originSiteID == "L" | originSiteID == "H" & TTtreat == "control") %>% 
+    distinct() %>% 
+    spread(key = trait_trans, value = mean, fill = 0) %>% 
+    mutate(TTtreat = case_when(TTtreat == "control" & originSiteID == "H" ~ "control_H",
+                               TRUE ~ as.character(TTtreat)),
+           year = factor(year),
+           TTtreat = factor(TTtreat, levels = c("control", "cool1", "cool3", "control_H"))),
+  
+  #only traits
+  trait_cool_data_plastic = trait_cool_fat_plastic %>% select(C_percent:Wet_Mass_g_log),
+  
+  #prc
+  fit_Cool_plastic = prc(response = trait_cool_data_plastic, treatment = trait_cool_fat_plastic$TTtreat, time = trait_cool_fat_plastic$year, scale = TRUE),
+  
+  #make plots
+  cp2 = autoplot.prcWithoutSP(fit_Cool_plastic, xlab = "", ylab = "") +
+    scale_colour_manual(values = c("steelblue2", "blue", "blue")) +
+    scale_linetype_manual(values = c("dashed", "dashed", "solid")) +
+    scale_y_continuous(breaks = pretty(fortify(fit_Cool_plastic)$Response, n = 5)) +
+    ggtitle("plastic") +
+    theme_minimal() +
+    theme(legend.position = "none"),
+  
+  cp3 = fortify(fit_Cool_plastic) %>% 
+    filter(Score == "Species") %>% 
+    mutate(X = 1) %>% 
+    ggplot(aes(x = X, y = Response, label = Label)) +
+    geom_text(aes(x = X), size = 4) +
+    geom_hline(yintercept = 0) +
+    scale_y_continuous(breaks = pretty(fortify(fit_Cool_plastic)$Response, n = 5)) +#, trans = "reverse") +
     labs(x = "", y = "") +
     theme(panel.background = element_blank(),
           axis.ticks.x = element_blank(),
           axis.text.x = element_blank()),
   
-  TraitRDA_Cooling = gridExtra::grid.arrange(c2, c3,
-                                              layout_matrix = rbind(c(1,1,1,1,1,2,2))),
+  TraitRDA_Cooling_plastic = gridExtra::grid.arrange(cp2, cp3,
+                                                   layout_matrix = rbind(c(1,1,1,1,1,2,2))),
   
   #patchwork together
-  TraitRDA = (TraitRDA_Warming + TraitRDA_Cooling),
-  
-  
+  TraitRDA = ((wf2 + wf3 + wp2 + wp3) + plot_layout(widths = c(4, 1, 4, 1))) / ((cf2 + cf3 + cp2 + cp3) + plot_layout(widths = c(4, 1, 4, 1))),
+
   
   #permutation test
-  #warm
-  trait_warm_fat2 = trait_warm_fat %>% 
+  #warm - fixed
+  trait_warm_fat_fixed2 = trait_warm_fat_fixed %>% 
     filter(TTtreat != "control_L"),
-  trait_warm_data2 = trait_warm_fat2 %>% 
-    select(-(taxon_level:level)),
+  trait_warm_data_fixed2 = trait_warm_fat_fixed2 %>% 
+    select(-(originSiteID:destSiteID)),
   
-  perm_warm = anova(prc(response = trait_warm_data2, treatment = trait_warm_fat2$TTtreat, time = trait_warm_fat2$year, scale = TRUE)),
+  perm_warm_fixed = anova(prc(response = trait_warm_data_fixed2, treatment = trait_warm_fat_fixed2$TTtreat, time = trait_warm_fat_fixed2$year, scale = TRUE)),
   
-  #cool
-  trait_cool_fat2 = trait_cool_fat %>% 
+  #warm - plastic
+  trait_warm_fat_plastic2 = trait_warm_fat_plastic %>% 
+    filter(TTtreat != "control_L"),
+  trait_warm_data_plastic2 = trait_warm_fat_plastic2 %>% 
+    select(-(originSiteID:destSiteID)),
+  
+  perm_warm_plastic = anova(prc(response = trait_warm_data_plastic2, treatment = trait_warm_fat_plastic2$TTtreat, time = trait_warm_fat_plastic2$year, scale = TRUE)),
+  
+  #cool - fixed
+  trait_cool_fat_fixed2 = trait_cool_fat_fixed %>% 
     filter(TTtreat != "control_H"),
-  trait_cool_data2 = trait_cool_fat2 %>% 
-    select(-(taxon_level:level)),
+  trait_cool_data_fixed2 = trait_cool_fat_fixed2 %>% 
+    select(-(originSiteID:destSiteID)),
   
-  perm_cool = anova(prc(response = trait_cool_data2, treatment = trait_cool_fat2$TTtreat, time = trait_cool_fat2$year, scale = TRUE))
+  perm_cool_fixed = anova(prc(response = trait_cool_data_fixed2, treatment = trait_cool_fat_fixed2$TTtreat, time = trait_cool_fat_fixed2$year, scale = TRUE)),
+  
+  #cool - plastic
+  trait_cool_fat_plastic2 = trait_cool_fat_plastic %>% 
+    filter(TTtreat != "control_H"),
+  trait_cool_data_plastic2 = trait_cool_fat_plastic2 %>% 
+    select(-(originSiteID:destSiteID)),
+  
+  perm_cool_plastic = anova(prc(response = trait_cool_data_plastic2, treatment = trait_cool_fat_plastic2$TTtreat, time = trait_cool_fat_plastic2$year, scale = TRUE))
+  
 )
