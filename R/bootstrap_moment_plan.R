@@ -20,8 +20,8 @@ bootstrap_moment_plan <- drake_plan(
   community_plastic = community %>%
     select(Site = destSiteID, blockID = destBlockID, turfID, year, TTtreat, Taxon = speciesName, Genus, cover, originBlockID, originSiteID) %>% 
     # change destination control plots from 2012 to origin (pre-transplant)
-    mutate(blockID = if_else(year == 2012 & TTtreat == "control", originBlockID, blockID),
-           Site = if_else(year == 2012 & TTtreat == "control", originSiteID, Site)),
+    mutate(blockID = if_else(year == 2012, originBlockID, blockID),
+           Site = if_else(year == 2012, originSiteID, Site)),
   imputed_traits_plastic =  trait_impute(comm = community_plastic,
                                       traits = traits,
                                       scale_hierarchy = c("Site", "blockID"),
