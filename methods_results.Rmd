@@ -35,8 +35,6 @@ readd(moments_by_climate_plot)
 ```
 
 
-
-
 **Stats for New Figure 2:** Results from regression between functional traits and summer air temperature.
 
 ```{r trait-climate-table, eval = TRUE, echo = FALSE}
@@ -46,7 +44,8 @@ readd(moments_by_climate_table)
 
 ### New Figure S2 or New Figure 3 (???)
 ```{r trait_ordination_plot, eval = TRUE, echo = FALSE, fig.cap="New Fig. S2: Multivariate Principal Component Analysis of community trait composition for each of the elevational gradient sites and experimental transplants. "}
-readd(trait_ordination_plot)
+readd(ordination_plot)
+readd(arrows)
 ```
 
 
@@ -58,14 +57,6 @@ readd(conv_div_plot)
 
 
 
-
-**Stats for New Figure 4:** Results from regression of convergence and divergence in each pair-wise trait value as a function of year since transplant.
-
-```{r conv-div_table, eval = TRUE, echo = FALSE}
-readd(treatment_effect_table)
-```
-
-
 ### New Figure 5
 ```{r rda_plot, eval = TRUE, echo = FALSE, fig.cap="Testing for divergence and convergence in multivariate trait-space as a function of year since transplant. Results from  Principal Response Curve multivariate RDA analysis."}
 readd(TraitRDA)
@@ -75,16 +66,15 @@ readd(TraitRDA)
 **New Table 4:** Testing difference in trait composition over time among treatments and the origin control turfs using a permutation test with 999 permutations.
 
 ```{r rda_result, eval = TRUE, echo = FALSE}
-loadd(perm_warm)
-loadd(perm_cool)
+loadd(perm_warm_fixed, perm_warm_plastic, perm_cool_fixed, perm_cool_plastic)
 
-tibble(Treatment = c("warming", "cooling"),
-       Variance = c(perm_warm$Variance[1], perm_cool$Variance[1]),
-       Fvalue = c(perm_warm$F[1], perm_cool$F[1]),
-       Pvalue = c(perm_warm$`Pr(>F)`[1], perm_cool$`Pr(>F)`[1])) %>% 
+tibble(Treatment = c("warming", "warming","cooling", "cooling"),
+       Plasticity = c("fixed", "plastic","fixed", "plastic"),
+       Variance = c(perm_warm_fixed$Variance[1], perm_cool_plastic$Variance[1], perm_cool_fixed$Variance[1], perm_cool_plastic$Variance[1]),
+       Fvalue = c(perm_warm_fixed$F[1], perm_cool_plastic$F[1], perm_cool_fixed$F[1], perm_cool_plastic$F[1]),
+       Pvalue = c(perm_warm_fixed$`Pr(>F)`[1], perm_cool_plastic$`Pr(>F)`[1], perm_cool_fixed$`Pr(>F)`[1], perm_cool_plastic$`Pr(>F)`[1])) %>% 
   mutate(Variance = round(Variance, 3),
-         Fvalue = round(Fvalue, 3)) %>% 
-  knitr::kable()
+         Fvalue = round(Fvalue, 3))
   
 ```
 
@@ -100,6 +90,14 @@ readd(euclidean_distance_plot)
 readd(euclidean_dist_table)
 ```
 
+
+## Supporting Information
+
+**Stats for New Figure 4:** Results from regression of convergence and divergence in each pair-wise trait value as a function of year since transplant.
+
+```{r conv-div_table, eval = TRUE, echo = FALSE}
+readd(treatment_effect_table)
+```
 
 
 ### New Figure 6
@@ -121,5 +119,10 @@ readd(kurtosis_plot)
 ```{r happymoment_table, eval = TRUE, echo = FALSE}
 readd(happymoment_effect_table)
 ```
+
+
+
+
+
 
 ## References

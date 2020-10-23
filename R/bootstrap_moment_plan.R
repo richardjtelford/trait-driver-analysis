@@ -4,62 +4,68 @@ bootstrap_moment_plan <- drake_plan(
   
   #divergence
   #impute traits for control and pre-transplant
-  community_div = community %>%
-    select(Site = originSiteID, blockID = originBlockID, turfID, year, TTtreat, Taxon = speciesName, Genus, cover),
-  imputed_traits_div = trait_impute(comm = community_div,
-                                     traits = traits, 
-                                     scale_hierarchy = c("Site", "blockID"),
-                                     trait_col = "trait_trans",
-                                     taxon_col = c("Taxon", "Genus"), 
-                                     value_col = "value_trans", 
-                                     abundance_col = "cover", 
-                                     other_col = c("TTtreat", "year", "turfID")),
+  community_fixed = community %>%
+    select(Site = originSiteID, blockID = originBlockID, turfID, year, TTtreat, Taxon = speciesName, Genus, cover, destBlockID, destSiteID),
+  imputed_traits_fixed = trait_impute(comm = community_fixed,
+                                    traits = traits, 
+                                    scale_hierarchy = c("Site", "blockID"),
+                                    trait_col = "trait_trans",
+                                    taxon_col = c("Taxon", "Genus"), 
+                                    value_col = "value_trans", 
+                                    abundance_col = "cover", 
+                                    other_col = c("TTtreat", "year", "turfID", "destBlockID", "destSiteID")),
   
   #convergence
   #impute traits for control and pre-transplant
-  community_conv = community %>%
-    select(Site = destSiteID, blockID = destBlockID, turfID, year, TTtreat, Taxon = speciesName, Genus, cover),
-  imputed_traits_conv =  trait_impute(comm = community_conv,
+  community_plastic = community %>%
+    select(Site = destSiteID, blockID = destBlockID, turfID, year, TTtreat, Taxon = speciesName, Genus, cover, originBlockID, originSiteID) %>% 
+    # change destination control plots from 2012 to origin (pre-transplant)
+    mutate(blockID = if_else(year == 2012, originBlockID, blockID),
+           Site = if_else(year == 2012, originSiteID, Site)),
+  imputed_traits_plastic =  trait_impute(comm = community_plastic,
                                       traits = traits,
                                       scale_hierarchy = c("Site", "blockID"),
                                       trait_col = "trait_trans",
                                       taxon_col = c("Taxon", "Genus"),
                                       value_col = "value_trans",
                                       abundance_col = "cover",
-                                      other_col = c("TTtreat", "year", "turfID")),
+                                      other_col = c("TTtreat", "year", "turfID", "originBlockID", "originSiteID")),
   
   #traits moments 
-  bootstrapped_trait_moments_div  = trait_np_bootstrap(imputed_traits_div, nrep = 100),
-  bootstrapped_trait_moments_conv  = trait_np_bootstrap(imputed_traits_conv, nrep = 100),
+  bootstrapped_trait_moments_fixed  = trait_np_bootstrap(imputed_traits_fixed, nrep = 100),
+  bootstrapped_trait_moments_plastic  = trait_np_bootstrap(imputed_traits_plastic, nrep = 100),
   
   #summarise bootstrap moments
-  sum_boot_moment_div = trait_summarise_boot_moments(bootstrapped_trait_moments_div),
-  sum_boot_moment_conv = trait_summarise_boot_moments(bootstrapped_trait_moments_conv),
+  sum_boot_moment_fixed = trait_summarise_boot_moments(bootstrapped_trait_moments_fixed) %>% 
+    rename("originBlockID" = "blockID", "originSiteID" = "Site"),
+  sum_boot_moment_plastic = trait_summarise_boot_moments(bootstrapped_trait_moments_plastic) %>% 
+    rename("destBlockID" = "blockID", "destSiteID" = "Site"),
   
   #summarise bootstrap moments with climate
-  summarised_boot_moments_climate = bind_rows(
-    divergence = sum_boot_moment_div,
-    convergence = sum_boot_moment_conv, 
-    .id = "direction") %>% 
-    left_join(env, by = c("Site" = "site")) %>% 
+ summarised_boot_moments_climate = bind_rows(
+    fixed = sum_boot_moment_fixed %>% 
+      left_join(env, by = c("originSiteID" = "site")),
+    plastic = sum_boot_moment_plastic %>% 
+      left_join(env, by = c("destSiteID" = "site")),
+    .id = "plasticity") %>% 
+   # select climate data for otc and other plots
     filter(
       (logger == "otc" & TTtreat == "OTC") | (logger != "otc" & TTtreat != "OTC")) %>% 
     select(-logger),#no longer needed,
   
   #traits with climate
-  bootstrapped_trait_moments_climate =
-    bind_rows(
-      divergence = bootstrapped_trait_moments_div,
-      convergence = bootstrapped_trait_moments_conv, 
-      .id = "direction") %>%
-    left_join(env, by = c("Site" = "site")) %>% 
-    filter(
-      (logger == "otc" & TTtreat == "OTC") | (logger != "otc" & TTtreat != "OTC")) %>% 
-    select(-logger)#no longer needed
+ bootstrapped_trait_moments_climate = bind_rows(
+   fixed = bootstrapped_trait_moments_fixed %>% 
+     rename("originBlockID" = "blockID", "originSiteID" = "Site") %>% 
+     left_join(env, by = c("originSiteID" = "site")),
+   plastic = bootstrapped_trait_moments_plastic %>% 
+     rename("destBlockID" = "blockID", "destSiteID" = "Site") %>% 
+     left_join(env, by = c("destSiteID" = "site")),
+   .id = "plasticity") %>% 
+   # select climate data for otc and other plots
+   filter(
+     (logger == "otc" & TTtreat == "OTC") | (logger != "otc" & TTtreat != "OTC")) %>% 
+   select(-logger)#no longer needed
   
 )
 
-
-
-#fit <- lme(Mean ~ value, random = ~1|Site, data = summarised_boot_moments_climate)
-#summary(fit)

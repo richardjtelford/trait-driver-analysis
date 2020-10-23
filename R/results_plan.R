@@ -32,9 +32,9 @@ results_plan <- drake_plan(
   
   
   #euclidean distance table
-  euclidean_dist_table = results_distance %>% 
-    select(direction.row, Site.row, term:p.value) %>% 
-    rename(direction = direction.row, Site = Site.row) %>% 
+  euclidean_dist_table = euclidean_results %>% 
+    select(plasticity, originSiteID.row, term:p.value) %>% 
+    rename(originSiteID = originSiteID.row) %>% 
     mutate(term = plyr::mapvalues(term, from = c("(Intercept)", "TTtreat.rowcool1", "TTtreat.rowcool3", "TTtreat.rowwarm1", "TTtreat.rowwarm3", "TTtreat.rowOTC"),
                                   to = c("Intercept", "cool1", "cool3", "warm1", "warm3", "OTC"))) %>% 
     mutate(estimate = round(estimate, 2),
@@ -49,7 +49,7 @@ results_plan <- drake_plan(
   
   #happymoments results table
   happymoment_effect_table = happymoment_effect %>% 
-    select(direction:happymoment, term:p.value) %>% 
+    select(plasticity:happymoment, term:p.value) %>% 
     mutate(term = plyr::mapvalues(term, from = c("Tcontrol", "Tcool1", "Tcool3", "TOTC", "Twarm1", "Twarm3", "control", "cool1", "cool3", "OTC", "warm1", "warm3"),
                                   to = c("control", "cool1", "cool3", "OTC", "warm1", "warm3", "control*year", "cool1*year", "cool3*year", "OTC*year", "warm1*year", "warm3*year"))) %>%
     mutate(estimate = round(estimate, 2),
