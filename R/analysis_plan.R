@@ -1,11 +1,29 @@
 #data analysis plan
 
 analysis_plan <- drake_plan(
-  #calculate effect size (control - treatment per block)
-  effect_size = summarised_boot_moments_climate %>% 
-    ungroup() %>% 
-    select(-global, -n, -turfID, -c(ci_low_mean:ci_high_Kurt)) %>%
-    group_by(direction, year, trait_trans, TTtreat, Site, blockID) %>% 
+  
+  #calculate effect size
+  effect_size = bind_rows(
+    divergence = bind_rows(
+      fixed = sum_boot_moment_fixed,
+      plastic = sum_boot_moment_plastic,
+      .id = "plasticity") %>%
+      ungroup() %>% 
+      rename(Site = originSiteID, Block = originBlockID) %>% 
+      select(-destSiteID, -destBlockID),
+    
+    convergence = bind_rows(
+      fixed = sum_boot_moment_fixed,
+      plastic = sum_boot_moment_plastic,
+      .id = "plasticity") %>%
+      ungroup() %>% 
+      rename(Site = destSiteID, Block = destBlockID) %>% 
+      select(-originSiteID, -originBlockID),
+    
+    .id = "direction"
+  ) %>% 
+    select(-c(ci_low_mean:ci_high_Kurt)) %>% 
+    group_by(direction, plasticity, year, trait_trans, TTtreat, Site, Block) %>% 
     summarise(mean = mean(mean, na.rm = TRUE)) %>% 
     pivot_wider(names_from = "TTtreat", values_from = "mean") %>% 
     mutate(warm1 = warm1 - control,
@@ -18,15 +36,16 @@ analysis_plan <- drake_plan(
     filter(!is.na(mean)) %>% 
     #scale
     mutate(mean = mean / sd(mean)),
+
   
   #effect of gradient (control plots, 2016)
-  # need only conv or div, because only the control plots will be the same.
+  # control = origin, only done for fixed traits
   trait_climate_regression = summarised_boot_moments_climate %>% 
     ungroup() %>% 
     filter(year == 2016,
            TTtreat %in% c("control"),
-           direction == "divergence") %>% 
-    select(Site:mean, variable, value, -n) %>% 
+           plasticity == "fixed") %>% 
+    select(originSiteID:mean, variable, value, -n) %>% 
     nest(data = -c(trait_trans)) %>% 
     mutate(mod = map(data, ~lm(mean ~ value, data = .x)),
            result = map(mod, tidy)) %>%
@@ -37,7 +56,7 @@ analysis_plan <- drake_plan(
   
   #effect of experiments across all elevations
   treatment_effect = effect_size %>% 
-    nest(data = -c(direction, trait_trans)) %>% 
+    nest(data = -c(direction, plasticity, trait_trans)) %>% 
     mutate(mod = map(data, ~lm(mean ~ TTtreat*year, data = .x)),
            result = map(mod, tidy)) %>% 
     unnest(result) %>% 
@@ -47,32 +66,33 @@ analysis_plan <- drake_plan(
   
   
   #effect of experiments by elevations
-  treatment_by_site = effect_size %>% 
-    filter(year == 2016) %>% 
-    nest(data = -c(direction, trait_trans)) %>% 
-    mutate(mod = map(data, ~lm(mean ~ TTtreat*Site, data = .x)),
-           result = map(mod, tidy)) %>% 
-    unnest(result),
+  # treatment_by_site = effect_size %>% 
+  #   ungroup() %>% 
+  #   filter(year == 2016) %>% 
+  #   nest(data = -c(direction, plasticity, trait_trans)) %>% 
+  #   mutate(mod = map(data, ~lm(mean ~ TTtreat*Site, data = .x)),
+  #          result = map(mod, tidy)) %>% 
+  #   unnest(result),
   
   
   #effect of experiment over time
-  treatment_time_effect = effect_size %>% 
-    nest(data = -c(direction, trait_trans)) %>% 
-    mutate(mod = map(data, ~lme(mean ~ year*TTtreat, random = ~1|Site, data = .x)),
-           result = map(mod, tidy, "fixed")) %>% 
-    unnest(result),
+  # treatment_time_effect = effect_size %>% 
+  #   nest(data = -c(direction, trait_trans)) %>% 
+  #   mutate(mod = map(data, ~lme(mean ~ year*TTtreat, random = ~1|Site, data = .x)),
+  #          result = map(mod, tidy, "fixed")) %>% 
+  #   unnest(result),
   
   #happy higher moment - treatment and time
   happymoments = bind_rows(
-    divergence = sum_boot_moment_div,
-    convergence = sum_boot_moment_conv, 
-    .id = "direction") %>%
+    fixed = sum_boot_moment_fixed,
+    plastic = sum_boot_moment_plastic, 
+    .id = "plasticity") %>%
     ungroup() %>% 
-    select(direction, Site, blockID, trait_trans, TTtreat, year, turfID, var, skew, kurt) %>% 
+    select(plasticity:destSiteID, mean, var, skew, kurt) %>% 
     pivot_longer(cols = c(var, skew, kurt), names_to = "happymoment", values_to = "value"),
     
     happymoment_effect = happymoments %>% 
-      nest(data = -c(direction, trait_trans, happymoment)) %>% 
+      nest(data = -c(plasticity, trait_trans, happymoment)) %>% 
     mutate(mod = map(data, ~ lm(value ~ TTtreat*year, data = .x)),
            result = map(mod, tidy)) %>% 
     unnest(result) %>% 
