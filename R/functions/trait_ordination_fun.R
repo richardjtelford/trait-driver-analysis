@@ -1,5 +1,5 @@
 ## pair site ordinations
-twoSites <- function(data, low, high){
+two_site_pca <- function(data, low, high){
   #make fat table
   cwm_fat <- data %>% 
     ungroup() %>% 
@@ -17,13 +17,15 @@ twoSites <- function(data, low, high){
   
   high_pca <- cwm_sites %>% 
     select(-(originSiteID:destSiteID)) %>% rda(scale = TRUE)
-  
+
   high_sites <- bind_cols(
     cwm_sites %>% select(originSiteID:destSiteID), 
     fortify(high_pca, display = "sites")
   )
   
   high_traits <- fortify(high_pca, display = "species")
-  return(high_sites)
   
+  outputList <- list(high_sites, high_traits)
+  
+  return(outputList)
 }
