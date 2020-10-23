@@ -201,7 +201,7 @@ plot_plan <- drake_plan(
   
   #skewness
   skewness_plot = happymoments %>%
-    filter(plasticity == "divergence", 
+    filter(plasticity == "fixed", 
            happymoment == "skew") %>% 
     inner_join(happymoment_effect, by = c("plasticity", "trait_trans", "happymoment", "TTtreat" = "term")) %>% 
     mutate(TTtreat = factor(TTtreat, levels = c("control", "warm3", "warm1", "OTC", "cool1", "cool3"))) %>% 
@@ -218,7 +218,7 @@ plot_plan <- drake_plan(
   
   #kurtois
   kurtosis_plot = happymoments %>%
-    filter(plasticity == "divergence", 
+    filter(plasticity == "fixed", 
            happymoment == "kurt") %>% 
     inner_join(happymoment_effect, by = c("plasticity", "trait_trans", "happymoment", "TTtreat" = "term")) %>% 
     mutate(TTtreat = factor(TTtreat, levels = c("control", "warm3", "warm1", "OTC", "cool1", "cool3"))) %>% 
