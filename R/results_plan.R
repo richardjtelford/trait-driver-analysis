@@ -49,7 +49,7 @@ results_plan <- drake_plan(
   
   #happymoments results table
   happymoment_effect_table = happymoment_effect %>% 
-    select(direction:happymoment, term:p.value) %>% 
+    select(plasticity:happymoment, term:p.value) %>% 
     mutate(term = plyr::mapvalues(term, from = c("Tcontrol", "Tcool1", "Tcool3", "TOTC", "Twarm1", "Twarm3", "control", "cool1", "cool3", "OTC", "warm1", "warm3"),
                                   to = c("control", "cool1", "cool3", "OTC", "warm1", "warm3", "control*year", "cool1*year", "cool3*year", "OTC*year", "warm1*year", "warm3*year"))) %>%
     mutate(estimate = round(estimate, 2),
