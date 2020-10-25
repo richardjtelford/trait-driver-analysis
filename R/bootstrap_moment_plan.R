@@ -2,7 +2,7 @@
 
 bootstrap_moment_plan <- drake_plan(
   
-  #divergence
+  #fixed
   #impute traits for control and pre-transplant
   community_fixed = community %>%
     select(Site = originSiteID, blockID = originBlockID, turfID, year, TTtreat, Taxon = speciesName, Genus, cover, destBlockID, destSiteID),
@@ -15,7 +15,7 @@ bootstrap_moment_plan <- drake_plan(
                                     abundance_col = "cover", 
                                     other_col = c("TTtreat", "year", "turfID", "destBlockID", "destSiteID")),
   
-  #convergence
+  #plastic
   #impute traits for control and pre-transplant
   community_plastic = community %>%
     select(Site = destSiteID, blockID = destBlockID, turfID, year, TTtreat, Taxon = speciesName, Genus, cover, originBlockID, originSiteID) %>% 
