@@ -83,6 +83,7 @@ plot_plan <- drake_plan(
     geom_line() +
     scale_colour_manual(values = c("lightblue", "blue", "grey", "orange", "pink", "red"), name = "") +
     scale_linetype_manual(values = c("dotted", "solid"), name = "") +
+    scale_x_continuous(breaks=c(2012, 2014, 2016)) +
     geom_hline(yintercept = 0, colour = "grey50", linetype = "dashed") +
     labs(x = "", y = "Mean trait value") +
     facet_grid(trait_trans ~ direction * plasticity, scales = "free_y") +
@@ -192,7 +193,7 @@ plot_plan <- drake_plan(
     geom_boxplot() +
     scale_fill_manual(values = c("grey50", "pink", "lightblue", "red", "blue", "orange")) +
     scale_alpha_manual(values = c(0.1, 1)) +
-    scale_x_discrete(limits=c("2012", "2014", "2016")) +
+    scale_x_discrete(breaks=c("2012", "2014", "2016")) +
     labs(title = "Temporal change in variance", x = "", y = "Variance") +
     facet_grid(trait_trans ~ TTtreat, scales = "free_y") +
     theme_bw() +
@@ -209,7 +210,7 @@ plot_plan <- drake_plan(
     geom_boxplot() +
     scale_fill_manual(values = c("grey50", "pink", "lightblue", "red", "blue", "orange")) +
     scale_alpha_manual(values = c(0.1, 1)) +
-    scale_x_discrete(limits=c("2012", "2014", "2016")) +
+    scale_x_discrete(breaks=c("2012", "2014", "2016")) +
     labs(title = "Temporal change in skewness", x = "", y = "Skewness") +
     facet_grid(trait_trans ~ TTtreat, scales = "free_y") +
     theme_bw() +
@@ -226,7 +227,7 @@ plot_plan <- drake_plan(
     geom_boxplot() +
     scale_fill_manual(values = c("grey50", "pink", "lightblue", "red", "blue", "orange")) +
     scale_alpha_manual(values = c(0.1, 1)) +
-    scale_x_discrete(limits=c("2012", "2014", "2016")) +
+    scale_x_discrete(breaks=c("2012", "2014", "2016")) +
     labs(title = "Temporal change in kurtosis", x = "", y = "Kurtosis") +
     facet_grid(trait_trans ~ TTtreat, scales = "free_y") +
     theme_bw() +
