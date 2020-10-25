@@ -28,13 +28,15 @@ rda_plan <- drake_plan(
     scale_y_continuous(breaks = pretty(fortify(fit_Warming_fixed)$Response, n = 5)) +
     ggtitle("fixed") +
     theme_minimal() +
-    theme(legend.position = c(0.2, 0.8), legend.title = element_blank()),
+    theme(legend.position = c(0.2, 0.8),
+          legend.title = element_blank(),
+          text = element_text(size = 8)),
   
   wf3 = fortify(fit_Warming_fixed) %>% 
     filter(Score == "Species") %>% 
     mutate(X = 1) %>% 
     ggplot(aes(x = X, y = (Response), label = Label)) +
-    geom_text(aes(x = X), size = 4) +
+    geom_text(aes(x = X), size = 2.5) +
     geom_hline(yintercept = 0) +
     scale_y_continuous(breaks = pretty(fortify(fit_Warming_fixed)$Response, n = 5)) +
     labs(x = "", y = "") +
@@ -70,13 +72,14 @@ rda_plan <- drake_plan(
     scale_y_continuous(breaks = pretty(fortify(fit_Warming_plastic)$Response, n = 5)) +
     ggtitle("plastic") +
     theme_minimal() +
-    theme(legend.position = "none"),
+    theme(legend.position = "none",
+          text = element_text(size = 8)),
   
   wp3 = fortify(fit_Warming_plastic) %>% 
     filter(Score == "Species") %>% 
     mutate(X = 1) %>% 
     ggplot(aes(x = X, y = (Response), label = Label)) +
-    geom_text(aes(x = X), size = 4) +
+    geom_text(aes(x = X), size = 2.5) +
     geom_hline(yintercept = 0) +
     scale_y_continuous(breaks = pretty(fortify(fit_Warming_plastic)$Response, n = 5)) +
     labs(x = "", y = "") +
@@ -112,13 +115,15 @@ rda_plan <- drake_plan(
     scale_y_continuous(breaks = pretty(fortify(fit_Cool_fixed)$Response, n = 5)) +
     ggtitle("fixed") +
     theme_minimal() +
-    theme(legend.position = c(0.2, 0.4), legend.title = element_blank()),
+    theme(legend.position = c(0.2, 0.4), 
+          legend.title = element_blank(),
+          text = element_text(size = 8)),
   
   cf3 = fortify(fit_Cool_fixed) %>% 
     filter(Score == "Species") %>% 
     mutate(X = 1) %>% 
     ggplot(aes(x = X, y = Response, label = Label)) +
-    geom_text(aes(x = X), size = 4) +
+    geom_text(aes(x = X), size = 2.5) +
     geom_hline(yintercept = 0) +
     scale_y_continuous(breaks = pretty(fortify(fit_Cool_fixed)$Response, n = 5)) +#, trans = "reverse") +
     labs(x = "", y = "") +
@@ -153,13 +158,14 @@ rda_plan <- drake_plan(
     scale_y_continuous(breaks = pretty(fortify(fit_Cool_plastic)$Response, n = 5)) +
     ggtitle("plastic") +
     theme_minimal() +
-    theme(legend.position = "none"),
+    theme(legend.position = "none",
+          text = element_text(size = 8)),
   
   cp3 = fortify(fit_Cool_plastic) %>% 
     filter(Score == "Species") %>% 
     mutate(X = 1) %>% 
     ggplot(aes(x = X, y = Response, label = Label)) +
-    geom_text(aes(x = X), size = 4) +
+    geom_text(aes(x = X), size = 2.5) +
     geom_hline(yintercept = 0) +
     scale_y_continuous(breaks = pretty(fortify(fit_Cool_plastic)$Response, n = 5)) +#, trans = "reverse") +
     labs(x = "", y = "") +
