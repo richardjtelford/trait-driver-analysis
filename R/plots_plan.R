@@ -15,12 +15,11 @@ plot_plan <- drake_plan(
            slope = factor(slope, levels = c("positive slope", "no slope", "negative slope"))) %>% 
     arrange(slope, desc(estimate)),
   
-  # without Wet_Mass_g_log to make nice plot with 3x4 pannels (same as dry mass anyway)
+  # without Wet_Mass_g_log to make nice plot with 3x4 panels (same as dry mass anyway)
   moments_by_climate_plot = summarised_boot_moments_climate %>% 
     filter(year == 2016,
            TTtreat %in% c("control"),
-           plasticity == "fixed",
-           trait_trans != "Wet_Mass_g_log") %>% 
+           plasticity == "fixed") %>% 
     ungroup() %>% 
     left_join(trait_climate_regression %>% 
                 filter(term == "slope"), 
@@ -68,8 +67,7 @@ plot_plan <- drake_plan(
   
   #divergence-convergence plot
   conv_div_plot = effect_size %>% 
-    filter(year %in% c(2012, 2016),
-           trait_trans != "Wet_Mass_g_log") %>% 
+    filter(year %in% c(2012, 2016)) %>% 
     ungroup() %>% 
     group_by(direction, plasticity, TTtreat, year, trait_trans) %>% 
     summarise(mean = mean(mean)) %>% 
@@ -101,8 +99,7 @@ plot_plan <- drake_plan(
     plastic = sum_boot_moment_plastic, 
     .id = "plasticity") %>%
     ungroup() %>%  
-    filter(TTtreat == "control",
-           trait_trans  == "Wet_Mass_g_log") %>% 
+    filter(TTtreat == "control") %>% 
     ggplot(aes(x = mean, fill = originSiteID)) + 
     geom_density(alpha = 0.5) + 
     facet_grid(plasticity ~ trait_trans, scales = "free"),
@@ -184,11 +181,13 @@ plot_plan <- drake_plan(
   
   ## ----var-ske-kurt
   #variance
-  variance_plot = happymoments %>%
+  higher_moment_data = happymoments %>%
+    inner_join(happymoment_effect, by = c("plasticity", "trait_trans", "happymoment", "TTtreat" = "term")) %>% 
+    mutate(TTtreat = factor(TTtreat, levels = c("control", "warm3", "warm1", "OTC", "cool1", "cool3"))),
+    
+    var_plot = higher_moment_data %>% 
     filter(plasticity == "fixed", 
            happymoment == "var") %>% 
-    inner_join(happymoment_effect, by = c("plasticity", "trait_trans", "happymoment", "TTtreat" = "term")) %>% 
-    mutate(TTtreat = factor(TTtreat, levels = c("control", "warm3", "warm1", "OTC", "cool1", "cool3"))) %>% 
     ggplot(aes(x = factor(year), y = value, fill = TTtreat, alpha = signi)) +
     geom_boxplot() +
     scale_fill_manual(values = c("grey50", "pink", "lightblue", "red", "blue", "orange")) +
@@ -200,42 +199,18 @@ plot_plan <- drake_plan(
     theme(legend.position = "none",
           strip.text.y = element_text(angle=360)),
   
-  #skewness
-  skewness_plot = happymoments %>%
-    filter(plasticity == "fixed", 
-           happymoment == "skew") %>% 
-    inner_join(happymoment_effect, by = c("plasticity", "trait_trans", "happymoment", "TTtreat" = "term")) %>% 
-    mutate(TTtreat = factor(TTtreat, levels = c("control", "warm3", "warm1", "OTC", "cool1", "cool3"))) %>% 
-    ggplot(aes(x = factor(year), y = value, fill = TTtreat, alpha = signi)) +
-    geom_boxplot() +
-    scale_fill_manual(values = c("grey50", "pink", "lightblue", "red", "blue", "orange")) +
-    scale_alpha_manual(values = c(0.1, 1)) +
-    scale_x_discrete(breaks=c("2012", "2014", "2016")) +
-    labs(title = "Temporal change in skewness", x = "", y = "Skewness") +
-    facet_grid(trait_trans ~ TTtreat, scales = "free_y") +
-    theme_bw() +
-    theme(legend.position = "none",
-          strip.text.y = element_text(angle=360)),
+    #skewness
+    skew_plot = var_plot %+% filter(higher_moment_data, 
+                        plasticity == "fixed",
+                        happymoment == "skew") +
+      labs(title = "Temporal change in skewness", x = "", y = "Skewness"),
   
-  #kurtois
-  kurtosis_plot = happymoments %>%
-    filter(plasticity == "fixed", 
-           happymoment == "kurt") %>% 
-    inner_join(happymoment_effect, by = c("plasticity", "trait_trans", "happymoment", "TTtreat" = "term")) %>% 
-    mutate(TTtreat = factor(TTtreat, levels = c("control", "warm3", "warm1", "OTC", "cool1", "cool3"))) %>% 
-    ggplot(aes(x = factor(year), y = value, fill = TTtreat, alpha = signi)) +
-    geom_boxplot() +
-    scale_fill_manual(values = c("grey50", "pink", "lightblue", "red", "blue", "orange")) +
-    scale_alpha_manual(values = c(0.1, 1)) +
-    scale_x_discrete(breaks=c("2012", "2014", "2016")) +
-    labs(title = "Temporal change in kurtosis", x = "", y = "Kurtosis") +
-    facet_grid(trait_trans ~ TTtreat, scales = "free_y") +
-    theme_bw() +
-    theme(legend.position = "none",
-          strip.text.y = element_text(angle=360)),
+    #kurtois
+    kurt_plot = var_plot %+% filter(higher_moment_data, 
+                        plasticity == "fixed",
+                        happymoment == "kurt") +
+      labs(title = "Temporal change in kurtosis", x = "", y = "Kurtosis")
   ## ----
-  
-
   
   
 )

@@ -19,12 +19,12 @@ import_plan <- drake_plan(
   traits_chemical0 = read_csv(traits_chemical_download),
   
   traits_leaf = traits_leaf0 %>% 
-    select(-Envelope_Name_Corrected, -Date, -matches("Flag$"), -allComments) %>% 
+    select(-Envelope_Name_Corrected, -Date, -Wet_Mass_g, -matches("Flag$"), -allComments) %>% 
     #remove leaf-thickness measurement (keep mean)
     select(-matches("Leaf_Thickness_\\d_mm")) %>% 
     rename("Thickness_mm" = "Leaf_Thickness_Ave_mm") %>% 
     pivot_longer(
-      cols = c("Wet_Mass_g", "Dry_Mass_g", "Thickness_mm", "Leaf_Area_cm2", "SLA_cm2_g", "LDMC"), 
+      cols = c("Dry_Mass_g", "Thickness_mm", "Leaf_Area_cm2", "SLA_cm2_g", "LDMC"), 
       names_to = "trait", 
       values_to = "value"),
   
@@ -58,7 +58,6 @@ import_plan <- drake_plan(
     mutate(
       value_trans = if_else(
         trait %in% c(
-          "Wet_Mass_g",
           "Dry_Mass_g",
           "Leaf_Area_cm2",
           "Thickness_mm"
@@ -68,7 +67,6 @@ import_plan <- drake_plan(
       ), 
       trait_trans = recode(
         trait,
-        "Wet_Mass_g" = "Wet_Mass_g_log",
         "Dry_Mass_g" = "Dry_Mass_g_log",
         "Leaf_Area_cm2" = "Leaf_Area_cm2_log",
         "Thickness_mm" = "Thickness_mm_log"
