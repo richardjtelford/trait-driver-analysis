@@ -144,21 +144,22 @@ plot_plan <- drake_plan(
   
   
   #trait treatment ordinations - convergence with fixed traits
-  bind_rows(
+  ordination_plot = bind_rows(
      moderate = treatment_pca(sum_boot_moment_fixed, "warm1", "cool1")[[1]],
      extreme = treatment_pca(sum_boot_moment_fixed, "warm3", "cool3")[[1]],
      otc = treatment_pca(sum_boot_moment_fixed, "OTC", NULL)[[1]],
      .id = "treatment"
      ) %>% 
+    mutate(treatment = fct_relevel(treatment, c("moderate", "extreme", "otc"))) %>% 
     ggplot(aes(x = PC1, y = PC2, colour = TTtreat, shape = destSiteID, group = turfID, linetype = destSiteID)) + 
     geom_point(aes(size = ifelse(year == min(year), "First", "Other"))) +
     geom_path() +
-    #coord_equal() +
+    coord_equal() +
     scale_size_discrete(range = c(1, 2.5), limits = c("Other", "First"), breaks = c("First", "Other")) +
     scale_colour_manual(values = c("grey50", "pink", "lightblue", "red", "blue", "orange")) +
     scale_x_continuous(expand = c(.15, 0)) +
     labs(x = "PC 1", y = "PC 2", shape = "Site", colour = "Treatment", size = "Year", linetype = "Site", title = "Convergence") +
-    facet_wrap(~ treatment) +
+    facet_wrap(~ treatment, ncol = 1) +
     theme_minimal(),
   
   
