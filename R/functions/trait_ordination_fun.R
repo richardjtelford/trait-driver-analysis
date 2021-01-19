@@ -33,9 +33,6 @@ two_site_pca <- function(data, low, high){
 
 
 ## treatment ordinations
-data <- sum_boot_moment_fixed 
-treat1 <- "warm3"
-treat2 <- "cool3"
 treatment_pca <- function(data, treat1, treat2){
   #make wide table
   cwm_fat <- data %>% 

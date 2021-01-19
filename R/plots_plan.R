@@ -107,17 +107,49 @@ plot_plan <- drake_plan(
   #trait coverage
   #trait_coverage = autoplot(imputed_traits_div),
   
-  #trait ordinations - convergence with fixed traits
-  A_H = two_site_pca(data = sum_boot_moment_fixed, low = "A", high = "H"),
-  M_A = two_site_pca(data = sum_boot_moment_fixed, low = "M", high = "A"),
-  L_M = two_site_pca(data = sum_boot_moment_fixed, low = "L", high = "M"),
-  L_H = two_site_pca(data = sum_boot_moment_fixed, low = "L", high = "H"),
+  #trait site ordinations - convergence with fixed traits
+  # A_H = two_site_pca(data = sum_boot_moment_fixed, low = "A", high = "H"),
+  # M_A = two_site_pca(data = sum_boot_moment_fixed, low = "M", high = "A"),
+  # L_M = two_site_pca(data = sum_boot_moment_fixed, low = "L", high = "M"),
+  # L_H = two_site_pca(data = sum_boot_moment_fixed, low = "L", high = "H"),
+  # 
+  # ordination_plot = bind_rows(A_H = A_H[[1]],
+  #                                M_A = M_A[[1]],
+  #                                L_M = L_M[[1]],
+  #                                L_H = L_H[[1]],
+  #                                .id = "comparison") %>% 
+  #   ggplot(aes(x = PC1, y = PC2, colour = TTtreat, shape = destSiteID, group = turfID, linetype = destSiteID)) + 
+  #   geom_point(aes(size = ifelse(year == min(year), "First", "Other"))) +
+  #   geom_path() +
+  #   #coord_equal() +
+  #   scale_size_discrete(range = c(1, 2.5), limits = c("Other", "First"), breaks = c("First", "Other")) +
+  #   scale_colour_manual(values = c("grey50", "pink", "lightblue", "red", "blue", "orange")) +
+  #   scale_x_continuous(expand = c(.15, 0)) +
+  #   labs(x = "PC 1", y = "PC 2", shape = "Site", colour = "Treatment", size = "Year", linetype = "Site", title = "Convergence") +
+  #   facet_wrap(~ comparison) +
+  #   theme_minimal(),
   
-  ordination_plot = bind_rows(A_H = A_H[[1]],
-                                 M_A = M_A[[1]],
-                                 L_M = L_M[[1]],
-                                 L_H = L_H[[1]],
-                                 .id = "comparison") %>% 
+  # arrows = ggplot(A_H[[1]], aes(x = PC1, y = PC2, group = turfID)) +
+  #   geom_segment(data = A_H[[2]], 
+  #                aes(x = 0, y = 0, xend = PC1, yend = PC2), 
+  #                arrow = arrow(length = unit(0.2, "cm")), 
+  #                colour = "grey80",
+  #                inherit.aes = FALSE) +
+  #   geom_text(data = A_H[[2]], 
+  #             aes(x = PC1 * 1.1,y = PC2 * 1.1, label = Label), 
+  #             size = 3,
+  #             inherit.aes = FALSE, colour = "grey80") +
+  #   scale_x_continuous(expand = c(.2, 0)) +
+  #   theme_minimal(),
+  
+  
+  #trait treatment ordinations - convergence with fixed traits
+  bind_rows(
+     moderate = treatment_pca(sum_boot_moment_fixed, "warm1", "cool1")[[1]],
+     extreme = treatment_pca(sum_boot_moment_fixed, "warm3", "cool3")[[1]],
+     otc = treatment_pca(sum_boot_moment_fixed, "OTC", NULL)[[1]],
+     .id = "treatment"
+     ) %>% 
     ggplot(aes(x = PC1, y = PC2, colour = TTtreat, shape = destSiteID, group = turfID, linetype = destSiteID)) + 
     geom_point(aes(size = ifelse(year == min(year), "First", "Other"))) +
     geom_path() +
@@ -126,22 +158,23 @@ plot_plan <- drake_plan(
     scale_colour_manual(values = c("grey50", "pink", "lightblue", "red", "blue", "orange")) +
     scale_x_continuous(expand = c(.15, 0)) +
     labs(x = "PC 1", y = "PC 2", shape = "Site", colour = "Treatment", size = "Year", linetype = "Site", title = "Convergence") +
-    facet_wrap(~ comparison) +
+    facet_wrap(~ treatment) +
     theme_minimal(),
   
-  arrows = ggplot(A_H[[1]], aes(x = PC1, y = PC2, group = turfID)) +
-    geom_segment(data = A_H[[2]], 
+  
+  arrows = ggplot(treatment_pca(sum_boot_moment_fixed, "warm1", "cool1")[[1]], aes(x = PC1, y = PC2, group = turfID)) +
+    geom_segment(data = treatment_pca(sum_boot_moment_fixed, "warm1", "cool1")[[2]], 
                  aes(x = 0, y = 0, xend = PC1, yend = PC2), 
                  arrow = arrow(length = unit(0.2, "cm")), 
                  colour = "grey80",
                  inherit.aes = FALSE) +
-    geom_text(data = A_H[[2]], 
+    geom_text(data = treatment_pca(sum_boot_moment_fixed, "warm1", "cool1")[[2]], 
               aes(x = PC1 * 1.1,y = PC2 * 1.1, label = Label), 
               size = 3,
               inherit.aes = FALSE, colour = "grey80") +
     scale_x_continuous(expand = c(.2, 0)) +
     theme_minimal(),
-  
+    
   
   
   #other plots
