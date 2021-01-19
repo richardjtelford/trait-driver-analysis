@@ -29,3 +29,33 @@ two_site_pca <- function(data, low, high){
   
   return(outputList)
 }
+
+
+
+## treatment ordinations
+data <- sum_boot_moment_fixed 
+treat1 <- "warm3"
+treat2 <- "cool3"
+treatment_pca <- function(data, treat1, treat2){
+  #make wide table
+  cwm_fat <- data %>% 
+    ungroup() %>% 
+    select(originSiteID:mean, -n) %>% 
+    pivot_wider(names_from = "trait_trans", values_from = "mean") %>% 
+    # filter for treatment
+    filter(TTtreat %in% c("control", treat1, treat2))
+  
+  pca_output <- cwm_fat %>% 
+    select(-(originSiteID:destSiteID)) %>% rda(scale = TRUE)
+  
+  pca_sites <- bind_cols(
+    cwm_fat %>% select(originSiteID:destSiteID), 
+    fortify(pca_output, display = "sites")
+  )
+  
+  pca_traits <- fortify(pca_output, display = "species")
+  
+  outputList <- list(pca_sites, pca_traits)
+  
+  return(outputList)
+}
