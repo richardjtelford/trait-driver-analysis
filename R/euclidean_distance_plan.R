@@ -19,7 +19,7 @@ euclidean_distance_plan <- drake_plan(
   only_traits_fixed = fat_table %>% 
     filter(plasticity == "fixed") %>% 
     ungroup() %>% 
-    select(C_percent:Wet_Mass_g_log),
+    select(C_percent:Thickness_mm_log),
   
   #scale, calculate euclidean distance
   dist_fixed = as.matrix(dist(scale(only_traits_fixed))),
@@ -46,7 +46,7 @@ euclidean_distance_plan <- drake_plan(
   only_traits_plastic = fat_table %>% 
     filter(plasticity == "plastic") %>% 
     ungroup() %>% 
-    select(C_percent:Wet_Mass_g_log),
+    select(C_percent:Thickness_mm_log),
   
   #scale, calculate euclidean distance
   dist_plastic = as.matrix(dist(scale(only_traits_plastic))),

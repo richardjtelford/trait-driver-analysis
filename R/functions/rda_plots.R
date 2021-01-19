@@ -32,7 +32,7 @@ autoplot.prcWithoutSP <- function(object, select, xlab, ylab,
   plt <- plt + geom_hline(yintercept = 0)
   
   ## add the coefficients
-  plt <- plt + geom_line(size = 1.5) +
+  plt <- plt + geom_line(size = 0.8) +
     theme(legend.position = legend.position, 
           legend.title = element_blank(),
           text = element_text(size=20),

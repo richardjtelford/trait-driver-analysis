@@ -19,12 +19,12 @@ import_plan <- drake_plan(
   traits_chemical0 = read_csv(traits_chemical_download),
   
   traits_leaf = traits_leaf0 %>% 
-    select(-Envelope_Name_Corrected, -Date, -matches("Flag$"), -allComments) %>% 
+    select(-Envelope_Name_Corrected, -Date, -Wet_Mass_g, -matches("Flag$"), -allComments) %>% 
     #remove leaf-thickness measurement (keep mean)
     select(-matches("Leaf_Thickness_\\d_mm")) %>% 
     rename("Thickness_mm" = "Leaf_Thickness_Ave_mm") %>% 
     pivot_longer(
-      cols = c("Wet_Mass_g", "Dry_Mass_g", "Thickness_mm", "Leaf_Area_cm2", "SLA_cm2_g", "LDMC"), 
+      cols = c("Dry_Mass_g", "Thickness_mm", "Leaf_Area_cm2", "SLA_cm2_g", "LDMC"), 
       names_to = "trait", 
       values_to = "value"),
   
@@ -51,14 +51,23 @@ import_plan <- drake_plan(
   #calculate derived traits
   #transform
   traits = traits0 %>% 
-    filter(Treatment %in% c("LOCAL", "C", "0")) %>% # only gradient plots
+    mutate(Treatment = fct_recode(Treatment, 
+                                  control = "C",
+                                  control = "0",
+                                  control = "LOCAL",
+                                  warm1 = "1",
+                                  cool1 = "2",
+                                  warm3 = "3",
+                                  cool3 = "4",
+                                  OTC = "OTC"),
+           Treatment = fct_relevel(Treatment, c("control", "warm1", "cool1", "warm3", "cool3", "OTC"))) %>% 
+    #filter(Treatment %in% c("LOCAL", "C", "0")) %>% # only gradient plots
     mutate(Genus = word(Taxon, 1)) %>% 
     rename(blockID = destBlockID) %>% 
     #log transform size and area traits
     mutate(
       value_trans = if_else(
         trait %in% c(
-          "Wet_Mass_g",
           "Dry_Mass_g",
           "Leaf_Area_cm2",
           "Thickness_mm"
@@ -68,7 +77,6 @@ import_plan <- drake_plan(
       ), 
       trait_trans = recode(
         trait,
-        "Wet_Mass_g" = "Wet_Mass_g_log",
         "Dry_Mass_g" = "Dry_Mass_g_log",
         "Leaf_Area_cm2" = "Leaf_Area_cm2_log",
         "Thickness_mm" = "Thickness_mm_log"

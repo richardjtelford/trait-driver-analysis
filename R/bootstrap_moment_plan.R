@@ -2,23 +2,25 @@
 
 bootstrap_moment_plan <- drake_plan(
   
-  #divergence
+  #fixed
   #impute traits for control and pre-transplant
   community_fixed = community %>%
-    select(Site = originSiteID, blockID = originBlockID, turfID, year, TTtreat, Taxon = speciesName, Genus, cover, destBlockID, destSiteID),
+    select(Site = originSiteID, blockID = originBlockID, turfID, year, Treatment = TTtreat, Taxon = speciesName, Genus, cover, destBlockID, destSiteID),
   imputed_traits_fixed = trait_impute(comm = community_fixed,
                                     traits = traits, 
                                     scale_hierarchy = c("Site", "blockID"),
                                     trait_col = "trait_trans",
+                                    treatment_col = "Treatment",
+                                    treatment_level = c("Site"),
                                     taxon_col = c("Taxon", "Genus"), 
                                     value_col = "value_trans", 
                                     abundance_col = "cover", 
-                                    other_col = c("TTtreat", "year", "turfID", "destBlockID", "destSiteID")),
+                                    other_col = c("year", "turfID", "destBlockID", "destSiteID")),
   
-  #convergence
+  #plastic
   #impute traits for control and pre-transplant
   community_plastic = community %>%
-    select(Site = destSiteID, blockID = destBlockID, turfID, year, TTtreat, Taxon = speciesName, Genus, cover, originBlockID, originSiteID) %>% 
+    select(Site = destSiteID, blockID = destBlockID, turfID, year, Treatment = TTtreat, Taxon = speciesName, Genus, cover, originBlockID, originSiteID) %>% 
     # change destination control plots from 2012 to origin (pre-transplant)
     mutate(blockID = if_else(year == 2012, originBlockID, blockID),
            Site = if_else(year == 2012, originSiteID, Site)),
@@ -26,15 +28,39 @@ bootstrap_moment_plan <- drake_plan(
                                       traits = traits,
                                       scale_hierarchy = c("Site", "blockID"),
                                       trait_col = "trait_trans",
+                                      treatment_col = "Treatment",
+                                      treatment_level = c("Site"),
                                       taxon_col = c("Taxon", "Genus"),
                                       value_col = "value_trans",
                                       abundance_col = "cover",
-                                      other_col = c("TTtreat", "year", "turfID", "originBlockID", "originSiteID")),
+                                      other_col = c("year", "turfID", "originBlockID", "originSiteID")),
   
   #traits moments 
-  bootstrapped_trait_moments_fixed  = trait_np_bootstrap(imputed_traits_fixed, nrep = 100),
-  bootstrapped_trait_moments_plastic  = trait_np_bootstrap(imputed_traits_plastic, nrep = 100),
-  
+  bootstrapped_trait_moments_fixed  = trait_np_bootstrap(imputed_traits_fixed, nrep = 100) %>% 
+  mutate(Treatment = sub(".*\\-", "", turfID),
+         Treatment = fct_recode(Treatment, 
+                                control = "C",
+                                control = "0",
+                                control = "LOCAL",
+                                warm1 = "1",
+                                cool1 = "2",
+                                warm3 = "3",
+                                cool3 = "4",
+                                OTC = "OTC"),
+         Treatment = fct_relevel(Treatment, c("control", "warm1", "cool1", "warm3", "cool3", "OTC"))) ,
+  bootstrapped_trait_moments_plastic  = trait_np_bootstrap(imputed_traits_plastic, nrep = 100) %>% 
+    mutate(Treatment = sub(".*\\-", "", turfID),
+           Treatment = fct_recode(Treatment, 
+                                  control = "C",
+                                  control = "0",
+                                  control = "LOCAL",
+                                  warm1 = "1",
+                                  cool1 = "2",
+                                  warm3 = "3",
+                                  cool3 = "4",
+                                  OTC = "OTC"),
+           Treatment = fct_relevel(Treatment, c("control", "warm1", "cool1", "warm3", "cool3", "OTC"))),
+
   #summarise bootstrap moments
   sum_boot_moment_fixed = trait_summarise_boot_moments(bootstrapped_trait_moments_fixed) %>% 
     rename("originBlockID" = "blockID", "originSiteID" = "Site"),
@@ -50,7 +76,7 @@ bootstrap_moment_plan <- drake_plan(
     .id = "plasticity") %>% 
    # select climate data for otc and other plots
     filter(
-      (logger == "otc" & TTtreat == "OTC") | (logger != "otc" & TTtreat != "OTC")) %>% 
+      (logger == "otc" & Treatment == "OTC") | (logger != "otc" & Treatment != "OTC")) %>% 
     select(-logger),#no longer needed,
   
   #traits with climate
@@ -68,4 +94,3 @@ bootstrap_moment_plan <- drake_plan(
    select(-logger)#no longer needed
   
 )
-
