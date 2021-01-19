@@ -35,7 +35,7 @@ rda_plan <- drake_plan(
     filter(Score == "Species") %>% 
     mutate(X = 1) %>% 
     ggplot(aes(x = X, y = (Response), label = Label)) +
-    geom_text(aes(x = X), size = 1.5) +
+    geom_text(aes(x = X), size = 1.8) +
     geom_hline(yintercept = 0) +
     scale_y_continuous(breaks = pretty(fortify(fit_Warming_fixed)$Response, n = 5)) +
     labs(x = "", y = "") +
@@ -77,7 +77,7 @@ rda_plan <- drake_plan(
     filter(Score == "Species") %>% 
     mutate(X = 1) %>% 
     ggplot(aes(x = X, y = (Response), label = Label)) +
-    geom_text(aes(x = X), size = 1.5) +
+    geom_text(aes(x = X), size = 1.8) +
     geom_hline(yintercept = 0) +
     scale_y_continuous(breaks = pretty(fortify(fit_Warming_plastic)$Response, n = 5)) +
     labs(x = "", y = "") +
@@ -121,7 +121,7 @@ rda_plan <- drake_plan(
     filter(Score == "Species") %>% 
     mutate(X = 1) %>% 
     ggplot(aes(x = X, y = Response, label = Label)) +
-    geom_text(aes(x = X), size = 1.5) +
+    geom_text(aes(x = X), size = 1.8) +
     geom_hline(yintercept = 0) +
     scale_y_continuous(breaks = pretty(fortify(fit_Cool_fixed)$Response, n = 5)) +#, trans = "reverse") +
     labs(x = "", y = "") +
@@ -163,7 +163,7 @@ rda_plan <- drake_plan(
     filter(Score == "Species") %>% 
     mutate(X = 1) %>% 
     ggplot(aes(x = X, y = Response, label = Label)) +
-    geom_text(aes(x = X), size = 1.5) +
+    geom_text(aes(x = X), size = 1.8) +
     geom_hline(yintercept = 0) +
     scale_y_continuous(breaks = pretty(fortify(fit_Cool_plastic)$Response, n = 5)) +#, trans = "reverse") +
     labs(x = "", y = "") +
