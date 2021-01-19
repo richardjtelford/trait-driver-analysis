@@ -182,6 +182,7 @@ plot_plan <- drake_plan(
   ## ----var-ske-kurt
   #variance
   higher_moment_data = happymoments %>%
+    filter(trait_trans %in% c("dN15_permil", "Leaf_Area_cm2_log", "C_percent", "Thickness_mm_log")) %>% 
     inner_join(happymoment_effect, by = c("plasticity", "trait_trans", "happymoment", "TTtreat" = "term")) %>% 
     mutate(TTtreat = factor(TTtreat, levels = c("control", "warm3", "warm1", "OTC", "cool1", "cool3"))),
     
@@ -190,7 +191,7 @@ plot_plan <- drake_plan(
            happymoment == "var") %>% 
     ggplot(aes(x = factor(year), y = value, fill = TTtreat, alpha = signi)) +
     geom_boxplot() +
-    scale_fill_manual(values = c("grey50", "pink", "lightblue", "red", "blue", "orange")) +
+    scale_fill_manual(values = c("grey50", "pink", "red", "orange", "lightblue",  "blue")) +
     scale_alpha_manual(values = c(0.1, 1)) +
     scale_x_discrete(breaks=c("2012", "2014", "2016")) +
     labs(title = "Temporal change in variance", x = "", y = "Variance") +
