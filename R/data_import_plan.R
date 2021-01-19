@@ -51,7 +51,17 @@ import_plan <- drake_plan(
   #calculate derived traits
   #transform
   traits = traits0 %>% 
-    filter(Treatment %in% c("LOCAL", "C", "0")) %>% # only gradient plots
+    mutate(Treatment = fct_recode(Treatment, 
+                                  control = "C",
+                                  control = "0",
+                                  control = "LOCAL",
+                                  warm1 = "1",
+                                  cool1 = "2",
+                                  warm3 = "3",
+                                  cool3 = "4",
+                                  OTC = "OTC"),
+           Treatment = fct_relevel(Treatment, c("control", "warm1", "cool1", "warm3", "cool3", "OTC"))) %>% 
+    #filter(Treatment %in% c("LOCAL", "C", "0")) %>% # only gradient plots
     mutate(Genus = word(Taxon, 1)) %>% 
     rename(blockID = destBlockID) %>% 
     #log transform size and area traits
