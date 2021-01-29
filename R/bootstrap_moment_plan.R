@@ -37,17 +37,17 @@ bootstrap_moment_plan <- drake_plan(
   
   #traits moments 
   bootstrapped_trait_moments_fixed  = trait_np_bootstrap(imputed_traits_fixed, nrep = 100) %>% 
-    rename(Treatment = Treatment_comm),
+    rename(TTtreat = Treatment_comm),
   
   bootstrapped_trait_moments_plastic  = trait_np_bootstrap(imputed_traits_plastic, nrep = 100)%>% 
-    rename(Treatment = Treatment_comm),
+    rename(TTtreat = Treatment_comm),
 
   #summarise bootstrap moments
   #fixed
   sum_boot_moment_fixed = bootstrapped_trait_moments_fixed %>% 
     #trait_summarise_boot_moments(bootstrapped_trait_moments_fixed) %>%
     ungroup() %>% 
-    group_by(global, Site, blockID, trait_trans, year, turfID, destBlockID, destSiteID, Treatment) %>% 
+    group_by(global, Site, blockID, trait_trans, year, turfID, destBlockID, destSiteID, TTtreat) %>% 
     summarise(
       n = n(),
       mean = mean(mean),
@@ -71,7 +71,7 @@ bootstrap_moment_plan <- drake_plan(
   sum_boot_moment_plastic = bootstrapped_trait_moments_plastic %>% 
     #trait_summarise_boot_moments(bootstrapped_trait_moments_plastic) %>%
     ungroup() %>% 
-    group_by(global, Site, blockID, trait_trans, year, turfID, originBlockID, originSiteID, Treatment) %>% 
+    group_by(global, Site, blockID, trait_trans, year, turfID, originBlockID, originSiteID, TTtreat) %>% 
     summarise(
       n = n(),
       mean = mean(mean),
@@ -101,7 +101,7 @@ bootstrap_moment_plan <- drake_plan(
     .id = "plasticity") %>% 
    # select climate data for otc and other plots
     filter(
-      (logger == "otc" & Treatment == "OTC") | (logger != "otc" & Treatment != "OTC")) %>% 
+      (logger == "otc" & TTtreat == "OTC") | (logger != "otc" & TTtreat != "OTC")) %>% 
     select(-logger),#no longer needed,
   
   #traits with climate
@@ -115,7 +115,7 @@ bootstrap_moment_plan <- drake_plan(
    .id = "plasticity") %>% 
    # select climate data for otc and other plots
    filter(
-     (logger == "otc" & Treatment == "OTC") | (logger != "otc" & Treatment != "OTC")) %>% 
+     (logger == "otc" & TTtreat == "OTC") | (logger != "otc" & TTtreat != "OTC")) %>% 
    select(-logger)#no longer needed
   
 )
