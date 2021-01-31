@@ -90,7 +90,7 @@ analysis_plan <- drake_plan(
     plastic = sum_boot_moment_plastic, 
     .id = "plasticity") %>%
     ungroup() %>% 
-    select(plasticity:destSiteID, mean, var, skew, kurt) %>% 
+    select(plasticity:TTtreat, mean, var, skew, kurt) %>% 
     pivot_longer(cols = c(var, skew, kurt), names_to = "happymoment", values_to = "value"),
     
   # Does treatment differ from control? (only last year)
@@ -116,15 +116,15 @@ analysis_plan <- drake_plan(
     unnest(ci),
   
   # Do cold sites have more positive kurtosis? Extreme cooling even more positive
-  kurtosis_site_test = happymoments %>% 
-    filter(year == 2016, TTtreat == "control", happymoment == "kurt") %>% 
-    nest(data = -c(plasticity, trait_trans)) %>% 
+  kurtosis_site_test = happymoments %>%
+    filter(year == 2016, TTtreat == "control", happymoment == "kurt") %>%
+    nest(data = -c(plasticity, trait_trans)) %>%
     mutate(mod = map(data, ~ lm(value ~ destSiteID, data = .x)),
-           result = map(mod, tidy)) %>% 
-    unnest(result) %>% 
+           result = map(mod, tidy)) %>%
+    unnest(result) %>%
     mutate(term = plyr::mapvalues(term, from = c("(Intercept)", "destSiteIDA", "destSiteIDM", "destSiteIDL"),
                                   to = c("Intercept", "A", "M", "L")),
-           signi = if_else(p.value < 0.05, "significant", "non-signigicant")) %>% 
+           signi = if_else(p.value < 0.05, "significant", "non-signigicant")) %>%
     select(-data, -mod)
 
 )
