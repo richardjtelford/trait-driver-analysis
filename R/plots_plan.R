@@ -161,8 +161,8 @@ plot_plan <- drake_plan(
     scale_size_discrete(range = c(1, 2.5), limits = c("Other", "First"), breaks = c("First", "Other")) +
     scale_colour_manual(values = c("grey50", "pink", "lightblue", "red", "blue", "orange")) +
     scale_x_continuous(expand = c(.15, 0)) +
-    labs(x = "PC 1", y = "PC 2", shape = "Site", colour = "Treatment", size = "Year", linetype = "Site", title = "Convergence") +
-    facet_wrap(~ treatment, ncol = 1) +
+    labs(x = "PC 1", y = "PC 2", shape = "Site", colour = "Treatment", size = "Year", linetype = "Site", title = "Fixed traits") +
+    facet_wrap(~ treatment, ncol = 2) +
     theme_minimal(),
   
   
@@ -176,8 +176,12 @@ plot_plan <- drake_plan(
               aes(x = PC1 * 1.1,y = PC2 * 1.1, label = Label), 
               size = 3,
               inherit.aes = FALSE, colour = "grey80") +
+    labs(x = "", y = "") +
     scale_x_continuous(expand = c(.2, 0)) +
     theme_minimal(),
+  
+  ordination = cowplot::ggdraw(ordination_plot) +
+    cowplot::draw_plot(arrows, .43, 0.04, .33, .43),
     
   
   
