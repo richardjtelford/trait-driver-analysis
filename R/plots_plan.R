@@ -17,23 +17,24 @@ plot_plan <- drake_plan(
   
   # without Wet_Mass_g_log to make nice plot with 3x4 panels (same as dry mass anyway)
   moments_by_climate_plot = summarised_boot_moments_climate %>% 
+    rename(traits = trait_trans) %>% 
     filter(year == 2016,
            TTtreat %in% c("control"),
            plasticity == "fixed") %>% 
     ungroup() %>% 
     left_join(trait_climate_regression %>% 
                 filter(term == "slope"), 
-              by = "trait_trans") %>% 
-    select(originSiteID:mean, term, estimate, p.value, value) %>% 
-    mutate(signi = if_else(p.value < 0.05, "significant", "non-signigicant"),
-           trait_trans = factor(trait_trans, levels = trait_order$trait_trans)) %>% 
+              by = "traits") %>% 
+    select(originSiteID:mean, term, estimate, `P value`, value) %>% 
+    mutate(signi = if_else(`P value` < 0.05, "significant", "non-signigicant"),
+           traits = factor(traits, levels = trait_order$traits)) %>% 
     ggplot(aes(x = value, y = mean, linetype = signi, colour = signi)) +
     geom_point(aes(shape = originSiteID), colour = "grey") +
     geom_smooth(method = "lm") +
     scale_linetype_manual(name = "", values = c("dashed", "solid")) +
     scale_colour_manual(name = "", values = c("grey50", "red")) +
     labs(y = "Mean trait value", x = "Summer air temperature in °C") +
-    facet_wrap(~trait_trans, scales = "free_y") +
+    facet_wrap(~traits, scales = "free_y") +
     theme_minimal() +
     theme(legend.position="top"),
   
