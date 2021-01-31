@@ -52,6 +52,7 @@ analysis_plan <- drake_plan(
     unnest(result) %>% 
     mutate(term = plyr::mapvalues(term, from = c("(Intercept)", "value"),
                                   to = c("intercept", "slope"))) %>% 
+    rename(traits = trait_trans, 'standard error' = std.error, 'P value' = p.value) %>% 
     select(-data, -mod),
   
   
