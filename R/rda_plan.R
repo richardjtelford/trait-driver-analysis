@@ -158,7 +158,7 @@ rda_plan <- drake_plan(
                             scale = TRUE),
   
   #make plots
-  wp2 = autoplot.prcWithoutSP(fit_Warming_plastic, xlab = "", ylab = "Treatment effect on \n  trait composition") +
+  wp2 = autoplot.prcWithoutSP(fit_Warming_plastic, xlab = "", ylab = "") +
     scale_colour_manual(values = c("orange", "pink2", "red", "red")) +
     scale_linetype_manual(values = c("solid", "dashed", "dashed", "solid")) +
     scale_y_continuous(breaks = pretty(fortify(fit_Warming_plastic)$Response, n = 5)) +
