@@ -6,12 +6,12 @@ plot_plan <- drake_plan(
   #moments by climate in original plots
   trait_order = trait_climate_regression %>% 
     filter(term == "slope") %>% 
-    select(trait_trans, estimate, p.value) %>% 
-    mutate(signi = case_when(p.value < 0.05 ~ "significant",
-                             p.value > 0.05 ~ "non-significant"),
-           slope = case_when(p.value < 0.05 & estimate > 0 ~ "positive slope",
-                             p.value < 0.05 & estimate < 0 ~ "negative slope",
-                             p.value > 0.05 ~ "no slope"),
+    select(traits, estimate, `P value`) %>% 
+    mutate(signi = case_when(`P value` < 0.05 ~ "significant",
+                             `P value` > 0.05 ~ "non-significant"),
+           slope = case_when(`P value` < 0.05 & estimate > 0 ~ "positive slope",
+                             `P value` < 0.05 & estimate < 0 ~ "negative slope",
+                             `P value` > 0.05 ~ "no slope"),
            slope = factor(slope, levels = c("positive slope", "no slope", "negative slope"))) %>% 
     arrange(slope, desc(estimate)),
   
@@ -72,21 +72,23 @@ plot_plan <- drake_plan(
     group_by(direction, plasticity, TTtreat, year, trait_trans) %>% 
     summarise(mean = mean(mean)) %>% 
     left_join(treatment_effect, by = c("direction", "plasticity", "trait_trans", "TTtreat" = "term")) %>% 
-    bind_rows(pred_pos, pred_neg, pred_no) %>% 
+    bind_rows(pred_pos, pred_neg) %>% 
+    # simplify figure by only showing traits with significant slope
+    filter(!trait_trans %in% c("SLA_cm2_g", "NP_ratio", "LDMC", "CN_ratio")) %>%
     mutate(direction = factor(direction, levels = c("divergence", "convergence")),
-           trait_trans = factor(trait_trans, levels = c("Positive slope", "dN15_permil", "Leaf_Area_cm2_log", "Dry_Mass_g_log", "C_percent", "No sign. slope", "SLA_cm2_g", "NP_ratio", "LDMC", "Negative slope", "P_percent", "N_percent", "dC13_permil", "Thickness_mm_log", "CN_ratio")),
-           TTtreat = factor(TTtreat, levels = c("cool3", "cool1", "OTC", "warm1", "warm3", "none"))) %>% 
+           trait_trans = factor(trait_trans, levels = c("Positive slope", "dN15_permil", "C_percent", "Leaf_Area_cm2_log", "Dry_Mass_g_log", "Negative slope", "P_percent", "N_percent", "Thickness_mm_log", "dC13_permil")),
+           TTtreat = factor(TTtreat, levels = c("cool3", "cool1", "OTC", "warm1", "warm3"))) %>% 
     ggplot(aes(x = year, y = mean, colour = TTtreat, linetype = signi)) +
     geom_rect(data = . %>% filter(trait_trans %in% c("Positive slope", "Negative slope", "No sign. slope")), aes(fill = trait_trans), xmin = -Inf, xmax = Inf, ymin = -Inf, ymax = Inf, alpha = 0.6, fill = "grey75") +
     geom_line() +
-    scale_colour_manual(values = c("lightblue", "blue", "grey", "orange", "pink", "red"), name = "") +
+    scale_colour_manual(values = c("lightblue", "blue", "orange", "pink", "red"), name = "") +
     scale_linetype_manual(values = c("dotted", "solid"), name = "") +
     scale_x_continuous(breaks=c(2012, 2014, 2016)) +
     geom_hline(yintercept = 0, colour = "grey50", linetype = "dashed") +
     labs(x = "", y = "Mean trait value") +
     facet_grid(trait_trans ~ direction * plasticity, scales = "free_y") +
     theme_bw() +
-    theme(legend.position = "none",
+    theme(legend.position = "top",
           strip.text.y = element_text(angle=360)),
   ## ----
   
@@ -215,37 +217,95 @@ plot_plan <- drake_plan(
   
   ## ----var-ske-kurt
   #variance
-  higher_moment_data = happymoments %>%
-    filter(trait_trans %in% c("dN15_permil", "Leaf_Area_cm2_log", "C_percent", "Thickness_mm_log")) %>% 
-    inner_join(happymoment_effect, by = c("plasticity", "trait_trans", "happymoment", "TTtreat" = "term")) %>% 
-    mutate(TTtreat = factor(TTtreat, levels = c("control", "warm3", "warm1", "OTC", "cool1", "cool3"))),
-    
-    var_plot = higher_moment_data %>% 
-    filter(plasticity == "fixed", 
-           happymoment == "var") %>% 
-    ggplot(aes(x = factor(year), y = value, fill = TTtreat, alpha = signi)) +
-    geom_boxplot() +
-    scale_fill_manual(values = c("grey50", "pink", "red", "orange", "lightblue",  "blue")) +
-    scale_alpha_manual(values = c(0.1, 1)) +
-    scale_x_discrete(breaks=c("2012", "2014", "2016")) +
-    labs(title = "Temporal change in variance", x = "", y = "Variance") +
-    facet_grid(trait_trans ~ TTtreat, scales = "free_y") +
-    theme_bw() +
-    theme(legend.position = "none",
-          strip.text.y = element_text(angle=360)),
-  
-    #skewness
-    skew_plot = var_plot %+% filter(higher_moment_data, 
-                        plasticity == "fixed",
-                        happymoment == "skew") +
-      labs(title = "Temporal change in skewness", x = "", y = "Skewness"),
-  
-    #kurtois
-    kurt_plot = var_plot %+% filter(higher_moment_data, 
-                        plasticity == "fixed",
-                        happymoment == "kurt") +
-      labs(title = "Temporal change in kurtosis", x = "", y = "Kurtosis")
+  # higher_moment_data = happymoments %>%
+  #   filter(trait_trans %in% c("dN15_permil", "Leaf_Area_cm2_log", "C_percent", "Thickness_mm_log")) %>% 
+  #   inner_join(happymoment_effect, by = c("plasticity", "trait_trans", "happymoment", "TTtreat" = "term")) %>% 
+  #   mutate(TTtreat = factor(TTtreat, levels = c("control", "warm3", "warm1", "OTC", "cool1", "cool3"))),
+  #   
+  #   var_plot = higher_moment_data %>% 
+  #   filter(plasticity == "fixed", 
+  #          happymoment == "var") %>% 
+  #   ggplot(aes(x = factor(year), y = value, fill = TTtreat, alpha = signi)) +
+  #   geom_boxplot() +
+  #   scale_fill_manual(values = c("grey50", "pink", "red", "orange", "lightblue",  "blue")) +
+  #   scale_alpha_manual(values = c(0.1, 1)) +
+  #   scale_x_discrete(breaks=c("2012", "2014", "2016")) +
+  #   labs(title = "Temporal change in variance", x = "", y = "Variance") +
+  #   facet_grid(trait_trans ~ TTtreat, scales = "free_y") +
+  #   theme_bw() +
+  #   theme(legend.position = "none",
+  #         strip.text.y = element_text(angle=360)),
+  # 
+  #   #skewness
+  #   skew_plot = var_plot %+% filter(higher_moment_data, 
+  #                       plasticity == "fixed",
+  #                       happymoment == "skew") +
+  #     labs(title = "Temporal change in skewness", x = "", y = "Skewness"),
+  # 
+  #   #kurtois
+  #   kurt_plot = var_plot %+% filter(higher_moment_data, 
+  #                       plasticity == "fixed",
+  #                       happymoment == "kurt") +
+  #     labs(title = "Temporal change in kurtosis", x = "", y = "Kurtosis"),
   ## ----
+  
+  ### HIGHER MOMENTS
+  higher_moment_CT_plot = happymoment_CT %>% 
+    filter(plasticity == "fixed",
+           trait_trans %in% c("dN15_permil", "Leaf_Area_cm2_log", "Thickness_mm_log"),
+           term != "control") %>% 
+    mutate(happymoment = fct_relevel(happymoment, c("var", "skew", "kurt"))) %>% 
+    ggplot(aes(x = estimate, y = term, xmin = estimate - 1.96 * std.error, xmax = estimate + 1.96 * std.error, colour = term, shape = signi)) +
+    geom_vline(xintercept = 0, colour = "grey", linetype = "dashed") +
+    geom_point(size = 3) +
+    geom_errorbarh(height = 0) +
+    scale_colour_manual(values = c("red", "pink", "orange", "blue", "lightblue")) +
+    scale_shape_manual(values = c(1, 16)) +
+    facet_grid(trait_trans ~ happymoment) +
+    theme_minimal(),
+  
+  # skewness
+  skew_contrast_plot = contrasts %>% 
+    filter(plasticity == "fixed",
+           trait_trans %in% c("dN15_permil", "Leaf_Area_cm2_log", "Thickness_mm_log"),
+           happymoment == "skew",
+           lhs %in% c("cool1 - warm1", "cool3 - warm3", "OTC - warm1")) %>% 
+    ggplot(aes(x = estimate, y = lhs, xmin = conf.low, xmax = conf.high, colour = lhs)) +
+    geom_vline(xintercept = 0, colour = "grey", linetype = "dashed") +
+    geom_point(size = 3) +
+    geom_errorbarh(height = 0) +
+    scale_colour_manual(values = c("pink", "red", "lightblue")) +
+    labs(y = NULL, title = "Skewness contrasts") +
+    facet_wrap(~ trait_trans) +
+    theme_minimal(),
+  
+  # kurtosis
+  kurt_contrast_plot = contrasts %>% 
+    filter(plasticity == "fixed",
+           trait_trans %in% c("dN15_permil", "Leaf_Area_cm2_log", "Thickness_mm_log"),
+           happymoment == "kurt") %>% 
+    ggplot(aes(x = estimate, y = lhs, xmin = conf.low, xmax = conf.high)) +
+    geom_vline(xintercept = 0, colour = "grey", linetype = "dashed") +
+    geom_point(size = 3) +
+    geom_errorbarh(height = 0) +
+    #scale_colour_manual(values = c("pink", "red", "lightblue")) +
+    labs(y = NULL, title = "Skewness contrasts") +
+    facet_wrap(~ trait_trans) +
+    theme_minimal(),
+  
+  
+  pearson_plot = sum_boot_moment_fixed %>% 
+    filter(trait_trans %in% c("dN15_permil"),
+           TTtreat %in% c("warm3", "cool3")) %>% 
+    ggplot(aes(x = skew^2, y = kurt, colour = TTtreat)) +
+    geom_point(alpha = 0.6) +
+    scale_y_reverse() +
+    scale_colour_manual(values = c("red", "blue")) +
+    #scale_colour_manual(values = c("pink", "lightblue")) +
+    labs(x = expression(S^2), y = "K", title = "Pearson plot (skewness vs. kurtosis)") +
+    geom_abline(slope = -1, intercept = 1, linetype = "dashed") +
+    facet_grid( ~ trait_trans) +
+    theme_minimal()
   
   
 )
