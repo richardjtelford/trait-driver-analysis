@@ -88,9 +88,12 @@ readd(ordination)
 ```
 
 
+```{r colo_ext_plot, eval = TRUE, echo = FALSE, fig.width = 8,fig.height = 7, fig.cap="Colonization and extinction per treatment and predicted"}
+readd(colo_extinciton_plot)
+```
 
 
-```{r conv-div_plot, eval = TRUE, echo = FALSE, fig.height=6, fig.cap="New Figure 4: Testing for convergence and divergence in each pair-wise trait value as a function of year since transplant. Temporal variation in effect sizes for each measured trait. The first column shows traits divergence and the second column trait convergence. The grey panels labeled with Positive slope, No slope and Negative slopes show the predicted outcome according to TDT, depending on the traits relationship with summer air temperature (see New Fig. 2). The colour of the lines indicates the transplant treatment: transplant to 1.75°C warmer (red), transplant to 0.5°C warmer (pink), OTC (orange), transplant to 0.5°C colder (light blue), transplant to 1.75°C colder (dark blue). Solid lines indicate a significant change in effect size over time."}
+```{r conv-div_plot, eval = TRUE, echo = FALSE, fig.height=6, fig.cap="Testing for convergence and divergence in each pair-wise trait value as a function of year since transplant. Temporal variation in effect sizes for each measured trait. The first column shows traits divergence and the second column trait convergence. The grey panels labeled with Positive slope, No slope and Negative slopes show the predicted outcome according to TDT, depending on the traits relationship with summer air temperature (see New Fig. 2). The colour of the lines indicates the transplant treatment: transplant to 1.75°C warmer (red), transplant to 0.5°C warmer (pink), OTC (orange), transplant to 0.5°C colder (light blue), transplant to 1.75°C colder (dark blue). Solid lines indicate a significant change in effect size over time."}
 readd(conv_div_plot)
 ```
 
@@ -120,6 +123,10 @@ readd(euclidean_distance_plot)
 
 
 ## Supporting Information
+
+```{r conv-div-no-slope-plot, eval = TRUE, echo = FALSE, fig.height=6, fig.cap="Testing for convergence and divergence in each pair-wise trait value as a function of year since transplant. Temporal variation in effect sizes for each measured trait. The first column shows traits divergence and the second column trait convergence. The grey panels labeled with Positive slope, No slope and Negative slopes show the predicted outcome according to TDT, depending on the traits relationship with summer air temperature (see New Fig. 2). The colour of the lines indicates the transplant treatment: transplant to 1.75°C warmer (red), transplant to 0.5°C warmer (pink), OTC (orange), transplant to 0.5°C colder (light blue), transplant to 1.75°C colder (dark blue). Solid lines indicate a significant change in effect size over time."}
+readd(conv_div_no_slope_plot)
+```
 
 ### Stats for convergence and divergence analysis
 
