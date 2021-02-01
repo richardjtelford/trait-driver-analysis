@@ -40,6 +40,24 @@ plot_plan <- drake_plan(
   
   ## ----
   
+  #colonization extinction plot
+  colo_extinciton_plot = bind_rows(
+    extinction = extinction,
+    colonization = colonization,
+    .id = "process"
+  ) %>% 
+    group_by(process, TTtreat) %>% 
+    summarise(count = mean(n)) %>% 
+    mutate(var = paste(TTtreat, process, sep = "_"),
+           TTtreat = factor(TTtreat, levels = c("cool3", "cool1", "OTC", "warm1", "warm3"))) %>% 
+    ggplot(aes(y = count, x = var, fill = TTtreat, alpha = process)) +
+    geom_bar(stat="identity") +
+    geom_point(aes(x = var, y = predicted), data = predicted) +
+    scale_fill_manual(name = "", values = c("blue","lightblue", "orange", "pink", "red")) +
+    scale_alpha_manual(name = "", values = c(1, 0.5)) +
+    labs(x = "", y = "Species turnover") +
+    theme_minimal() +
+    theme(axis.text.x = element_blank()),
   
   #H1Q2+3: Conv/div (univariate)
   
@@ -80,7 +98,7 @@ plot_plan <- drake_plan(
            trait_trans = factor(trait_trans, levels = c("Positive slope", "dN15_permil", "C_percent", "Leaf_Area_cm2_log", "Dry_Mass_g_log", "Negative slope", "P_percent", "N_percent", "Thickness_mm_log", "dC13_permil")),
            TTtreat = factor(TTtreat, levels = c("cool3", "cool1", "OTC", "warm1", "warm3"))) %>% 
     ggplot(aes(x = year, y = mean, colour = TTtreat, linetype = signi)) +
-    geom_rect(data = . %>% filter(trait_trans %in% c("Positive slope", "Negative slope", "No sign. slope")), aes(fill = trait_trans), xmin = -Inf, xmax = Inf, ymin = -Inf, ymax = Inf, alpha = 0.6, fill = "grey75") +
+    geom_rect(data = . %>% filter(trait_trans %in% c("Positive slope", "Negative slope")), aes(fill = trait_trans), xmin = -Inf, xmax = Inf, ymin = -Inf, ymax = Inf, alpha = 0.6, fill = "grey75") +
     geom_line() +
     scale_colour_manual(values = c("lightblue", "blue", "orange", "pink", "red"), name = "") +
     scale_linetype_manual(values = c("dotted", "solid"), name = "") +
@@ -92,6 +110,31 @@ plot_plan <- drake_plan(
     theme(legend.position = "top",
           strip.text.y = element_text(angle=360)),
   ## ----
+  
+  conv_div_no_slope_plot = effect_size %>% 
+    filter(year %in% c(2012, 2016)) %>% 
+    ungroup() %>% 
+    group_by(direction, plasticity, TTtreat, year, trait_trans) %>% 
+    summarise(mean = mean(mean)) %>% 
+    left_join(treatment_effect, by = c("direction", "plasticity", "trait_trans", "TTtreat" = "term")) %>% 
+    bind_rows(pred_no) %>% 
+    # only traits without significant slope
+    filter(trait_trans %in% c("No sign. slope", "SLA_cm2_g", "NP_ratio", "LDMC", "CN_ratio")) %>%
+    mutate(direction = factor(direction, levels = c("divergence", "convergence")),
+           trait_trans = factor(trait_trans, levels = c("No sign. slope", "SLA_cm2_g", "NP_ratio", "LDMC", "CN_ratio")),
+           TTtreat = factor(TTtreat, levels = c("cool3", "cool1", "OTC", "warm1", "warm3"))) %>% 
+    ggplot(aes(x = year, y = mean, colour = TTtreat, linetype = signi)) +
+    geom_rect(data = . %>% filter(trait_trans %in% c("No sign. slope")), aes(fill = trait_trans), xmin = -Inf, xmax = Inf, ymin = -Inf, ymax = Inf, alpha = 0.6, fill = "grey75") +
+    geom_line() +
+    scale_colour_manual(values = c("lightblue", "blue", "orange", "pink", "red"), name = "") +
+    scale_linetype_manual(values = c("dotted", "solid"), name = "") +
+    scale_x_continuous(breaks=c(2012, 2014, 2016)) +
+    geom_hline(yintercept = 0, colour = "grey50", linetype = "dashed") +
+    labs(x = "", y = "Mean trait value") +
+    facet_grid(trait_trans ~ direction * plasticity, scales = "free_y") +
+    theme_bw() +
+    theme(legend.position = "top",
+          strip.text.y = element_text(angle=360)),
   
   
   
