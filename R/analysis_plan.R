@@ -56,11 +56,6 @@ analysis_plan <- drake_plan(
     group_by(destBlockID, TTtreat) %>% 
     count(),
   
-  # expected_colonoization = anti_join(first_dest_control, first_transplant, by = c("turfID", "destPlotID", "TTtreat", "species")) %>% 
-  #   select(-TTtreat) %>% 
-  #   group_by(turfID, destPlotID, TTtreat) %>% 
-  #   count(),
-  
   predicted = bind_rows(
     extinction = expected_extinction,
     colonization = expected_colonoization,
@@ -68,24 +63,6 @@ analysis_plan <- drake_plan(
     group_by(process, TTtreat) %>% 
     summarise(predicted = mean(n)) %>% 
     mutate(var = paste(TTtreat, process, sep = "_")),
-  
-  bind_rows(
-    extinction = extinction,
-    colonization = colonization,
-    .id = "process"
-  ) %>% 
-    group_by(process, TTtreat) %>% 
-    summarise(count = mean(n)) %>% 
-    mutate(var = paste(TTtreat, process, sep = "_"),
-           TTtreat = factor(TTtreat, levels = c("cool3", "cool1", "OTC", "warm1", "warm3"))) %>% 
-    ggplot(aes(y = count, x = var, fill = TTtreat, alpha = process)) +
-    geom_bar(stat="identity") +
-    geom_point(aes(x = var, y = predicted), data = predicted) +
-    scale_fill_manual(name = "", values = c("blue","lightblue", "orange", "pink", "red")) +
-    scale_alpha_manual(name = "", values = c(1, 0.5)) +
-    labs(x = "", y = "Species turnover") +
-    theme_minimal() +
-    theme(axis.text.x = element_blank()),
     
   
   #calculate effect size
