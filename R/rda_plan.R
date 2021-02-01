@@ -201,7 +201,7 @@ rda_plan <- drake_plan(
                        scale = TRUE),
   
   #make plots
-  cf2 = autoplot.prcWithoutSP(fit_Cool_fixed, xlab = "", ylab = "") +
+  cf2 = autoplot.prcWithoutSP(fit_Cool_fixed, xlab = "", ylab = "Treatment effect on \n  trait composition") +
     scale_colour_manual(values = c("steelblue2", "blue", "blue")) +
     scale_linetype_manual(values = c("dashed", "dashed", "solid")) +
     scale_y_continuous(breaks = pretty(fortify(fit_Cool_fixed)$Response, n = 5)) +
