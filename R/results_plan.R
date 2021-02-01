@@ -45,8 +45,7 @@ results_plan <- drake_plan(
            p.value = case_when(p.value < 0.001 ~ paste(p.value, "***"),
                                p.value < 0.01 ~ paste(p.value, "**"),
                                p.value < 0.05 ~ paste(p.value, "*"),
-                               p.value >= 0.05 ~ paste(p.value, ""))) %>% 
-    knitr::kable(),
+                               p.value >= 0.05 ~ paste(p.value, ""))),
   
   #happymoments results table
   # happymoment_effect_table = happymoment_effect %>% 
