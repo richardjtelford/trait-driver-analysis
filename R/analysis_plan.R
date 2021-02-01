@@ -2,6 +2,92 @@
 
 analysis_plan <- drake_plan(
   
+  #colonization and extinction
+  #first and last year transplant comm by treatment
+  first_transplant = community %>% 
+    filter(year %in% c(2012),
+           TTtreat != "control") %>%
+    group_by(turfID, destBlockID, TTtreat) %>% 
+    distinct(species),
+  
+  last_transplant = community %>% 
+    filter(year %in% c(2016),
+           TTtreat != "control") %>%
+    group_by(turfID, destBlockID, TTtreat) %>% 
+    distinct(species),
+  
+  #extinciton = first - last year
+  extinction = anti_join(first_transplant, last_transplant, by = c("turfID", "destBlockID", "TTtreat", "species")) %>% 
+    group_by(turfID, TTtreat) %>% 
+    count(),
+  
+  #colonization = last - first year
+  colonization = anti_join(last_transplant, first_transplant, by = c("turfID", "destBlockID", "TTtreat", "species")) %>% 
+    group_by(turfID, TTtreat) %>% 
+    count(),
+  
+  
+  #predicted colonization and extinction
+  #first year destination site
+  first_dest_control = community %>% 
+    filter(year %in% c(2012),
+           TTtreat == "control") %>%
+    group_by(destBlockID) %>% 
+    distinct(species),
+  
+  #expected exctinction
+  expected_extinction = anti_join(first_transplant, first_dest_control, by = c("destBlockID", "species")) %>% 
+    group_by(destBlockID, TTtreat) %>% 
+    count(),
+  
+  #expected colonization
+  #treatment x blockID
+  treat_block = community %>% 
+    distinct(TTtreat, destBlockID) %>% 
+    filter(TTtreat != "control"),
+  
+  expected_colonoization = community %>% 
+    filter(year %in% c(2012),
+           TTtreat == "control") %>% 
+    select(destBlockID, species) %>% 
+    #filter(destBlockID == "M1") %>% 
+    full_join(treat_block, by = "destBlockID") %>% 
+    anti_join(first_transplant) %>% 
+    group_by(destBlockID, TTtreat) %>% 
+    count(),
+  
+  # expected_colonoization = anti_join(first_dest_control, first_transplant, by = c("turfID", "destPlotID", "TTtreat", "species")) %>% 
+  #   select(-TTtreat) %>% 
+  #   group_by(turfID, destPlotID, TTtreat) %>% 
+  #   count(),
+  
+  predicted = bind_rows(
+    extinction = expected_extinction,
+    colonization = expected_colonoization,
+    .id = "process") %>%
+    group_by(process, TTtreat) %>% 
+    summarise(predicted = mean(n)) %>% 
+    mutate(var = paste(TTtreat, process, sep = "_")),
+  
+  bind_rows(
+    extinction = extinction,
+    colonization = colonization,
+    .id = "process"
+  ) %>% 
+    group_by(process, TTtreat) %>% 
+    summarise(count = mean(n)) %>% 
+    mutate(var = paste(TTtreat, process, sep = "_"),
+           TTtreat = factor(TTtreat, levels = c("cool3", "cool1", "OTC", "warm1", "warm3"))) %>% 
+    ggplot(aes(y = count, x = var, fill = TTtreat, alpha = process)) +
+    geom_bar(stat="identity") +
+    geom_point(aes(x = var, y = predicted), data = predicted) +
+    scale_fill_manual(name = "", values = c("blue","lightblue", "orange", "pink", "red")) +
+    scale_alpha_manual(name = "", values = c(1, 0.5)) +
+    labs(x = "", y = "Species turnover") +
+    theme_minimal() +
+    theme(axis.text.x = element_blank()),
+    
+  
   #calculate effect size
   effect_size = bind_rows(
     divergence = bind_rows(
