@@ -21,7 +21,7 @@ source("R/download_plan.R")
 source("R/data_import_plan.R")
 source("R/bootstrap_moment_plan.R")
 source("R/euclidean_distance_plan.R")
-source("R/rda_plan.R")
+#source("R/rda_plan.R")
 source("R/analysis_plan.R")
 source("R/plots_plan.R")
 source("R/results_plan.R")
@@ -53,11 +53,11 @@ manuscript_plan <- drake_plan(
 
 #### combine plans ####
 trait_plan <- bind_plans(download_plan, 
-                        import_plan, 
+                        import_plan,
                         bootstrap_moment_plan,
                         euclidean_distance_plan,
-                        rda_plan,
-                        analysis_plan, 
+                        #rda_plan,
+                        analysis_plan,
                         plot_plan,
                         results_plan,
                         manuscript_plan)

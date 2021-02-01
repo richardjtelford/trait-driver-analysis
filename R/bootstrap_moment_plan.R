@@ -37,34 +37,87 @@ bootstrap_moment_plan <- drake_plan(
   
   #traits moments 
   bootstrapped_trait_moments_fixed  = trait_np_bootstrap(imputed_traits_fixed, nrep = 100) %>% 
-  mutate(Treatment = sub(".*\\-", "", turfID),
-         Treatment = fct_recode(Treatment, 
-                                control = "C",
-                                control = "0",
-                                control = "LOCAL",
-                                warm1 = "1",
-                                cool1 = "2",
-                                warm3 = "3",
-                                cool3 = "4",
-                                OTC = "OTC"),
-         Treatment = fct_relevel(Treatment, c("control", "warm1", "cool1", "warm3", "cool3", "OTC"))) ,
-  bootstrapped_trait_moments_plastic  = trait_np_bootstrap(imputed_traits_plastic, nrep = 100) %>% 
-    mutate(Treatment = sub(".*\\-", "", turfID),
-           Treatment = fct_recode(Treatment, 
-                                  control = "C",
-                                  control = "0",
-                                  control = "LOCAL",
-                                  warm1 = "1",
-                                  cool1 = "2",
-                                  warm3 = "3",
-                                  cool3 = "4",
-                                  OTC = "OTC"),
-           Treatment = fct_relevel(Treatment, c("control", "warm1", "cool1", "warm3", "cool3", "OTC"))),
+    rename(TTtreat = Treatment_comm) %>% 
+    # rename to short and fancy name
+    mutate(trait_fancy = recode(trait_trans, 
+                                C_percent = "C",
+                                CN_ratio = "CN",       
+                                dC13_permil = "dC13",    
+                                dN15_permil = "dN15",  
+                                Dry_Mass_g_log = "Dry mass",
+                                LDMC = "LDMC",
+                                Leaf_Area_cm2_log = "Leaf area",
+                                N_percent = "N",        
+                                NP_ratio = "NP",         
+                                P_percent = "P",     
+                                SLA_cm2_g = "SLA",        
+                                Thickness_mm_log = "Thickness")),
+  
+  bootstrapped_trait_moments_plastic  = trait_np_bootstrap(imputed_traits_plastic, nrep = 100)%>% 
+    rename(TTtreat = Treatment_comm) %>% 
+    # rename to short and fancy name
+    mutate(trait_fancy = recode(trait_trans, 
+                                C_percent = "C",
+                                CN_ratio = "CN",       
+                                dC13_permil = "dC13",    
+                                dN15_permil = "dN15",  
+                                Dry_Mass_g_log = "Dry mass",
+                                LDMC = "LDMC",
+                                Leaf_Area_cm2_log = "Leaf area",
+                                N_percent = "N",        
+                                NP_ratio = "NP",         
+                                P_percent = "P",     
+                                SLA_cm2_g = "SLA",        
+                                Thickness_mm_log = "Thickness")),
 
   #summarise bootstrap moments
-  sum_boot_moment_fixed = trait_summarise_boot_moments(bootstrapped_trait_moments_fixed) %>% 
+  #fixed
+  sum_boot_moment_fixed = bootstrapped_trait_moments_fixed %>% 
+    #trait_summarise_boot_moments(bootstrapped_trait_moments_fixed) %>%
+    ungroup() %>% 
+    group_by(global, Site, blockID, trait_trans, year, turfID, destBlockID, destSiteID, TTtreat, trait_fancy) %>% 
+    summarise(
+      n = n(),
+      mean = mean(mean),
+      ci_low_mean = mean - sd(mean),
+      ci_high_mean = mean + sd(mean),
+      
+      var = mean(variance),
+      ci_low_var = var - sd(variance),
+      ci_high_var = var + sd(variance),
+      
+      skew = mean(skewness),
+      ci_low_skew = skew - sd(skewness),
+      ci_high_skew = skew + sd(skewness),
+      
+      kurt = mean(kurtosis),
+      ci_low_kurt = kurt - sd(kurtosis),
+      ci_high_Kurt = kurt + sd(kurtosis)
+    ) %>% 
     rename("originBlockID" = "blockID", "originSiteID" = "Site"),
-  sum_boot_moment_plastic = trait_summarise_boot_moments(bootstrapped_trait_moments_plastic) %>% 
+  #plastic
+  sum_boot_moment_plastic = bootstrapped_trait_moments_plastic %>% 
+    #trait_summarise_boot_moments(bootstrapped_trait_moments_plastic) %>%
+    ungroup() %>% 
+    group_by(global, Site, blockID, trait_trans, year, turfID, originBlockID, originSiteID, TTtreat, trait_fancy) %>% 
+    summarise(
+      n = n(),
+      mean = mean(mean),
+      ci_low_mean = mean - sd(mean),
+      ci_high_mean = mean + sd(mean),
+      
+      var = mean(variance),
+      ci_low_var = var - sd(variance),
+      ci_high_var = var + sd(variance),
+      
+      skew = mean(skewness),
+      ci_low_skew = skew - sd(skewness),
+      ci_high_skew = skew + sd(skewness),
+      
+      kurt = mean(kurtosis),
+      ci_low_kurt = kurt - sd(kurtosis),
+      ci_high_Kurt = kurt + sd(kurtosis)
+    ) %>% 
     rename("destBlockID" = "blockID", "destSiteID" = "Site"),
   
   #summarise bootstrap moments with climate
@@ -76,7 +129,7 @@ bootstrap_moment_plan <- drake_plan(
     .id = "plasticity") %>% 
    # select climate data for otc and other plots
     filter(
-      (logger == "otc" & Treatment == "OTC") | (logger != "otc" & Treatment != "OTC")) %>% 
+      (logger == "otc" & TTtreat == "OTC") | (logger != "otc" & TTtreat != "OTC")) %>% 
     select(-logger),#no longer needed,
   
   #traits with climate

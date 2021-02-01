@@ -1,11 +1,43 @@
 ---
-title: "TDT Paper - Results"
-author: "Richard J. Telford"
-date: "8/27/2020"
-output: pdf_document
+title: "Assessing generality in trait-based ecology and theory by using experimental warming and transplant communities spanning a broad temperature gradient"
+
+author: |
+  | Brian J. Enquist^[Corresponding author: brian.enquist@uoa.com] $^1$, Brian S. Maitner$^1$, Aud H. Halbritter$^4,$^5$,
+  | Richard J.Telford$^4,5$, Lorah Seltzer$^1$, Vanessa Buzzard$^1$,
+  | Jonathan Henn, Sean Michaletz, Inge H.J. Althuizen$^4$,
+  | Kine Blom$^4$, Alex Brummer, Julia Chacon$^1$,
+  | Javiera Seaman Espinosa, Bárbara William Garcia$^4$, Ragnhild Gya$^4,5$,
+  | Elisabeth Nesheim Hauge$^4$, Hai He, Francesca Jaroszynska$^4$,
+  | Blake L. Joyce7, Kari Klanderud$^3$, Frida Knoop$^4$,
+  | Hanna Lee, Rebecca Lehman, Miguel Muñoz Mazon,
+  | Michelangelo Sergio Moerland, Linda Hovde Nordås$^4$,
+  | Ahui Peng$^6$, Christine Pötsch$^4$, Claire Ponsac, Fei Ran$^6$,
+  | Ruben Roos$^3$, Christien Steyn, Megan Kathleen
+  | Sullivan, Xiangyang Sun$^6$, Jesslyn Tjendra$^4$, Yao Xiao$^6$,
+  | Li Zhang$^6$, Xiaoxiang Zhao$^6$, Yan Yang$^6$ & Vigdis Vandvik$^4,5$
+  
+address: |
+ | $^1$ Department of Ecology and Evolutionary Biology, University of Arizona, AZ, USA
+ | $^2$ The Santa Fe Institute, Santa Fe, NM, USA
+ | $^3$ Faculty of Environmental Sciences and Natural Resource Management, Norwegian University of Life Sciences, Norway, 
+ | $^4$ Department of Biological Sciences, University of Bergen, Norway, 
+ | $^5$ Bjerknes Centre for Climate Research, University of Bergen, Norway
+ | $^6$ Institute of Mountain Hazards and Environment (CAS), China.
+ | $^7$ University Information Technology Services, University of Arizona, AZ, USA
+
+  
+date: "`r format(Sys.Date(), '%d %B %Y')`"
+
+output: 
+  bookdown::pdf_book:
+    toc: no
+    number_sections: false
+  fig_caption: yes
 classoption: a4paper
 bibliography: Rmd/TDT2.bib
 csl: Rmd/elsevier-harvard_rjt.csl
+
+
 ---
 
 ```{r setup, include=FALSE}
@@ -15,6 +47,12 @@ library("drake")
 ```
 
 ## Methods
+
+```{r mountain, eval = TRUE, echo = FALSE, out.width = '90%', fig.cap="Experimental set up of the Mt. Gongga elevational experiment. There are four experimental study sites across the 1,130m elevational gradient. The arrows reflect the different tuff transplant experiments between these sites. The rectangles depict one of seven experimental blocks at each altitude, where squares reflect transplants and the hexagon an OTC). The colours reflect temperature treatments (orange = ca 1.75°C warmer, red = 5.3°C warmer, light blue =   ca 1.75°C colder, red = 5.3°C colder, green = control).  Within each of the seven blocks at each site, plots were randomly designated to six different experimental treatments: (i) passive warming with an open top chamber (OTC; all sites); (ii) transplanting to a site one step warmer along the gradient (warming; from sites High alpine, Alpine); (iii) Middle alpine transplanting to a site one step colder along the gradient (cooling; from sites Alpine, Middle alpine, and Lowland); (iv) transplanting down the entire gradient (extreme warming; from site High alpine); (v) transplanting up the entire gradient (extreme cooling, from site Lowland); (vi) transplanting within blocks within all sites (to control for the transplanting itself and a local transplant); (vii) an untouched control plot (Control; all sites). Thus, in every site, each OTC has a local unmanipulated control, and each transplanted turf has an “origin” site and a “destination” site, with two types of controls, local transplant and untouched plots."}
+
+knitr::include_graphics("./images/ChinaMountain.pdf")
+
+```
 
 ### Software
 
@@ -29,106 +67,84 @@ Code to reproduce all the analyses is archived at [https://github.com/richardjte
 
 ## Results
 
-**New Figure 2**
+<!-- ### Trait-climate correlations -->
 
-```{r trait-climate, eval = TRUE, echo = FALSE, fig.cap="New Fig. 2: Relationship between functional traits and summer air temperature (2m above ground). The trait values are bootstrapped community weighted traits from control plots in 2016. The regression line is shown (grey dashed) and significant relationships are indicated with a solid red line. The shaded area displays the confidence interval. The traits are sorted from positive slope, no significant to negative slope."}
+```{r trait-climate, eval = TRUE, echo = FALSE, fig.cap="Relationship between functional traits and summer air temperature (2m above ground). The trait values are bootstrapped community weighted traits from control plots in 2016. The regression line is shown (grey dashed) and significant relationships are indicated with a solid red line. The shaded area displays the confidence interval. The traits are sorted from positive slope, no significant to negative slope."}
 readd(moments_by_climate_plot)
 ```
 
 
-**Stats for New Figure 2:** Results from regression between functional traits and summer air temperature.
-
 ```{r trait-climate-table, eval = TRUE, echo = FALSE}
-readd(moments_by_climate_table)
+loadd(moments_by_climate_table)
+
+moments_by_climate_table %>% 
+   kableExtra::kable(caption = "Results from regression of traits and summer air temperature. Shown are estimates, standard error, statistics and P value. Significant P values are indicated with asterisks: ** P value < 0.01, * p < 0.05")
+```
+
+<!-- ### Plant species community response to climate change treatments -->
+
+```{r trait_ordination_plot, eval = TRUE, echo = FALSE, fig.width = 8,fig.height = 7, fig.cap="Multivariate Principal Component Analysis of community trait composition for each of the elevational gradient sites and experimental transplants. "}
+readd(ordination)
 ```
 
 
-**New Figure 3**
-
-```{r trait_ordination_plot, eval = TRUE, echo = FALSE, fig.cap="New Fig. S2: Multivariate Principal Component Analysis of community trait composition for each of the elevational gradient sites and experimental transplants. "}
-readd(ordination_plot)
-readd(arrows)
+```{r colo_ext_plot, eval = TRUE, echo = FALSE, fig.width = 8,fig.height = 7, fig.cap="Colonization and extinction per treatment and predicted"}
+readd(colo_extinciton_plot)
 ```
 
 
-
-**New Figure 4**
-
-```{r conv-div_plot, eval = TRUE, echo = FALSE, fig.height=6, fig.cap="New Fig. 4: Testing for convergence and divergence in each pair-wise trait value as a function of year since transplant. Temporal variation in effect sizes for each measured trait. The first column shows traits divergence and the second column trait convergence. The grey panels labeled with Positive slope, No slope and Negative slopes show the predicted outcome according to TDT, depending on the traits relationship with summer air temperature (see New Fig. 2). The colour of the lines indicates the transplant treatment: transplant to 1.75°C warmer (red), transplant to 0.5°C warmer (pink), OTC (orange), transplant to 0.5°C colder (light blue), transplant to 1.75°C colder (dark blue). Solid lines indicate a significant change in effect size over time."}
+```{r conv-div_plot, eval = TRUE, echo = FALSE, fig.height=6, fig.cap="Testing for convergence and divergence in each pair-wise trait value as a function of year since transplant. Temporal variation in effect sizes for each measured trait. The first column shows traits divergence and the second column trait convergence. The grey panels labeled with Positive slope, No slope and Negative slopes show the predicted outcome according to TDT, depending on the traits relationship with summer air temperature (see New Fig. 2). The colour of the lines indicates the transplant treatment: transplant to 1.75°C warmer (red), transplant to 0.5°C warmer (pink), OTC (orange), transplant to 0.5°C colder (light blue), transplant to 1.75°C colder (dark blue). Solid lines indicate a significant change in effect size over time."}
 readd(conv_div_plot)
 ```
 
 
 
-**New Figure 5**
-
-```{r rda_plot, eval = TRUE, echo = FALSE, fig.cap="Testing for divergence and convergence in multivariate trait-space as a function of year since transplant. Results from  Principal Response Curve multivariate RDA analysis."}
-readd(TraitRDA)
+```{r rda_plot, eval = TRUE, echo = FALSE, fig.cap="Testing for convergence in multivariate community (first column) or trait-space (second and third column) as a function of year since transplant. Results from  Principal Response Curve multivariate RDA analysis. "}
+#readd(TraitRDA)
 ```
 
 
-**New Table 4:** Testing difference in trait composition over time among treatments and the origin control turfs using a permutation test with 999 permutations.
 
 ```{r rda_result, eval = TRUE, echo = FALSE}
-loadd(rda_warm, rda_cool)
-
-bind_rows(
-    warm = rda_warm,
-    cool = rda_cool,
-    .id = "Treatment"
-  )
+# loadd(result_rda)
+# 
+# result_rda %>% 
+#   kableExtra::kable(caption = "Testing difference in trait composition over time among treatments and the origin control turfs using a permutation test with 999 permutations.")
 
 ```
 
 
-
-**New Multivariate Figure**
 
 ```{r eucledian_plot, eval = TRUE, echo = FALSE, fig.cap="Euclidean distance in functional trait composition since transplant (2012 - 2016) for control plots and treatments at each site. The colours indicate the different treatments control (grey), transplant to 1.75°C warmer (red), transplant to 0.5°C warmer (pink), OTC (orange), transplant to 0.5°C colder (light blue), transplant to 1.75°C colder (dark blue). The two columns show two scenarios of trait plasticity. Divergence reflects a conservative scenario, where treatments are compared to the origin control and do not allow for trait plasticity. Contrary, convergence reflects full plasticity where treatments are compared to the destination controls."}
 readd(euclidean_distance_plot)
 ```
 
 
-```{r eucledian_table, eval = TRUE, echo = FALSE}
-readd(euclidean_dist_table)
-```
 
 
 ## Supporting Information
 
-**Stats for New Figure 4:** Results from regression of convergence and divergence in each pair-wise trait value as a function of year since transplant.
+```{r conv-div-no-slope-plot, eval = TRUE, echo = FALSE, fig.height=6, fig.cap="Testing for convergence and divergence in each pair-wise trait value as a function of year since transplant. Temporal variation in effect sizes for each measured trait. The first column shows traits divergence and the second column trait convergence. The grey panels labeled with Positive slope, No slope and Negative slopes show the predicted outcome according to TDT, depending on the traits relationship with summer air temperature (see New Fig. 2). The colour of the lines indicates the transplant treatment: transplant to 1.75°C warmer (red), transplant to 0.5°C warmer (pink), OTC (orange), transplant to 0.5°C colder (light blue), transplant to 1.75°C colder (dark blue). Solid lines indicate a significant change in effect size over time."}
+readd(conv_div_no_slope_plot)
+```
+
+### Stats for convergence and divergence analysis
 
 ```{r conv-div_table, eval = TRUE, echo = FALSE}
-readd(treatment_effect_table)
+# loadd(treatment_effect_table)
+# treatment_effect_table %>%
+#   kableExtra::kable(caption = "Results Testing for convergence and divergence in each pair-wise trait value as a function of year since transplant.")
 ```
+ 
+### Stats for Eucledian distance analysis
+ 
+```{r eucledian_table, eval = TRUE, echo = FALSE}
+loadd(euclidean_dist_table) 
 
-
-**New Figure 6**
-
-```{r variance-plot, eval = TRUE, echo = FALSE, fig.height=8, fig.cap="New Fig. 6: Test of convergence of trait variance to warming and cooling."}
-readd(var_plot)
+euclidean_dist_table %>% 
+  kableExtra::kable(caption = "Results testing difference between eucledian distance for control plots and each treatment at each site between 2012 and 2016.")
+  
 ```
-
-**New Figure 7**
-
-```{r skewness-plot, eval = TRUE, echo = FALSE, fig.height=8, fig.cap="New Fig. 7: Test of convergence of trait skewness to warming and cooling."}
-readd(skew_plot)
-```
-
-**New Figure 8**
-
-```{r kurtosid-plot, eval = TRUE, echo = FALSE, fig.height=8, fig.cap="New Fig. 8: Test of convergence of trait kurtosis to warming and cooling."}
-readd(kurt_plot)
-```
-
-
-**Stats for higher moments**
-
-```{r happymoment_table, eval = TRUE, echo = FALSE}
-readd(happymoment_effect_table)
-```
-
-
 
 
 

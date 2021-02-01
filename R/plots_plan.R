@@ -6,39 +6,58 @@ plot_plan <- drake_plan(
   #moments by climate in original plots
   trait_order = trait_climate_regression %>% 
     filter(term == "slope") %>% 
-    select(trait_trans, estimate, p.value) %>% 
-    mutate(signi = case_when(p.value < 0.05 ~ "significant",
-                             p.value > 0.05 ~ "non-significant"),
-           slope = case_when(p.value < 0.05 & estimate > 0 ~ "positive slope",
-                             p.value < 0.05 & estimate < 0 ~ "negative slope",
-                             p.value > 0.05 ~ "no slope"),
+    select(traits, estimate, `P value`) %>% 
+    mutate(signi = case_when(`P value` < 0.05 ~ "significant",
+                             `P value` > 0.05 ~ "non-significant"),
+           slope = case_when(`P value` < 0.05 & estimate > 0 ~ "positive slope",
+                             `P value` < 0.05 & estimate < 0 ~ "negative slope",
+                             `P value` > 0.05 ~ "no slope"),
            slope = factor(slope, levels = c("positive slope", "no slope", "negative slope"))) %>% 
     arrange(slope, desc(estimate)),
   
   # without Wet_Mass_g_log to make nice plot with 3x4 panels (same as dry mass anyway)
   moments_by_climate_plot = summarised_boot_moments_climate %>% 
+    rename(traits = trait_trans) %>% 
     filter(year == 2016,
            TTtreat %in% c("control"),
            plasticity == "fixed") %>% 
     ungroup() %>% 
     left_join(trait_climate_regression %>% 
                 filter(term == "slope"), 
-              by = "trait_trans") %>% 
-    select(originSiteID:mean, term, estimate, p.value, value) %>% 
-    mutate(signi = if_else(p.value < 0.05, "significant", "non-signigicant"),
-           trait_trans = factor(trait_trans, levels = trait_order$trait_trans)) %>% 
+              by = "traits") %>% 
+    select(originSiteID:mean, term, estimate, `P value`, value) %>% 
+    mutate(signi = if_else(`P value` < 0.05, "significant", "non-signigicant"),
+           traits = factor(traits, levels = trait_order$traits)) %>% 
     ggplot(aes(x = value, y = mean, linetype = signi, colour = signi)) +
     geom_point(aes(shape = originSiteID), colour = "grey") +
     geom_smooth(method = "lm") +
     scale_linetype_manual(name = "", values = c("dashed", "solid")) +
     scale_colour_manual(name = "", values = c("grey50", "red")) +
     labs(y = "Mean trait value", x = "Summer air temperature in °C") +
-    facet_wrap(~trait_trans, scales = "free_y") +
+    facet_wrap(~traits, scales = "free_y") +
     theme_minimal() +
     theme(legend.position="top"),
   
   ## ----
   
+  #colonization extinction plot
+  colo_extinciton_plot = bind_rows(
+    extinction = extinction,
+    colonization = colonization,
+    .id = "process"
+  ) %>% 
+    group_by(process, TTtreat) %>% 
+    summarise(count = mean(n)) %>% 
+    mutate(var = paste(TTtreat, process, sep = "_"),
+           TTtreat = factor(TTtreat, levels = c("cool3", "cool1", "OTC", "warm1", "warm3"))) %>% 
+    ggplot(aes(y = count, x = var, fill = TTtreat, alpha = process)) +
+    geom_bar(stat="identity") +
+    geom_point(aes(x = var, y = predicted), data = predicted) +
+    scale_fill_manual(name = "", values = c("blue","lightblue", "orange", "pink", "red")) +
+    scale_alpha_manual(name = "", values = c(1, 0.5)) +
+    labs(x = "", y = "Species turnover") +
+    theme_minimal() +
+    theme(axis.text.x = element_blank()),
   
   #H1Q2+3: Conv/div (univariate)
   
@@ -72,23 +91,50 @@ plot_plan <- drake_plan(
     group_by(direction, plasticity, TTtreat, year, trait_trans) %>% 
     summarise(mean = mean(mean)) %>% 
     left_join(treatment_effect, by = c("direction", "plasticity", "trait_trans", "TTtreat" = "term")) %>% 
-    bind_rows(pred_pos, pred_neg, pred_no) %>% 
+    bind_rows(pred_pos, pred_neg) %>% 
+    # simplify figure by only showing traits with significant slope
+    filter(!trait_trans %in% c("SLA_cm2_g", "NP_ratio", "LDMC", "CN_ratio")) %>%
     mutate(direction = factor(direction, levels = c("divergence", "convergence")),
-           trait_trans = factor(trait_trans, levels = c("Positive slope", "dN15_permil", "Leaf_Area_cm2_log", "Dry_Mass_g_log", "C_percent", "No sign. slope", "SLA_cm2_g", "NP_ratio", "LDMC", "Negative slope", "P_percent", "N_percent", "dC13_permil", "Thickness_mm_log", "CN_ratio")),
-           TTtreat = factor(TTtreat, levels = c("cool3", "cool1", "OTC", "warm1", "warm3", "none"))) %>% 
+           trait_trans = factor(trait_trans, levels = c("Positive slope", "dN15_permil", "C_percent", "Leaf_Area_cm2_log", "Dry_Mass_g_log", "Negative slope", "P_percent", "N_percent", "Thickness_mm_log", "dC13_permil")),
+           TTtreat = factor(TTtreat, levels = c("cool3", "cool1", "OTC", "warm1", "warm3"))) %>% 
     ggplot(aes(x = year, y = mean, colour = TTtreat, linetype = signi)) +
-    geom_rect(data = . %>% filter(trait_trans %in% c("Positive slope", "Negative slope", "No sign. slope")), aes(fill = trait_trans), xmin = -Inf, xmax = Inf, ymin = -Inf, ymax = Inf, alpha = 0.6, fill = "grey75") +
+    geom_rect(data = . %>% filter(trait_trans %in% c("Positive slope", "Negative slope")), aes(fill = trait_trans), xmin = -Inf, xmax = Inf, ymin = -Inf, ymax = Inf, alpha = 0.6, fill = "grey75") +
     geom_line() +
-    scale_colour_manual(values = c("lightblue", "blue", "grey", "orange", "pink", "red"), name = "") +
+    scale_colour_manual(values = c("lightblue", "blue", "orange", "pink", "red"), name = "") +
     scale_linetype_manual(values = c("dotted", "solid"), name = "") +
     scale_x_continuous(breaks=c(2012, 2014, 2016)) +
     geom_hline(yintercept = 0, colour = "grey50", linetype = "dashed") +
     labs(x = "", y = "Mean trait value") +
     facet_grid(trait_trans ~ direction * plasticity, scales = "free_y") +
     theme_bw() +
-    theme(legend.position = "none",
+    theme(legend.position = "top",
           strip.text.y = element_text(angle=360)),
   ## ----
+  
+  conv_div_no_slope_plot = effect_size %>% 
+    filter(year %in% c(2012, 2016)) %>% 
+    ungroup() %>% 
+    group_by(direction, plasticity, TTtreat, year, trait_trans) %>% 
+    summarise(mean = mean(mean)) %>% 
+    left_join(treatment_effect, by = c("direction", "plasticity", "trait_trans", "TTtreat" = "term")) %>% 
+    bind_rows(pred_no) %>% 
+    # only traits without significant slope
+    filter(trait_trans %in% c("No sign. slope", "SLA_cm2_g", "NP_ratio", "LDMC", "CN_ratio")) %>%
+    mutate(direction = factor(direction, levels = c("divergence", "convergence")),
+           trait_trans = factor(trait_trans, levels = c("No sign. slope", "SLA_cm2_g", "NP_ratio", "LDMC", "CN_ratio")),
+           TTtreat = factor(TTtreat, levels = c("cool3", "cool1", "OTC", "warm1", "warm3"))) %>% 
+    ggplot(aes(x = year, y = mean, colour = TTtreat, linetype = signi)) +
+    geom_rect(data = . %>% filter(trait_trans %in% c("No sign. slope")), aes(fill = trait_trans), xmin = -Inf, xmax = Inf, ymin = -Inf, ymax = Inf, alpha = 0.6, fill = "grey75") +
+    geom_line() +
+    scale_colour_manual(values = c("lightblue", "blue", "orange", "pink", "red"), name = "") +
+    scale_linetype_manual(values = c("dotted", "solid"), name = "") +
+    scale_x_continuous(breaks=c(2012, 2014, 2016)) +
+    geom_hline(yintercept = 0, colour = "grey50", linetype = "dashed") +
+    labs(x = "", y = "Mean trait value") +
+    facet_grid(trait_trans ~ direction * plasticity, scales = "free_y") +
+    theme_bw() +
+    theme(legend.position = "top",
+          strip.text.y = element_text(angle=360)),
   
   
   
@@ -107,41 +153,79 @@ plot_plan <- drake_plan(
   #trait coverage
   #trait_coverage = autoplot(imputed_traits_div),
   
-  #trait ordinations - convergence with fixed traits
-  A_H = two_site_pca(data = sum_boot_moment_fixed, low = "A", high = "H"),
-  M_A = two_site_pca(data = sum_boot_moment_fixed, low = "M", high = "A"),
-  L_M = two_site_pca(data = sum_boot_moment_fixed, low = "L", high = "M"),
-  L_H = two_site_pca(data = sum_boot_moment_fixed, low = "L", high = "H"),
+  #trait site ordinations - convergence with fixed traits
+  # A_H = two_site_pca(data = sum_boot_moment_fixed, low = "A", high = "H"),
+  # M_A = two_site_pca(data = sum_boot_moment_fixed, low = "M", high = "A"),
+  # L_M = two_site_pca(data = sum_boot_moment_fixed, low = "L", high = "M"),
+  # L_H = two_site_pca(data = sum_boot_moment_fixed, low = "L", high = "H"),
+  # 
+  # ordination_plot = bind_rows(A_H = A_H[[1]],
+  #                                M_A = M_A[[1]],
+  #                                L_M = L_M[[1]],
+  #                                L_H = L_H[[1]],
+  #                                .id = "comparison") %>% 
+  #   ggplot(aes(x = PC1, y = PC2, colour = TTtreat, shape = destSiteID, group = turfID, linetype = destSiteID)) + 
+  #   geom_point(aes(size = ifelse(year == min(year), "First", "Other"))) +
+  #   geom_path() +
+  #   #coord_equal() +
+  #   scale_size_discrete(range = c(1, 2.5), limits = c("Other", "First"), breaks = c("First", "Other")) +
+  #   scale_colour_manual(values = c("grey50", "pink", "lightblue", "red", "blue", "orange")) +
+  #   scale_x_continuous(expand = c(.15, 0)) +
+  #   labs(x = "PC 1", y = "PC 2", shape = "Site", colour = "Treatment", size = "Year", linetype = "Site", title = "Convergence") +
+  #   facet_wrap(~ comparison) +
+  #   theme_minimal(),
   
-  ordination_plot = bind_rows(A_H = A_H[[1]],
-                                 M_A = M_A[[1]],
-                                 L_M = L_M[[1]],
-                                 L_H = L_H[[1]],
-                                 .id = "comparison") %>% 
+  # arrows = ggplot(A_H[[1]], aes(x = PC1, y = PC2, group = turfID)) +
+  #   geom_segment(data = A_H[[2]], 
+  #                aes(x = 0, y = 0, xend = PC1, yend = PC2), 
+  #                arrow = arrow(length = unit(0.2, "cm")), 
+  #                colour = "grey80",
+  #                inherit.aes = FALSE) +
+  #   geom_text(data = A_H[[2]], 
+  #             aes(x = PC1 * 1.1,y = PC2 * 1.1, label = Label), 
+  #             size = 3,
+  #             inherit.aes = FALSE, colour = "grey80") +
+  #   scale_x_continuous(expand = c(.2, 0)) +
+  #   theme_minimal(),
+  
+  
+  #trait treatment ordinations - convergence with fixed traits
+  ordination_plot = bind_rows(
+     moderate = treatment_pca(sum_boot_moment_fixed, "warm1", "cool1")[[1]],
+     extreme = treatment_pca(sum_boot_moment_fixed, "warm3", "cool3")[[1]],
+     otc = treatment_pca(sum_boot_moment_fixed, "OTC", NULL)[[1]],
+     .id = "treatment"
+     ) %>% 
+    mutate(treatment = fct_relevel(treatment, c("moderate", "extreme", "otc"))) %>% 
     ggplot(aes(x = PC1, y = PC2, colour = TTtreat, shape = destSiteID, group = turfID, linetype = destSiteID)) + 
     geom_point(aes(size = ifelse(year == min(year), "First", "Other"))) +
     geom_path() +
-    #coord_equal() +
+    coord_equal() +
     scale_size_discrete(range = c(1, 2.5), limits = c("Other", "First"), breaks = c("First", "Other")) +
     scale_colour_manual(values = c("grey50", "pink", "lightblue", "red", "blue", "orange")) +
     scale_x_continuous(expand = c(.15, 0)) +
-    labs(x = "PC 1", y = "PC 2", shape = "Site", colour = "Treatment", size = "Year", linetype = "Site", title = "Convergence") +
-    facet_wrap(~ comparison) +
+    labs(x = "PC 1", y = "PC 2", shape = "Site", colour = "Treatment", size = "Year", linetype = "Site", title = "Fixed traits") +
+    facet_wrap(~ treatment, ncol = 2) +
     theme_minimal(),
   
-  arrows = ggplot(A_H[[1]], aes(x = PC1, y = PC2, group = turfID)) +
-    geom_segment(data = A_H[[2]], 
+  
+  arrows = ggplot(treatment_pca(sum_boot_moment_fixed, "warm1", "cool1")[[1]], aes(x = PC1, y = PC2, group = turfID)) +
+    geom_segment(data = treatment_pca(sum_boot_moment_fixed, "warm1", "cool1")[[2]], 
                  aes(x = 0, y = 0, xend = PC1, yend = PC2), 
                  arrow = arrow(length = unit(0.2, "cm")), 
                  colour = "grey80",
                  inherit.aes = FALSE) +
-    geom_text(data = A_H[[2]], 
+    geom_text(data = treatment_pca(sum_boot_moment_fixed, "warm1", "cool1")[[2]], 
               aes(x = PC1 * 1.1,y = PC2 * 1.1, label = Label), 
               size = 3,
               inherit.aes = FALSE, colour = "grey80") +
+    labs(x = "", y = "") +
     scale_x_continuous(expand = c(.2, 0)) +
     theme_minimal(),
   
+  ordination = cowplot::ggdraw(ordination_plot) +
+    cowplot::draw_plot(arrows, .43, 0.04, .33, .43),
+    
   
   
   #other plots
@@ -181,37 +265,95 @@ plot_plan <- drake_plan(
   
   ## ----var-ske-kurt
   #variance
-  higher_moment_data = happymoments %>%
-    filter(trait_trans %in% c("dN15_permil", "Leaf_Area_cm2_log", "C_percent", "Thickness_mm_log")) %>% 
-    inner_join(happymoment_effect, by = c("plasticity", "trait_trans", "happymoment", "TTtreat" = "term")) %>% 
-    mutate(TTtreat = factor(TTtreat, levels = c("control", "warm3", "warm1", "OTC", "cool1", "cool3"))),
-    
-    var_plot = higher_moment_data %>% 
-    filter(plasticity == "fixed", 
-           happymoment == "var") %>% 
-    ggplot(aes(x = factor(year), y = value, fill = TTtreat, alpha = signi)) +
-    geom_boxplot() +
-    scale_fill_manual(values = c("grey50", "pink", "red", "orange", "lightblue",  "blue")) +
-    scale_alpha_manual(values = c(0.1, 1)) +
-    scale_x_discrete(breaks=c("2012", "2014", "2016")) +
-    labs(title = "Temporal change in variance", x = "", y = "Variance") +
-    facet_grid(trait_trans ~ TTtreat, scales = "free_y") +
-    theme_bw() +
-    theme(legend.position = "none",
-          strip.text.y = element_text(angle=360)),
-  
-    #skewness
-    skew_plot = var_plot %+% filter(higher_moment_data, 
-                        plasticity == "fixed",
-                        happymoment == "skew") +
-      labs(title = "Temporal change in skewness", x = "", y = "Skewness"),
-  
-    #kurtois
-    kurt_plot = var_plot %+% filter(higher_moment_data, 
-                        plasticity == "fixed",
-                        happymoment == "kurt") +
-      labs(title = "Temporal change in kurtosis", x = "", y = "Kurtosis")
+  # higher_moment_data = happymoments %>%
+  #   filter(trait_trans %in% c("dN15_permil", "Leaf_Area_cm2_log", "C_percent", "Thickness_mm_log")) %>% 
+  #   inner_join(happymoment_effect, by = c("plasticity", "trait_trans", "happymoment", "TTtreat" = "term")) %>% 
+  #   mutate(TTtreat = factor(TTtreat, levels = c("control", "warm3", "warm1", "OTC", "cool1", "cool3"))),
+  #   
+  #   var_plot = higher_moment_data %>% 
+  #   filter(plasticity == "fixed", 
+  #          happymoment == "var") %>% 
+  #   ggplot(aes(x = factor(year), y = value, fill = TTtreat, alpha = signi)) +
+  #   geom_boxplot() +
+  #   scale_fill_manual(values = c("grey50", "pink", "red", "orange", "lightblue",  "blue")) +
+  #   scale_alpha_manual(values = c(0.1, 1)) +
+  #   scale_x_discrete(breaks=c("2012", "2014", "2016")) +
+  #   labs(title = "Temporal change in variance", x = "", y = "Variance") +
+  #   facet_grid(trait_trans ~ TTtreat, scales = "free_y") +
+  #   theme_bw() +
+  #   theme(legend.position = "none",
+  #         strip.text.y = element_text(angle=360)),
+  # 
+  #   #skewness
+  #   skew_plot = var_plot %+% filter(higher_moment_data, 
+  #                       plasticity == "fixed",
+  #                       happymoment == "skew") +
+  #     labs(title = "Temporal change in skewness", x = "", y = "Skewness"),
+  # 
+  #   #kurtois
+  #   kurt_plot = var_plot %+% filter(higher_moment_data, 
+  #                       plasticity == "fixed",
+  #                       happymoment == "kurt") +
+  #     labs(title = "Temporal change in kurtosis", x = "", y = "Kurtosis"),
   ## ----
+  
+  ### HIGHER MOMENTS
+  higher_moment_CT_plot = happymoment_CT %>% 
+    filter(plasticity == "fixed",
+           trait_trans %in% c("dN15_permil", "Leaf_Area_cm2_log", "Thickness_mm_log"),
+           term != "control") %>% 
+    mutate(happymoment = fct_relevel(happymoment, c("var", "skew", "kurt"))) %>% 
+    ggplot(aes(x = estimate, y = term, xmin = estimate - 1.96 * std.error, xmax = estimate + 1.96 * std.error, colour = term, shape = signi)) +
+    geom_vline(xintercept = 0, colour = "grey", linetype = "dashed") +
+    geom_point(size = 3) +
+    geom_errorbarh(height = 0) +
+    scale_colour_manual(values = c("red", "pink", "orange", "blue", "lightblue")) +
+    scale_shape_manual(values = c(1, 16)) +
+    facet_grid(trait_trans ~ happymoment) +
+    theme_minimal(),
+  
+  # skewness
+  skew_contrast_plot = contrasts %>% 
+    filter(plasticity == "fixed",
+           trait_trans %in% c("dN15_permil", "Leaf_Area_cm2_log", "Thickness_mm_log"),
+           happymoment == "skew",
+           lhs %in% c("cool1 - warm1", "cool3 - warm3", "OTC - warm1")) %>% 
+    ggplot(aes(x = estimate, y = lhs, xmin = conf.low, xmax = conf.high, colour = lhs)) +
+    geom_vline(xintercept = 0, colour = "grey", linetype = "dashed") +
+    geom_point(size = 3) +
+    geom_errorbarh(height = 0) +
+    scale_colour_manual(values = c("pink", "red", "lightblue")) +
+    labs(y = NULL, title = "Skewness contrasts") +
+    facet_wrap(~ trait_trans) +
+    theme_minimal(),
+  
+  # kurtosis
+  kurt_contrast_plot = contrasts %>% 
+    filter(plasticity == "fixed",
+           trait_trans %in% c("dN15_permil", "Leaf_Area_cm2_log", "Thickness_mm_log"),
+           happymoment == "kurt") %>% 
+    ggplot(aes(x = estimate, y = lhs, xmin = conf.low, xmax = conf.high)) +
+    geom_vline(xintercept = 0, colour = "grey", linetype = "dashed") +
+    geom_point(size = 3) +
+    geom_errorbarh(height = 0) +
+    #scale_colour_manual(values = c("pink", "red", "lightblue")) +
+    labs(y = NULL, title = "Skewness contrasts") +
+    facet_wrap(~ trait_trans) +
+    theme_minimal(),
+  
+  
+  pearson_plot = sum_boot_moment_fixed %>% 
+    filter(trait_trans %in% c("dN15_permil"),
+           TTtreat %in% c("warm3", "cool3")) %>% 
+    ggplot(aes(x = skew^2, y = kurt, colour = TTtreat)) +
+    geom_point(alpha = 0.6) +
+    scale_y_reverse() +
+    scale_colour_manual(values = c("red", "blue")) +
+    #scale_colour_manual(values = c("pink", "lightblue")) +
+    labs(x = expression(S^2), y = "K", title = "Pearson plot (skewness vs. kurtosis)") +
+    geom_abline(slope = -1, intercept = 1, linetype = "dashed") +
+    facet_grid( ~ trait_trans) +
+    theme_minimal()
   
   
 )
