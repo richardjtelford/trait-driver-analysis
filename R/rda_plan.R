@@ -18,7 +18,7 @@ rda_plan <- drake_plan(
            TTtreat = factor(TTtreat, levels = c("control", "OTC", "warm1", "warm3", "control_L"))),
   
   #prc
-  fit_warm_comm = prc(response = comm_warm_fat %>% select(And.min:Ane.riv), 
+  fit_warm_comm = prc(response = comm_warm_fat %>% select(-c(originSiteID:flag)), 
                           treatment = comm_warm_fat$TTtreat, 
                           time = comm_warm_fat$year, 
                           scale = TRUE),
@@ -33,18 +33,6 @@ rda_plan <- drake_plan(
     theme(legend.position = "none",
           legend.title = element_blank(),
           text = element_text(size = 8)),
-  
-  wc3 = fortify(fit_warm_comm) %>% 
-    filter(Score == "Species") %>% 
-    mutate(X = 1) %>% 
-    ggplot(aes(x = X, y = (Response), label = Label)) +
-    geom_text(aes(x = X), size = 1.8) +
-    geom_hline(yintercept = 0) +
-    scale_y_continuous(breaks = pretty(fortify(fit_warm_comm)$Response, n = 5)) +
-    labs(x = "", y = "") +
-    theme(panel.background = element_blank(),
-          axis.ticks.x = element_blank(),
-          axis.text.x = element_blank()),
 
   
   #cool
@@ -62,7 +50,7 @@ rda_plan <- drake_plan(
            TTtreat = factor(TTtreat, levels = c("control", "cool1", "cool3", "control_H"))),
   
   #prc
-  fit_cool_comm = prc(response = comm_cool_fat %>% select(Ale.pau:Myr.nep), 
+  fit_cool_comm = prc(response = comm_cool_fat %>% select(-c(originSiteID:flag)), 
                       treatment = comm_cool_fat$TTtreat, 
                       time = comm_cool_fat$year, 
                       scale = TRUE),
@@ -77,20 +65,6 @@ rda_plan <- drake_plan(
     theme(legend.position = c(0.2, 0.6),
           legend.title = element_blank(),
           text = element_text(size = 8)),
-  
-  cc3 = fortify(fit_cool_comm) %>% 
-    filter(Score == "Species") %>% 
-    mutate(X = 1) %>% 
-    ggplot(aes(x = X, y = (Response), label = Label)) +
-    geom_text(aes(x = X), size = 1.8) +
-    geom_hline(yintercept = 0) +
-    scale_y_continuous(breaks = pretty(fortify(fit_cool_comm)$Response, n = 5)) +
-    labs(x = "", y = "") +
-    theme(panel.background = element_blank(),
-          axis.ticks.x = element_blank(),
-          axis.text.x = element_blank()),
-  
-  
   
   
   ## traits
@@ -276,7 +250,7 @@ rda_plan <- drake_plan(
     filter(TTtreat != "control_L") %>% 
     mutate(datatype = "community") %>% 
     nest(data = -datatype) %>% 
-    mutate(mod = map(data, ~ prc(response = .x %>% select(And.min:Ane.riv),
+    mutate(mod = map(data, ~ prc(response = .x %>% select(-c(originSiteID:flag)),
                                  treatment = .x$TTtreat,
                                  time = .x$year,
                                  scale = TRUE))) %>% 
@@ -310,7 +284,7 @@ rda_plan <- drake_plan(
     filter(TTtreat != "control_H") %>% 
     mutate(datatype = "community") %>% 
     nest(data = -datatype) %>% 
-    mutate(mod = map(data, ~ prc(response = .x %>% select(Ale.pau:Myr.nep),
+    mutate(mod = map(data, ~ prc(response = .x %>% select(-c(originSiteID:flag)),
                                  treatment = .x$TTtreat,
                                  time = .x$year,
                                  scale = TRUE))) %>% 
