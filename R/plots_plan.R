@@ -39,25 +39,34 @@ plot_plan <- drake_plan(
     theme(legend.position="top"),
   
   ## ----
-  
   #colonization extinction plot
-  colo_extinciton_plot = bind_rows(
+  ex = textGrob("\u2190 Extinction", gp = gpar(fontsize = 9), rot = 90),
+  col = textGrob(paste0("Colonization ", "\u2192"), gp = gpar(fontsize = 9), rot = 90),
+  colo_extinction_plot = bind_rows(
     extinction = extinction,
     colonization = colonization,
     .id = "process"
   ) %>% 
     group_by(process, TTtreat) %>% 
     summarise(count = mean(n)) %>% 
-    mutate(var = paste(TTtreat, process, sep = "_"),
-           TTtreat = factor(TTtreat, levels = c("cool3", "cool1", "OTC", "warm1", "warm3"))) %>% 
-    ggplot(aes(y = count, x = var, fill = TTtreat, alpha = process)) +
-    geom_bar(stat="identity") +
-    geom_point(aes(x = var, y = predicted), data = predicted) +
+    mutate(TTtreat = factor(TTtreat, levels = c("cool3", "cool1", "OTC", "warm1", "warm3"))) %>% 
+    pivot_wider(names_from = process, values_from = count) %>% 
+    ggplot(aes(x = TTtreat, fill = TTtreat)) +
+    geom_col(aes(y = colonization), alpha = 0.6) +
+    geom_col(aes(y = - extinction), alpha = 0.6) +
+    geom_errorbar(aes(x = TTtreat, ymin = p_colonization, ymax = p_colonization, colour = TTtreat, group = 1), data = predicted) +
+    geom_errorbar(aes(x = TTtreat, ymin = -p_extinction, ymax = -p_extinction, colour = TTtreat), data = predicted) +
     scale_fill_manual(name = "", values = c("blue","lightblue", "orange", "pink", "red")) +
-    scale_alpha_manual(name = "", values = c(1, 0.5)) +
-    labs(x = "", y = "Species turnover") +
+    scale_colour_manual(name = "", values = c("blue","lightblue", "orange", "pink", "red")) +
+    geom_hline(yintercept = 0, colour = "grey") +
+    labs(x = "", y = "") +
+    annotation_custom(ex, xmin = 0.1, xmax= 0.1, ymin = -6, ymax = -6) +
+    annotation_custom(col, xmin = 0.1, xmax= 0.1, ymin = 8, ymax = 8) +
+    coord_cartesian(xlim = c(1, 5), clip="off") +
     theme_minimal() +
-    theme(axis.text.x = element_blank()),
+    theme(legend.position = "none",
+          axis.line = element_line(colour = "black"),
+          panel.grid.major.x = element_blank()),
   
   #H1Q2+3: Conv/div (univariate)
   
