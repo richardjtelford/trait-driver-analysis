@@ -8,9 +8,9 @@ rda_plan <- drake_plan(
     select(-speciesName, -Genus) %>% 
     filter(TTtreat %in% c("control", "warm1", "warm3", "OTC")) %>%
     filter(originSiteID == "H" | originSiteID == "L" & TTtreat == "control") %>% 
-    # # remove rare species
-    # group_by(species) %>%
-    # filter(n() > 3) %>% 
+    # remove rare species
+    group_by(species) %>%
+    filter(n() > 3) %>%
     pivot_wider(names_from = species, values_from = cover, values_fill = list(cover = 0)) %>% 
     mutate(TTtreat = case_when(TTtreat == "control" & originSiteID == "L" ~ "control_L",
                                TRUE ~ as.character(TTtreat)),
@@ -30,7 +30,7 @@ rda_plan <- drake_plan(
     scale_y_continuous(breaks = pretty(fortify(fit_warm_comm)$Response, n = 5)) +
     ggtitle("species community") +
     theme_minimal() +
-    theme(legend.position = c(0.2, 0.7),
+    theme(legend.position = "none",
           legend.title = element_blank(),
           text = element_text(size = 8)),
   
@@ -119,9 +119,9 @@ rda_plan <- drake_plan(
     scale_colour_manual(values = c("orange", "pink2", "red", "red")) +
     scale_linetype_manual(values = c("solid", "dashed", "dashed", "solid")) +
     scale_y_continuous(breaks = pretty(fortify(fit_Warming_fixed)$Response, n = 5)) +
-    ggtitle("fixed") +
+    ggtitle("fixed traits") +
     theme_minimal() +
-    theme(legend.position = "none",
+    theme(legend.position = c(0.2, 0.7),
           legend.title = element_blank(),
           text = element_text(size = 8)),
   
@@ -162,7 +162,7 @@ rda_plan <- drake_plan(
     scale_colour_manual(values = c("orange", "pink2", "red", "red")) +
     scale_linetype_manual(values = c("solid", "dashed", "dashed", "solid")) +
     scale_y_continuous(breaks = pretty(fortify(fit_Warming_plastic)$Response, n = 5)) +
-    ggtitle("plastic") +
+    ggtitle("plastic traits") +
     theme_minimal() +
     theme(legend.position = "none",
           text = element_text(size = 8)),
@@ -266,7 +266,7 @@ rda_plan <- drake_plan(
           axis.text.x = element_blank()),
 
   #patchwork together
-  TraitRDA = ((wc2 + wf2 + wf3 + wp2 + wp3) + plot_layout(widths = c(4, 4, 1, 4, 1))) / ((cc2 + cf2 + cf3 + cp2 + cp3) + plot_layout(widths = c(4, 4, 1, 4, 1))),
+  #TraitRDA = ((wc2 + wf2 + wf3 + wp2 + wp3) + plot_layout(widths = c(4, 4, 1, 4, 1))) / ((cc2 + cf2 + cf3 + cp2 + cp3) + plot_layout(widths = c(4, 4, 1, 4, 1))),
 
   
   #permutation test
