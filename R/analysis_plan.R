@@ -57,12 +57,13 @@ analysis_plan <- drake_plan(
     count(),
   
   predicted = bind_rows(
-    extinction = expected_extinction,
-    colonization = expected_colonoization,
+    p_extinction = expected_extinction,
+    p_colonization = expected_colonoization,
     .id = "process") %>%
     group_by(process, TTtreat) %>% 
     summarise(predicted = mean(n)) %>% 
-    mutate(var = paste(TTtreat, process, sep = "_")),
+    pivot_wider(names_from = process, values_from = predicted) %>% 
+    mutate(TTtreat = factor(TTtreat, levels = c("cool3", "cool1", "OTC", "warm1", "warm3"))),
     
   
   #calculate effect size
@@ -156,39 +157,53 @@ analysis_plan <- drake_plan(
     ungroup() %>% 
     select(plasticity:TTtreat, mean, var, skew, kurt) %>% 
     pivot_longer(cols = c(var, skew, kurt), names_to = "happymoment", values_to = "value"),
-    
-  # Does treatment differ from control? (only last year)
-  happymoment_CT = happymoments %>%
-    filter(year == 2016) %>% 
-      nest(data = -c(plasticity, trait_trans, happymoment)) %>% 
-    mutate(mod = map(data, ~ lm(value ~ TTtreat, data = .x)),
-           result = map(mod, tidy)) %>% 
+  
+
+  #using non-parametric test (kruskal-wallies) to test if treatments differ each other? (only last year)
+  happymoment_TTtreat = happymoments %>%
+    filter(year == 2016,
+           plasticity == "fixed") %>% 
+      nest(data = -c(trait_trans, happymoment)) %>% 
+    mutate(mod = map(data, ~ kruskal.test(value ~ TTtreat, data = .x)),
+           result = map(mod, broom::tidy)) %>% 
     unnest(result) %>% 
-    mutate(term = plyr::mapvalues(term, from = c("(Intercept)", "TTtreatwarm1", "TTtreatcool1", "TTtreatcool3", "TTtreatwarm3", "TTtreatOTC"),
-                                  to = c("control", "warm1", "cool1", "warm3", "cool3", "OTC")),
-           signi = if_else(p.value < 0.05, "significant", "non-signigicant")) %>% 
     select(-data, -mod),
   
-  # Test contrasts: do warm - cool give opposite effects? Is cool3 more extreme than cool1? Etc.
-  contrasts = happymoments %>% 
-    filter(year == 2016) %>% 
-    nest(data = -c(plasticity, trait_trans, happymoment)) %>% 
-    mutate(mod = map(data, ~ lm(value ~ TTtreat, data = .x)),
-           contrast1 = map(mod, multcomp::glht, linfct = multcomp::mcp(TTtreat = c("cool1 - warm1 = 0", "cool3 - warm3 = 0", "OTC - warm1 = 0", "cool1 - cool3 = 0", "warm1 - warm3 = 0"))),
-           contrast = map(contrast1, confint),
-           ci = map(contrast, tidy)) %>%
-    unnest(ci),
+  #test difference among treatments if kruskal-wallies is significant
+  group_test = happymoment_TTtreat %>% 
+    filter(p.value <= 0.05) %>% 
+    distinct(trait_trans, happymoment),
   
-  # Do cold sites have more positive kurtosis? Extreme cooling even more positive
-  kurtosis_site_test = happymoments %>%
-    filter(year == 2016, TTtreat == "control", happymoment == "kurt") %>%
-    nest(data = -c(plasticity, trait_trans)) %>%
-    mutate(mod = map(data, ~ lm(value ~ destSiteID, data = .x)),
-           result = map(mod, tidy)) %>%
-    unnest(result) %>%
-    mutate(term = plyr::mapvalues(term, from = c("(Intercept)", "destSiteIDA", "destSiteIDM", "destSiteIDL"),
-                                  to = c("Intercept", "A", "M", "L")),
-           signi = if_else(p.value < 0.05, "significant", "non-signigicant")) %>%
-    select(-data, -mod)
+  happymoments_Diff = happymoments %>%
+    filter(year == 2016,
+           plasticity == "fixed") %>% 
+    inner_join(group_test) %>% 
+    nest(data = -c(trait_trans, happymoment)) %>% 
+    mutate(mod = map(data, ~ pairwise.wilcox.test(.x$value, .x$TTtreat)),
+           result = map(mod, broom::tidy)) %>% 
+    unnest(result)
+    
+  
+  # # Test contrasts: do warm - cool give opposite effects? Is cool3 more extreme than cool1? Etc.
+  # contrasts = happymoments %>% 
+  #   filter(year == 2016) %>% 
+  #   nest(data = -c(plasticity, trait_trans, happymoment)) %>% 
+  #   mutate(mod = map(data, ~ lm(value ~ TTtreat, data = .x)),
+  #          contrast1 = map(mod, multcomp::glht, linfct = multcomp::mcp(TTtreat = c("cool1 - warm1 = 0", "cool3 - warm3 = 0", "OTC - warm1 = 0", "cool1 - cool3 = 0", "warm1 - warm3 = 0"))),
+  #          contrast = map(contrast1, confint),
+  #          ci = map(contrast, tidy)) %>%
+  #   unnest(ci),
+  # 
+  # # Do cold sites have more positive kurtosis? Extreme cooling even more positive
+  # kurtosis_site_test = happymoments %>%
+  #   filter(year == 2016, TTtreat == "control", happymoment == "kurt") %>%
+  #   nest(data = -c(plasticity, trait_trans)) %>%
+  #   mutate(mod = map(data, ~ lm(value ~ destSiteID, data = .x)),
+  #          result = map(mod, tidy)) %>%
+  #   unnest(result) %>%
+  #   mutate(term = plyr::mapvalues(term, from = c("(Intercept)", "destSiteIDA", "destSiteIDM", "destSiteIDL"),
+  #                                 to = c("Intercept", "A", "M", "L")),
+  #          signi = if_else(p.value < 0.05, "significant", "non-signigicant")) %>%
+  #   select(-data, -mod)
 
 )
