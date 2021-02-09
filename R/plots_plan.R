@@ -27,12 +27,14 @@ plot_plan <- drake_plan(
               by = "traits") %>% 
     select(originSiteID:mean, term, estimate, `P value`, value) %>% 
     mutate(signi = if_else(`P value` < 0.05, "significant", "non-signigicant"),
-           traits = factor(traits, levels = trait_order$traits)) %>% 
+           traits = factor(traits, levels = trait_order$traits),
+           originSiteID = recode(originSiteID, "H" = "High Alpine", "A" = "Alpine", "M" = "Middle", "L" = "Lowland")) %>% 
     ggplot(aes(x = value, y = mean, linetype = signi, colour = signi)) +
     geom_point(aes(shape = originSiteID), colour = "grey") +
     geom_smooth(method = "lm") +
     scale_linetype_manual(name = "", values = c("dashed", "solid")) +
     scale_colour_manual(name = "", values = c("grey50", "red")) +
+    scale_shape_manual(name = "Site", values = c(17, 16, 15, 18)) +
     labs(y = "Mean trait value", x = "Summer air temperature in °C") +
     facet_wrap(~traits, scales = "free_y") +
     theme_minimal() +
