@@ -30,9 +30,11 @@ date: "`r format(Sys.Date(), '%d %B %Y')`"
 
 output: 
   bookdown::pdf_book:
+    dev: cairo_pdf
     toc: no
     number_sections: false
   fig_caption: yes
+  extra_dependencies: ["flafter"]
 classoption: a4paper
 bibliography: Rmd/TDT2.bib
 csl: Rmd/elsevier-harvard_rjt.csl
@@ -43,10 +45,14 @@ csl: Rmd/elsevier-harvard_rjt.csl
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library("drake")
+library("cairoDevice")
 
 ```
 
 ## Methods
+
+This section contains the experimental design and all the references used for the data analysis of this manuscript.
+
 
 ```{r mountain, eval = TRUE, echo = FALSE, out.width = '90%', fig.cap="Experimental set up of the Mt. Gongga elevational experiment. There are four experimental study sites across the 1,130m elevational gradient. The arrows reflect the different tuff transplant experiments between these sites. The rectangles depict one of seven experimental blocks at each altitude, where squares reflect transplants and the hexagon an OTC). The colours reflect temperature treatments (orange = ca 1.75°C warmer, red = 5.3°C warmer, light blue =   ca 1.75°C colder, red = 5.3°C colder, green = control).  Within each of the seven blocks at each site, plots were randomly designated to six different experimental treatments: (i) passive warming with an open top chamber (OTC; all sites); (ii) transplanting to a site one step warmer along the gradient (warming; from sites High alpine, Alpine); (iii) Middle alpine transplanting to a site one step colder along the gradient (cooling; from sites Alpine, Middle alpine, and Lowland); (iv) transplanting down the entire gradient (extreme warming; from site High alpine); (v) transplanting up the entire gradient (extreme cooling, from site Lowland); (vi) transplanting within blocks within all sites (to control for the transplanting itself and a local transplant); (vii) an untouched control plot (Control; all sites). Thus, in every site, each OTC has a local unmanipulated control, and each transplanted turf has an “origin” site and a “destination” site, with two types of controls, local transplant and untouched plots."}
 
@@ -65,14 +71,20 @@ rmarkdown `r packageVersion("rmarkdown")` [@rmarkdown1] and
 renv v. `r packageVersion("renv")` [@renv] were used to ensure reproducibility.
 Code to reproduce all the analyses is archived at [https://github.com/richardjtelford/trait-driver-analysis](https://github.com/richardjtelford/trait-driver-analysis).
 
+\newpage
+
 ## Results
 
-<!-- ### Trait-climate correlations -->
+This section contains all figures and tables of the main manuscript. The figures show responses in plant community composition and plant functional trait composition to climate  and climate change treatments treatments.
+
+
+### Trait-climate correlations
 
 ```{r trait-climate, eval = TRUE, echo = FALSE, fig.cap="Relationship between functional traits and summer air temperature (2m above ground). The trait values are bootstrapped community weighted traits from control plots in 2016. The regression line is shown (grey dashed) and significant relationships are indicated with a solid red line. The shaded area displays the confidence interval. The traits are sorted from positive slope, no significant to negative slope."}
 readd(moments_by_climate_plot)
 ```
 
+\newpage
 
 ```{r trait-climate-table, eval = TRUE, echo = FALSE}
 loadd(moments_by_climate_table)
@@ -81,62 +93,87 @@ moments_by_climate_table %>%
    kableExtra::kable(caption = "Results from regression of traits and summer air temperature. Shown are estimates, standard error, statistics and P value. Significant P values are indicated with asterisks: ** P value < 0.01, * p < 0.05")
 ```
 
-<!-- ### Plant species community response to climate change treatments -->
+\newpage
+
 
 ```{r trait_ordination_plot, eval = TRUE, echo = FALSE, fig.width = 8,fig.height = 7, fig.cap="Multivariate Principal Component Analysis of community trait composition for each of the elevational gradient sites and experimental transplants. "}
 readd(ordination)
 ```
 
+\newpage
 
-```{r colo_ext_plot, eval = TRUE, echo = FALSE, fig.width = 8,fig.height = 7, fig.cap="Colonization and extinction per treatment and predicted"}
-readd(colo_extinciton_plot)
+### Extinction and colonization
+
+```{r colo_ext_plot, eval = TRUE, echo = FALSE, fig.cap="Realized (closed bar) and expected (open bar) colonization (up) or extinction (down) for each climate treatment. Colonization and extinction are expressed as mean number of species per plot and treatment."}
+readd(colo_extinction_plot)
 ```
 
+\newpage
 
-```{r conv-div_plot, eval = TRUE, echo = FALSE, fig.height=6, fig.cap="Testing for convergence and divergence in each pair-wise trait value as a function of year since transplant. Temporal variation in effect sizes for each measured trait. The first column shows traits divergence and the second column trait convergence. The grey panels labeled with Positive slope, No slope and Negative slopes show the predicted outcome according to TDT, depending on the traits relationship with summer air temperature (see New Fig. 2). The colour of the lines indicates the transplant treatment: transplant to 1.75°C warmer (red), transplant to 0.5°C warmer (pink), OTC (orange), transplant to 0.5°C colder (light blue), transplant to 1.75°C colder (dark blue). Solid lines indicate a significant change in effect size over time."}
+### Convergence and divergence
+
+```{r conv-div_plot, eval = TRUE, echo = FALSE, fig.height=7, fig.cap="Testing for convergence and divergence in each pair-wise trait value as a function of year since transplant. Temporal variation in effect sizes for each measured trait. The first column shows traits divergence and the second column trait convergence. The grey panels labeled with Positive slope, No slope and Negative slopes show the predicted outcome according to TDT, depending on the traits relationship with summer air temperature (see New Fig. 2). The colour of the lines indicates the transplant treatment: transplant to 1.75°C warmer (red), transplant to 0.5°C warmer (pink), OTC (orange), transplant to 0.5°C colder (light blue), transplant to 1.75°C colder (dark blue). Solid lines indicate a significant change in effect size over time."}
 readd(conv_div_plot)
 ```
 
+\newpage
 
-
-```{r rda_plot, eval = TRUE, echo = FALSE, fig.cap="Testing for convergence in multivariate community (first column) or trait-space (second and third column) as a function of year since transplant. Results from  Principal Response Curve multivariate RDA analysis. "}
+```{r rda_plot, eval = TRUE, echo = FALSE, out.width = '85%'}
+#fig.cap="Testing for convergence in multivariate community (first column) or trait-space (second and third column) as a function of year since transplant. Results from  Principal Response Curve multivariate RDA analysis. "}
 #readd(TraitRDA)
+knitr::include_graphics("./images/rda.png")
 ```
 
 
 
 ```{r rda_result, eval = TRUE, echo = FALSE}
-# loadd(result_rda)
-# 
-# result_rda %>% 
-#   kableExtra::kable(caption = "Testing difference in trait composition over time among treatments and the origin control turfs using a permutation test with 999 permutations.")
+loadd(result_rda)
+
+result_rda %>%
+  kableExtra::kable(caption = "Results from RDA, testing difference in species or fixed/plastic trait composition over time among climate treatments and the origin control turfs using a permutation test with 999 permutations.")
 
 ```
 
 
 
-```{r eucledian_plot, eval = TRUE, echo = FALSE, fig.cap="Euclidean distance in functional trait composition since transplant (2012 - 2016) for control plots and treatments at each site. The colours indicate the different treatments control (grey), transplant to 1.75°C warmer (red), transplant to 0.5°C warmer (pink), OTC (orange), transplant to 0.5°C colder (light blue), transplant to 1.75°C colder (dark blue). The two columns show two scenarios of trait plasticity. Divergence reflects a conservative scenario, where treatments are compared to the origin control and do not allow for trait plasticity. Contrary, convergence reflects full plasticity where treatments are compared to the destination controls."}
-readd(euclidean_distance_plot)
+
+\newpage
+## Supplementary
+
+This section contains all plots and tables of the supplementary material of this manuscript.
+
+### Colonization and extinction over time
+
+```{r col-ext-time-plot, eval = TRUE, echo = FALSE, fig.cap="Number of species colonizing and going extinct over time in each climate treatment."}
+readd(col_ext_over_time_plot)
 ```
 
 
+\newpage
+### Convergence and divergence for traits with no relationship along climate gradient
 
-
-## Supporting Information
-
-```{r conv-div-no-slope-plot, eval = TRUE, echo = FALSE, fig.height=6, fig.cap="Testing for convergence and divergence in each pair-wise trait value as a function of year since transplant. Temporal variation in effect sizes for each measured trait. The first column shows traits divergence and the second column trait convergence. The grey panels labeled with Positive slope, No slope and Negative slopes show the predicted outcome according to TDT, depending on the traits relationship with summer air temperature (see New Fig. 2). The colour of the lines indicates the transplant treatment: transplant to 1.75°C warmer (red), transplant to 0.5°C warmer (pink), OTC (orange), transplant to 0.5°C colder (light blue), transplant to 1.75°C colder (dark blue). Solid lines indicate a significant change in effect size over time."}
+```{r conv-div-no-slope-plot, eval = TRUE, echo = FALSE, fig.height=4, fig.width=6, fig.cap="Testing for convergence and divergence in each pair-wise trait value as a function of year since transplant. Temporal variation in effect sizes for each measured trait. The first column shows traits divergence and the second column trait convergence. The grey panels labeled with Positive slope, No slope and Negative slopes show the predicted outcome according to TDT, depending on the traits relationship with summer air temperature (see New Fig. 2). The colour of the lines indicates the transplant treatment: transplant to 1.75°C warmer (red), transplant to 0.5°C warmer (pink), OTC (orange), transplant to 0.5°C colder (light blue), transplant to 1.75°C colder (dark blue). Solid lines indicate a significant change in effect size over time."}
 readd(conv_div_no_slope_plot)
 ```
+
 
 ### Stats for convergence and divergence analysis
 
 ```{r conv-div_table, eval = TRUE, echo = FALSE}
-# loadd(treatment_effect_table)
-# treatment_effect_table %>%
-#   kableExtra::kable(caption = "Results Testing for convergence and divergence in each pair-wise trait value as a function of year since transplant.")
+loadd(treatment_effect_table)
+treatment_effect_table %>% 
+   kableExtra::kable(caption = "Results Testing for convergence and divergence in each pair-wise trait value as a function of year since transplant. Significant P values are indicated with asterisks: ** P value < 0.01, * p < 0.05")
 ```
+
+
+\newpage
+
+### Eucledian distance analysis
  
-### Stats for Eucledian distance analysis
+```{r eucledian_plot, eval = TRUE, echo = FALSE, fig.cap="Euclidean distance in functional trait composition since transplant (2012 - 2016) for control plots and treatments at each site. The colours indicate the different treatments control (grey), transplant to 1.75°C warmer (red), transplant to 0.5°C warmer (pink), OTC (orange), transplant to 0.5°C colder (light blue), transplant to 1.75°C colder (dark blue). The two columns show two scenarios of trait plasticity. Divergence reflects a conservative scenario, where treatments are compared to the origin control and do not allow for trait plasticity. Contrary, convergence reflects full plasticity where treatments are compared to the destination controls."}
+readd(euclidean_distance_plot)
+``` 
+ 
  
 ```{r eucledian_table, eval = TRUE, echo = FALSE}
 loadd(euclidean_dist_table) 
