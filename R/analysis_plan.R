@@ -2,70 +2,6 @@
 
 analysis_plan <- drake_plan(
   
-  #colonization and extinction
-  #first and last year transplant comm by treatment
-  first_transplant = community %>% 
-    filter(year %in% c(2012),
-           TTtreat != "control") %>%
-    group_by(turfID, destBlockID, TTtreat) %>% 
-    distinct(species),
-  
-  last_transplant = community %>% 
-    filter(year %in% c(2016),
-           TTtreat != "control") %>%
-    group_by(turfID, destBlockID, TTtreat) %>% 
-    distinct(species),
-  
-  #extinciton = first - last year
-  extinction = anti_join(first_transplant, last_transplant, by = c("turfID", "destBlockID", "TTtreat", "species")) %>% 
-    group_by(turfID, TTtreat) %>% 
-    count(),
-  
-  #colonization = last - first year
-  colonization = anti_join(last_transplant, first_transplant, by = c("turfID", "destBlockID", "TTtreat", "species")) %>% 
-    group_by(turfID, TTtreat) %>% 
-    count(),
-  
-  
-  #predicted colonization and extinction
-  #first year destination site
-  first_dest_control = community %>% 
-    filter(year %in% c(2012),
-           TTtreat == "control") %>%
-    group_by(destBlockID) %>% 
-    distinct(species),
-  
-  #expected exctinction
-  expected_extinction = anti_join(first_transplant, first_dest_control, by = c("destBlockID", "species")) %>% 
-    group_by(destBlockID, TTtreat) %>% 
-    count(),
-  
-  #expected colonization
-  #treatment x blockID
-  treat_block = community %>% 
-    distinct(TTtreat, destBlockID) %>% 
-    filter(TTtreat != "control"),
-  
-  expected_colonoization = community %>% 
-    filter(year %in% c(2012),
-           TTtreat == "control") %>% 
-    select(destBlockID, species) %>% 
-    #filter(destBlockID == "M1") %>% 
-    full_join(treat_block, by = "destBlockID") %>% 
-    anti_join(first_transplant) %>% 
-    group_by(destBlockID, TTtreat) %>% 
-    count(),
-  
-  predicted = bind_rows(
-    p_extinction = expected_extinction,
-    p_colonization = expected_colonoization,
-    .id = "process") %>%
-    group_by(process, TTtreat) %>% 
-    summarise(predicted = mean(n)) %>% 
-    pivot_wider(names_from = process, values_from = predicted) %>% 
-    mutate(TTtreat = factor(TTtreat, levels = c("cool3", "cool1", "OTC", "warm1", "warm3"))),
-    
-  
   #calculate effect size
   effect_size = bind_rows(
     divergence = bind_rows(
@@ -179,31 +115,8 @@ analysis_plan <- drake_plan(
            plasticity == "fixed") %>% 
     inner_join(group_test) %>% 
     nest(data = -c(trait_trans, happymoment)) %>% 
-    mutate(mod = map(data, ~ pairwise.wilcox.test(.x$value, .x$TTtreat)),
+    mutate(mod = map(data, ~ pairwise.wilcox.test(.x$value, .x$TTtreat, p.adjust.method = "BH")),
            result = map(mod, broom::tidy)) %>% 
     unnest(result)
-    
-  
-  # # Test contrasts: do warm - cool give opposite effects? Is cool3 more extreme than cool1? Etc.
-  # contrasts = happymoments %>% 
-  #   filter(year == 2016) %>% 
-  #   nest(data = -c(plasticity, trait_trans, happymoment)) %>% 
-  #   mutate(mod = map(data, ~ lm(value ~ TTtreat, data = .x)),
-  #          contrast1 = map(mod, multcomp::glht, linfct = multcomp::mcp(TTtreat = c("cool1 - warm1 = 0", "cool3 - warm3 = 0", "OTC - warm1 = 0", "cool1 - cool3 = 0", "warm1 - warm3 = 0"))),
-  #          contrast = map(contrast1, confint),
-  #          ci = map(contrast, tidy)) %>%
-  #   unnest(ci),
-  # 
-  # # Do cold sites have more positive kurtosis? Extreme cooling even more positive
-  # kurtosis_site_test = happymoments %>%
-  #   filter(year == 2016, TTtreat == "control", happymoment == "kurt") %>%
-  #   nest(data = -c(plasticity, trait_trans)) %>%
-  #   mutate(mod = map(data, ~ lm(value ~ destSiteID, data = .x)),
-  #          result = map(mod, tidy)) %>%
-  #   unnest(result) %>%
-  #   mutate(term = plyr::mapvalues(term, from = c("(Intercept)", "destSiteIDA", "destSiteIDM", "destSiteIDL"),
-  #                                 to = c("Intercept", "A", "M", "L")),
-  #          signi = if_else(p.value < 0.05, "significant", "non-signigicant")) %>%
-  #   select(-data, -mod)
 
 )
