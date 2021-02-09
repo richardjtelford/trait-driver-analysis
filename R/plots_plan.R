@@ -34,7 +34,7 @@ plot_plan <- drake_plan(
     geom_smooth(method = "lm") +
     scale_linetype_manual(name = "", values = c("dashed", "solid")) +
     scale_colour_manual(name = "", values = c("grey50", "red")) +
-    scale_shape_manual(name = "Site", values = c(17, 16, 15, 18)) +
+    scale_shape_manual(name = "", values = c(17, 16, 15, 18)) +
     labs(y = "Mean trait value", x = "Summer air temperature in °C") +
     facet_wrap(~traits, scales = "free_y") +
     theme_minimal() +
