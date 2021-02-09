@@ -9,12 +9,11 @@ results_plan <- drake_plan(
            `standard error` = round(`standard error`, 2),
            statistic = round(statistic, 2),
            p = round(p, 3),
-           'P value' = case_when(p < 0.001 ~ paste(p, "***"),
+           'P value' = case_when(p < 0.001 ~ paste("<0.001", "***"),
                                  p < 0.01 ~ paste(p, "**"),
                                  p < 0.05 ~ paste(p, "*"),
                                  p >= 0.05 ~ paste(p, ""))) %>% 
     select(-p),
-  
 
   #divergence convergence table
   treatment_effect_table = treatment_effect %>% 
@@ -25,11 +24,11 @@ results_plan <- drake_plan(
            std.error = round(std.error, 2),
            statistic = round(statistic, 2),
            p.value = round(p.value, 3),
-           p.value = case_when(p.value < 0.001 ~ paste(p.value, "***"),
+           "p value" = case_when(p.value < 0.001 ~ paste("<0.001", "***"),
                                p.value < 0.01 ~ paste(p.value, "**"),
                                p.value < 0.05 ~ paste(p.value, "*"),
                                p.value >= 0.05 ~ paste(p.value, ""))) %>% 
-    knitr::kable(),
+    select(-p.value),
   
   
   #euclidean distance table
@@ -42,10 +41,11 @@ results_plan <- drake_plan(
            std.error = round(std.error, 2),
            statistic = round(statistic, 2),
            p.value = round(p.value, 3),
-           p.value = case_when(p.value < 0.001 ~ paste(p.value, "***"),
-                               p.value < 0.01 ~ paste(p.value, "**"),
-                               p.value < 0.05 ~ paste(p.value, "*"),
-                               p.value >= 0.05 ~ paste(p.value, ""))),
+           "p value" = case_when(p.value < 0.001 ~ paste("<0.001", "***"),
+                                 p.value < 0.01 ~ paste(p.value, "**"),
+                                 p.value < 0.05 ~ paste(p.value, "*"),
+                                 p.value >= 0.05 ~ paste(p.value, ""))) %>% 
+    select(-p.value),
   
   #happymoments results table
   # happymoment_effect_table = happymoment_effect %>% 
