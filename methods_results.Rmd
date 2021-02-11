@@ -93,8 +93,6 @@ moments_by_climate_table %>%
    kableExtra::kable(caption = "Results from regression of traits and summer air temperature. Shown are estimates, standard error, statistics and P value. Significant P values are indicated with asterisks: ** P value < 0.01, * p < 0.05")
 ```
 
-\newpage
-
 
 ```{r trait_ordination_plot, eval = TRUE, echo = FALSE, fig.width = 8,fig.height = 7, fig.cap="Multivariate Principal Component Analysis of community trait composition for each of the elevational gradient sites and experimental transplants. "}
 readd(ordination)
