@@ -92,7 +92,7 @@ analysis_plan <- drake_plan(
     .id = "plasticity") %>%
     ungroup() %>% 
     select(plasticity:TTtreat, mean, var, skew, kurt) %>% 
-    pivot_longer(cols = c(var, skew, kurt), names_to = "happymoment", values_to = "value"),
+    pivot_longer(cols = c(mean, var, skew, kurt), names_to = "happymoment", values_to = "value"),
   
 
   #using non-parametric test (kruskal-wallies) to test if treatments differ each other? (only last year)
