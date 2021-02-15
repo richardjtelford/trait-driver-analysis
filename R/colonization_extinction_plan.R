@@ -14,112 +14,71 @@ colonization_extinction_plan <- drake_plan(
   community2 = community %>% 
     # remove OTC
     filter(TTtreat != "OTC") %>% 
-    bind_rows(comm_newOTC),
+    bind_rows(comm_newOTC) %>% 
+    mutate(TTtreat = if_else(str_detect(turfID, "O$"), "local", as.character(TTtreat))),
     
     
   #colonization and extinction
   #first and last year transplant comm by treatment
+  #get first_transplant for each year, except last for temporal plot.
   first_transplant = community2 %>% 
-    filter(year %in% c(2012)) %>%
-    group_by(turfID, destBlockID, TTtreat) %>% 
-    distinct(species),
+    filter(year == 2012,
+           TTtreat != "control") %>%
+    select(turfID, destBlockID, TTtreat, year, species),
   
   last_transplant = community2 %>% 
-    filter(year %in% c(2016)) %>%
-    group_by(turfID, destBlockID, TTtreat) %>% 
-    distinct(species),
+    filter(year == 2016,
+           TTtreat != "control") %>%
+    select(turfID, destBlockID, TTtreat, species),
   
-  #extinciton = first - last year
+  #extinction = first - last year
   extinction = anti_join(first_transplant, last_transplant, by = c("turfID", "destBlockID", "TTtreat", "species")) %>% 
-    group_by(destBlockID, TTtreat) %>% 
-    count(),
+    count(destBlockID, TTtreat),
   
   #colonization = last - first year
   colonization = anti_join(last_transplant, first_transplant, by = c("turfID", "destBlockID", "TTtreat", "species")) %>% 
-    group_by(destBlockID, TTtreat) %>% 
-    count(),
-  
+    count(destBlockID, TTtreat),
   
   #predicted colonization and extinction
-  #first year destination site
+  #first year destination site only controls
   first_dest_control = community2 %>% 
     filter(year %in% c(2012),
            TTtreat == "control") %>%
-    group_by(destBlockID) %>% 
-    distinct(species),
-  
-  #expected exctinction
-  #reshuffle blocks for controls to get expected extinction/colonization
-  first_dest_control_reshuffeled = first_dest_control %>% 
-    mutate(destBlockID = recode(destBlockID, "A1" = "A2", "A2" = "A3", "A3" = "A4", "A4" = "A5", "A5" = "A6", "A6" = "A7", "A7" = "A1",
-                                "H1" = "H2", "H2" = "H3", "H3" = "H4", "H4" = "H5", "H5" = "H6", "H6" = "H7", "H7" = "H1",
-                                "M1" = "M2", "M2" = "M3", "M3" = "M4", "M4" = "M5", "M5" = "M6", "M6" = "M7", "M7" = "M1",
-                                "L1" = "L2", "L2" = "L3", "L3" = "L4", "L4" = "L5", "L5" = "L6", "L6" = "L7", "L7" = "L1")),
-  
-  expected_extinctions_control = anti_join(first_transplant %>% filter(TTtreat == "control"), first_dest_control_reshuffeled, by = c("destBlockID", "species")) %>% 
-    group_by(destBlockID, TTtreat) %>% 
-    count(),
+    select(TTtreat, destBlockID, species),
   
   expected_extinction = anti_join(first_transplant, first_dest_control, by = c("destBlockID", "species")) %>% 
-    group_by(destBlockID, TTtreat) %>% 
-    count() %>% 
-    bind_rows(expected_extinctions_control),
+    count(destBlockID, TTtreat),
   
   
   #expected colonization
-  # only controls with reshuffling
-  
-  expected_colonoization_control = community2 %>% 
-    filter(year %in% c(2012),
-           TTtreat == "control") %>% 
-    select(destBlockID, species) %>% 
-    mutate(destBlockID = recode(destBlockID, "A1" = "A2", "A2" = "A3", "A3" = "A4", "A4" = "A5", "A5" = "A6", "A6" = "A7", "A7" = "A1",
-                                "H1" = "H2", "H2" = "H3", "H3" = "H4", "H4" = "H5", "H5" = "H6", "H6" = "H7", "H7" = "H1",
-                                "M1" = "M2", "M2" = "M3", "M3" = "M4", "M4" = "M5", "M5" = "M6", "M6" = "M7", "M7" = "M1",
-                                "L1" = "L2", "L2" = "L3", "L3" = "L4", "L4" = "L5", "L5" = "L6", "L6" = "L7", "L7" = "L1"),
-           TTtreat = "control") %>% 
-    anti_join(first_transplant %>% filter(TTtreat == "control")) %>% 
-    group_by(destBlockID, TTtreat) %>% 
-    count(),
-  
-  # other treatments
-  treat_block = community2 %>% 
-    distinct(TTtreat, destBlockID) %>% 
-    filter(TTtreat != "control"),
-  
-  expected_colonoization = community %>% 
-    filter(year %in% c(2012),
-           TTtreat == "control") %>% 
-    select(destBlockID, species) %>% 
-    full_join(treat_block, by = "destBlockID") %>% 
-    anti_join(first_transplant) %>% 
-    group_by(destBlockID, TTtreat) %>% 
-    count() %>% 
-    bind_rows(expected_colonoization_control),
+  expected_colonization = first_dest_control %>% 
+    select(-TTtreat) %>% 
+    crossing(first_transplant %>% distinct(TTtreat)) %>% 
+  anti_join(first_transplant, by = c("destBlockID", "species", "TTtreat")) %>% 
+    count(destBlockID, TTtreat),
   
   predicted = bind_rows(
     extinction = expected_extinction,
-    colonization = expected_colonoization,
-    .id = "process") %>%
+    colonization = expected_colonization,
+    .id = "process") %>% 
     group_by(process, TTtreat) %>% 
     summarise(predicted = mean(n)) %>% 
     pivot_wider(names_from = process, values_from = predicted) %>% 
-    mutate(TTtreat = factor(TTtreat, levels = c("control", "cool3", "cool1", "OTC", "warm1", "warm3"))),
+    mutate(TTtreat = factor(TTtreat, levels = c("local", "cool3", "cool1", "OTC", "warm1", "warm3"))),
   
   
   #colonization and extinction over time
-  #first and last year transplant comm by treatment
   first_transplant_all_years = community2 %>% 
-    filter(year != 2016) %>%
-    group_by(turfID, destBlockID, TTtreat, year) %>% 
-    distinct(species),
+    filter(year != 2016,
+           TTtreat != "control") %>%
+    select(turfID, destBlockID, TTtreat, year, species),
   
   #extinciton = first - last year
   extinction_all = anti_join(first_transplant_all_years, last_transplant, by = c("turfID", "destBlockID", "TTtreat", "species")) %>% 
-    group_by(destBlockID, TTtreat, year) %>% 
-    count() %>% 
+    count(destBlockID, TTtreat, year) %>% 
     group_by(TTtreat, year) %>% 
-    summarise(count = mean(n)),
+    summarise(nr_species = mean(n),
+              se = sd(n)/sqrt(n())),
   
   #colonization = last - first year
   year = c(2012, 2013, 2014, 2015),
@@ -127,7 +86,8 @@ colonization_extinction_plan <- drake_plan(
     group_by(destBlockID, TTtreat, year) %>% 
     count() %>% 
     group_by(TTtreat, year) %>% 
-    summarise(count = mean(n)),
+    summarise(nr_species = mean(n),
+              se = sd(n)/sqrt(n())),
 
 )
 
