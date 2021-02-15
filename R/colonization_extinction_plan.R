@@ -24,30 +24,36 @@ colonization_extinction_plan <- drake_plan(
   first_transplant = community2 %>% 
     filter(year == 2012,
            TTtreat != "control") %>%
-    select(turfID, destBlockID, TTtreat, year, species),
+    select(turfID, destBlockID, TTtreat, year, species, cover),
   
   last_transplant = community2 %>% 
     filter(year == 2016,
            TTtreat != "control") %>%
-    select(turfID, destBlockID, TTtreat, species),
+    select(turfID, destBlockID, TTtreat, species, cover),
   
   #extinction = first - last year
   extinction = anti_join(first_transplant, last_transplant, by = c("turfID", "destBlockID", "TTtreat", "species")) %>% 
-    count(destBlockID, TTtreat),
+    group_by(destBlockID, TTtreat) %>% 
+    summarise(n = n(),
+              abundance = sum(cover)),
   
   #colonization = last - first year
   colonization = anti_join(last_transplant, first_transplant, by = c("turfID", "destBlockID", "TTtreat", "species")) %>% 
-    count(destBlockID, TTtreat),
+    group_by(destBlockID, TTtreat) %>% 
+    summarise(n = n(),
+              abundance = sum(cover)),
   
   #predicted colonization and extinction
   #first year destination site only controls
   first_dest_control = community2 %>% 
     filter(year %in% c(2012),
            TTtreat == "control") %>%
-    select(TTtreat, destBlockID, species),
+    select(TTtreat, destBlockID, species, cover),
   
   expected_extinction = anti_join(first_transplant, first_dest_control, by = c("destBlockID", "species")) %>% 
-    count(destBlockID, TTtreat),
+    group_by(destBlockID, TTtreat) %>% 
+    summarise(n = n(),
+              abundance = sum(cover)),
   
   
   #expected colonization
@@ -55,15 +61,18 @@ colonization_extinction_plan <- drake_plan(
     select(-TTtreat) %>% 
     crossing(first_transplant %>% distinct(TTtreat)) %>% 
   anti_join(first_transplant, by = c("destBlockID", "species", "TTtreat")) %>% 
-    count(destBlockID, TTtreat),
+    group_by(destBlockID, TTtreat) %>% 
+    summarise(n = n(),
+              abundance = sum(cover)),
   
   predicted = bind_rows(
     extinction = expected_extinction,
     colonization = expected_colonization,
     .id = "process") %>% 
     group_by(process, TTtreat) %>% 
-    summarise(predicted = mean(n)) %>% 
-    pivot_wider(names_from = process, values_from = predicted) %>% 
+    summarise(predicted_nr = mean(n),
+              predicted_abundance = mean(abundance)) %>% 
+    pivot_wider(names_from = process, values_from = c(predicted_nr, predicted_abundance)) %>% 
     mutate(TTtreat = factor(TTtreat, levels = c("local", "cool3", "cool1", "OTC", "warm1", "warm3"))),
   
   
