@@ -44,9 +44,8 @@ plot_plan <- drake_plan(
   #colonization extinction plot
   ex = textGrob("\u2190 Extinctions", gp = gpar(fontsize = 9), rot = 90),
   col = textGrob(paste0("Colonizations ", "\u2192"), gp = gpar(fontsize = 9), rot = 90),
-  legend = tibble(x1 = c(5, 5), x2 = c(6, 6), y1 = c(8, 13), y2 = c(8, 13),
-         TTtreat = c("warm1", "warm1"), t = c("expected","realized"), c = c("blue", "blue"), f = c("blue", "white")) %>% 
-    mutate(t = factor(t, levels = c("expected", "realized"))),
+  legend = tibble(x1 = c(5, 5), x2 = c(6, 6), y1 = c(10.5, 5), y2 = c(10.5, 5),
+         TTtreat = c("warm1", "warm1"), t = c("expected","realized"), c = c("blue", "blue"), f = c("blue", "white")),
   colo_extinction_plot = bind_rows(
     extinction = extinction,
     colonization = colonization,
@@ -54,7 +53,7 @@ plot_plan <- drake_plan(
   ) %>% 
     group_by(process, TTtreat) %>% 
     summarise(count = mean(n)) %>% 
-    mutate(TTtreat = factor(TTtreat, levels = c("control", "cool3", "cool1", "OTC", "warm1", "warm3"))) %>% 
+    mutate(TTtreat = factor(TTtreat, levels = c("local", "cool3", "cool1", "OTC", "warm1", "warm3"))) %>% 
     pivot_wider(names_from = process, values_from = count) %>% 
     ggplot(aes(x = TTtreat)) +
     geom_col(aes(x = TTtreat, y = colonization, colour = TTtreat), fill = "white", data = predicted) +
@@ -76,13 +75,17 @@ plot_plan <- drake_plan(
           panel.grid.major.x = element_blank()),
   
   #colonization extinction over time plot
-  col_ext_over_time_plot = bind_rows(extinction = extinction_all,
-            colonization = colonization_all,
-            .id = "process") %>% 
-    ggplot(aes(x = year, y = count, colour = TTtreat)) +
-    geom_point() +
+  col_ext_over_time_plot = bind_rows(
+          extinction = extinction_all,
+          colonization = colonization_all,
+          .id = "process") %>% 
+    mutate(TTtreat = factor(TTtreat, levels = c("local", "cool3", "cool1", "OTC", "warm1", "warm3")),
+           TTtreat = recode(TTtreat, "control" = "local")) %>% 
+    ggplot(aes(x = year, y = nr_species, ymin = nr_species - se, ymax = nr_species + se, colour = TTtreat)) +
+    geom_point(position = position_dodge(width = 0.15)) +
     geom_line() +
-    scale_colour_manual(name = "", values = c("grey", "pink","lightblue", "red", "blue", "orange")) +
+    geom_errorbar(position = position_dodge(width = 0.15), width = 0) +
+    scale_colour_manual(name = "", values = c("grey", "blue","lightblue", "orange", "pink", "red")) +
     labs(x = "", y = "Number of species") +
     facet_wrap(~ process) +
     theme_minimal(),
@@ -299,6 +302,9 @@ plot_plan <- drake_plan(
   
   
 ## HIGHER MOMENTS
+
+sum_boot_moment_fixed %>% 
+  
 happymoments %>%
     filter(plasticity == "fixed",
            trait_trans %in% c("dN15_permil", "Leaf_Area_cm2_log", "Thickness_mm_log")) %>%
