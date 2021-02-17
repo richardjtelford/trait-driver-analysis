@@ -15,6 +15,7 @@ bootstrap_moment_plan <- drake_plan(
                                     taxon_col = c("Taxon", "Genus"), 
                                     value_col = "value_trans", 
                                     abundance_col = "cover", 
+                                    min_n_leaves = 5,
                                     other_col = c("year", "turfID", "destBlockID", "destSiteID")),
   
   #plastic
@@ -33,6 +34,7 @@ bootstrap_moment_plan <- drake_plan(
                                       taxon_col = c("Taxon", "Genus"),
                                       value_col = "value_trans",
                                       abundance_col = "cover",
+                                      min_n_leaves = 5,
                                       other_col = c("year", "turfID", "originBlockID", "originSiteID")),
   
   #traits moments 
