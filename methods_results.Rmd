@@ -66,7 +66,7 @@ All analyses were done in R v. `r getRversion()` [@R] and used
 traitstrap v. `r packageVersion("traitstrap")` [@traitstrap] to impute traits,
 e1071 v. `r packageVersion("e1071")` [@e1071] to calculate moments,
 and tidyverse v. `r packageVersion("tidyverse")` [@tidyverse].
-Packages drake v. `r packageVersion("drake")` [@drake], 
+Packages drake v. `r packageVersion("drake")` [@drake],
 rmarkdown `r packageVersion("rmarkdown")` [@rmarkdown1] and
 renv v. `r packageVersion("renv")` [@renv] were used to ensure reproducibility.
 Code to reproduce all the analyses is archived at [https://github.com/richardjtelford/trait-driver-analysis](https://github.com/richardjtelford/trait-driver-analysis).
@@ -84,19 +84,20 @@ This section contains all figures and tables of the main manuscript. The figures
 readd(moments_by_climate_plot)
 ```
 
-\newpage
+<!-- \newpage -->
 
-```{r trait-climate-table, eval = TRUE, echo = FALSE}
-loadd(moments_by_climate_table)
+<!-- ```{r trait-climate-table, eval = TRUE, echo = FALSE} -->
+<!-- loadd(moments_by_climate_table) -->
 
-moments_by_climate_table %>% 
-   kableExtra::kable(caption = "Results from regression of traits and summer air temperature. Shown are estimates, standard error, statistics and P value. Significant P values are indicated with asterisks: ** P value < 0.01, * p < 0.05")
-```
+<!-- moments_by_climate_table %>% -->
+<!--    kableExtra::kable(caption = "Results from regression of traits and summer air temperature. Shown are estimates, standard error, statistics and P value. Significant P values are indicated with asterisks: ** P value < 0.01, * p < 0.05") -->
+<!-- ``` -->
 
 
 ```{r trait_ordination_plot, eval = TRUE, echo = FALSE, fig.width = 8,fig.height = 7, fig.cap="Multivariate Principal Component Analysis of community trait composition for each of the elevational gradient sites and experimental transplants. "}
 readd(ordination)
 ```
+
 
 \newpage
 
@@ -104,6 +105,10 @@ readd(ordination)
 
 ```{r colo_ext_plot, eval = TRUE, echo = FALSE, fig.cap="Realized (closed bar) and expected (open bar) colonization (up) or extinction (down) for each climate treatment. Colonization and extinction are expressed as mean number of species per plot and treatment."}
 readd(colo_extinction_plot)
+```
+
+```{r colo_ext_plot2, eval = TRUE, echo = FALSE, fig.cap="Realized (closed bar) and expected (open bar) colonization (up) or extinction (down) for each climate treatment. Colonization and extinction are expressed as mean abundance per plot and treatment."}
+readd(colo_ext_abundance_plot)
 ```
 
 \newpage
@@ -116,10 +121,8 @@ readd(conv_div_plot)
 
 \newpage
 
-```{r rda_plot, eval = TRUE, echo = FALSE, out.width = '85%'}
-#fig.cap="Testing for convergence in multivariate community (first column) or trait-space (second and third column) as a function of year since transplant. Results from  Principal Response Curve multivariate RDA analysis. "}
-#readd(TraitRDA)
-knitr::include_graphics("./images/rda.png")
+```{r rda_plot, eval = TRUE, echo = FALSE, fig.cap="Testing for convergence in multivariate community (first column) or trait-space (second and third column) as a function of year since transplant. Results from  Principal Response Curve multivariate RDA analysis. "}
+readd(TraitRDA)
 ```
 
 
@@ -133,6 +136,9 @@ result_rda %>%
 ```
 
 
+```{r happymoment_plot, eval = TRUE, echo = FALSE, fig.cap="Mean and higher traits moments (variance, skewness and kurtosis) for dN15, leaf area and leaf thickness over time. Shwon are mean values for each time period and climate treatment with standard error."}
+readd(happymoment_plot)
+```
 
 
 \newpage
@@ -159,7 +165,7 @@ readd(conv_div_no_slope_plot)
 
 ```{r conv-div_table, eval = TRUE, echo = FALSE}
 loadd(treatment_effect_table)
-treatment_effect_table %>% 
+treatment_effect_table %>%
    kableExtra::kable(caption = "Results Testing for convergence and divergence in each pair-wise trait value as a function of year since transplant. Significant P values are indicated with asterisks: ** P value < 0.01, * p < 0.05")
 ```
 
@@ -167,18 +173,18 @@ treatment_effect_table %>%
 \newpage
 
 ### Eucledian distance analysis
- 
+
 ```{r eucledian_plot, eval = TRUE, echo = FALSE, fig.cap="Euclidean distance in functional trait composition since transplant (2012 - 2016) for control plots and treatments at each site. The colours indicate the different treatments control (grey), transplant to 1.75°C warmer (red), transplant to 0.5°C warmer (pink), OTC (orange), transplant to 0.5°C colder (light blue), transplant to 1.75°C colder (dark blue). The two columns show two scenarios of trait plasticity. Divergence reflects a conservative scenario, where treatments are compared to the origin control and do not allow for trait plasticity. Contrary, convergence reflects full plasticity where treatments are compared to the destination controls."}
 readd(euclidean_distance_plot)
-``` 
- 
- 
-```{r eucledian_table, eval = TRUE, echo = FALSE}
-loadd(euclidean_dist_table) 
+```
 
-euclidean_dist_table %>% 
+
+```{r eucledian_table, eval = TRUE, echo = FALSE}
+loadd(euclidean_dist_table)
+
+euclidean_dist_table %>%
   kableExtra::kable(caption = "Results testing difference between eucledian distance for control plots and each treatment at each site between 2012 and 2016.")
-  
+
 ```
 
 
