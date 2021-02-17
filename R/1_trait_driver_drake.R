@@ -33,6 +33,7 @@ source("R/results_plan.R")
 source("R/functions/load_comm.R")
 source("R/functions/trait_ordination_fun.R")
 source("R/functions/rda_plots.R")
+source("R/functions/fancy_traits.R")
 
 
 #drake plan
