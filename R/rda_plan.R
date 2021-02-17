@@ -101,7 +101,8 @@ rda_plan <- drake_plan(
   
   wf3 = fortify(fit_Warming_fixed) %>% 
     filter(Score == "Species") %>% 
-    mutate(X = 1) %>% 
+    mutate(X = 1,
+           Label = recode(Label, "Dry mass g" = "mass", "Leaf area cm2" = "area", "SLA cm2/g" = "SLA", "Thickness mm" = "thickness")) %>% 
     ggplot(aes(x = X, y = (Response), label = Label)) +
     geom_text(aes(x = X), size = 1.8) +
     geom_hline(yintercept = 0) +
@@ -143,7 +144,8 @@ rda_plan <- drake_plan(
   
   wp3 = fortify(fit_Warming_plastic) %>% 
     filter(Score == "Species") %>% 
-    mutate(X = 1) %>% 
+    mutate(X = 1,
+           Label = recode(Label, "Dry mass g" = "mass", "Leaf area cm2" = "area", "SLA cm2/g" = "SLA", "Thickness mm" = "thickness")) %>% 
     ggplot(aes(x = X, y = (Response), label = Label)) +
     geom_text(aes(x = X), size = 1.8) +
     geom_hline(yintercept = 0) +
@@ -187,7 +189,8 @@ rda_plan <- drake_plan(
   
   cf3 = fortify(fit_Cool_fixed) %>% 
     filter(Score == "Species") %>% 
-    mutate(X = 1) %>% 
+    mutate(X = 1,
+           Label = recode(Label, "Dry mass g" = "mass", "Leaf area cm2" = "area", "SLA cm2/g" = "SLA", "Thickness mm" = "thickness")) %>% 
     ggplot(aes(x = X, y = Response, label = Label)) +
     geom_text(aes(x = X), size = 1.8) +
     geom_hline(yintercept = 0) +
@@ -229,7 +232,8 @@ rda_plan <- drake_plan(
   
   cp3 = fortify(fit_Cool_plastic) %>% 
     filter(Score == "Species") %>% 
-    mutate(X = 1) %>% 
+    mutate(X = 1,
+           Label = recode(Label, "Dry mass g" = "mass", "Leaf area cm2" = "area", "SLA cm2/g" = "SLA", "Thickness mm" = "thickness")) %>% 
     ggplot(aes(x = X, y = Response, label = Label)) +
     geom_text(aes(x = X), size = 1.8) +
     geom_hline(yintercept = 0) +
@@ -240,7 +244,7 @@ rda_plan <- drake_plan(
           axis.text.x = element_blank()),
 
   #patchwork together
-  #TraitRDA = ((wc2 + wf2 + wf3 + wp2 + wp3) + plot_layout(widths = c(4, 4, 1, 4, 1))) / ((cc2 + cf2 + cf3 + cp2 + cp3) + plot_layout(widths = c(4, 4, 1, 4, 1))),
+  TraitRDA = ((wc2 + wf2 + wf3 + wp2 + wp3) + plot_layout(widths = c(4, 4, 1, 4, 1))) / ((cc2 + cf2 + cf3 + cp2 + cp3) + plot_layout(widths = c(4, 4, 1, 4, 1))),
 
   
   #permutation test
