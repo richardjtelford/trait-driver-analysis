@@ -98,7 +98,7 @@ plot_plan <- drake_plan(
     geom_hline(yintercept = 0, colour = "grey") +
     #geom_rect(data = legend, aes(xmin = TTtreat, xmax = TTtreat, ymin = y1, ymax = y2, colour = c, fill = f)) +
     geom_text(data = legend2, aes(x = x2, y = y2, label = t), size = 3) +
-    labs(x = "", y = "", title = "Anundance") +
+    labs(x = "", y = "", title = "Abundance") +
     annotation_custom(ex, xmin = 0.1, xmax= 0.1, ymin = -40, ymax = -40) +
     annotation_custom(col, xmin = 0.1, xmax= 0.1, ymin = 30, ymax = 30) +
     coord_cartesian(xlim = c(1, 6), clip="off") +
