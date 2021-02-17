@@ -318,40 +318,24 @@ plot_plan <- drake_plan(
   #   facet_grid(direction ~ term.treatment, scales = "free_y") +
   #   theme_bw(),
   
-  #treatment_time_effect %>% 
-    
-  
-  #space/time R2 relationship
-  
-  #temporal trait change
-  #mean
-  # trait_mean_by_time_plot = bootstrapped_trait_moments_div %>% 
-  #   filter(!TTtreat %in% c("control", "local", "OTC")) %>%
-  #   group_by(year, turfID, TTtreat, trait_trans, Site) %>% 
-  #   summarise(mean = mean(mean)) %>% 
-  #   ggplot(aes(x = year, y = mean, colour = TTtreat, group = turfID)) +
-  #   geom_line() +
-  #   facet_grid(trait_trans~Site, scales = "free_y"),
-  
   
 ## HIGHER MOMENTS
-
-sum_boot_moment_fixed %>% 
-  
-happymoments %>%
-    filter(plasticity == "fixed",
-           trait_trans %in% c("dN15_permil", "Leaf_Area_cm2_log", "Thickness_mm_log")) %>%
+happymoment_plot = sum_boot_moment_fixed %>% 
+  pivot_longer(cols = c(mean, var, skew, kurt), names_to = "happymoment", values_to = "value") %>% 
+    filter(trait_trans %in% c("dN15_permil", "Leaf_Area_cm2_log", "Thickness_mm_log")) %>%
   mutate(happymoment = fct_relevel(happymoment, c("mean", "var", "skew", "kurt")),
          happymoment = recode(happymoment, "var" = "variance", "skew" = "skewness", "kurt" = "kurtosis"),
          trait_trans = recode(trait_trans, "dN15_permil" = "dN15", "Leaf_Area_cm2_log" = "Leaf area", "Thickness_mm_log" = "Thickness")) %>%
-  group_by(TTtreat, trait_trans, happymoment, year) %>% 
-  summarise(value = mean(value)) %>% 
-  ggplot(aes(x = year, y = value, colour = TTtreat)) +
+  group_by(TTtreat, trait_trans, happymoment, year) %>%
+  summarise(mean = mean(value),
+            se = sd(value, na.rm = TRUE)/sqrt(n())) %>% 
+  ggplot(aes(x = year, y = mean, ymin = mean - se, ymax = mean + se, colour = TTtreat)) +
   geom_line() +
+  geom_errorbar(position = position_dodge(width = 0.15), width = 0) +
   labs(x = "", y = "Mean higher moment value") +
   geom_hline(yintercept = 0, linetype = "dashed", colour = "grey") +
     scale_colour_manual(name = "", values = c("grey", "pink", "lightblue", "red", "blue", "orange")) +
     facet_grid(happymoment ~ trait_trans, scale = "free") +
     theme_minimal()
-  
+
 )
