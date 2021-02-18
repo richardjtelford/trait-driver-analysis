@@ -327,16 +327,19 @@ plot_plan <- drake_plan(
 ## HIGHER MOMENTS
 happymoment_plot = fancy_trait_name_dictionary(sum_boot_moment_fixed) %>% 
   pivot_longer(cols = c(mean, var, skew, kurt), names_to = "happymoment", values_to = "value") %>% 
-    filter(trait_trans %in% c("dN15_permil", "Leaf_Area_cm2_log", "Thickness_mm_log")) %>%
+    filter(trait_trans %in% c("dN15_permil", "Leaf_Area_cm2_log", "Thickness_mm_log", "C_percent", "P_percent", "dC13_permil")) %>%
   mutate(happymoment = fct_relevel(happymoment, c("mean", "var", "skew", "kurt")),
-         happymoment = recode(happymoment, "var" = "variance", "skew" = "skewness", "kurt" = "kurtosis")) %>% 
+         happymoment = recode(happymoment, "var" = "variance", "skew" = "skewness", "kurt" = "kurtosis"),
+         trait_fancy = recode(trait_fancy, "Leaf area cm2" = "log(area)", "Thickness mm" = "log(thickness)")) %>% 
   group_by(TTtreat, trait_trans, trait_fancy, happymoment, year) %>%
   summarise(mean = mean(value),
             se = sd(value, na.rm = TRUE)/sqrt(n())) %>% 
+  mutate(trait_fancy = factor(trait_fancy, levels = c("log(area)", "log(thickness)", "C %", "P %", "dC13 ‰", "dN15 ‰"))) %>% 
   ggplot(aes(x = year, y = mean, ymin = mean - se, ymax = mean + se, colour = TTtreat)) +
   geom_line() +
   geom_errorbar(position = position_dodge(width = 0.15), width = 0) +
-  labs(x = "", y = "Mean higher moment value") +
+  scale_x_continuous(breaks = c(2013, 2015), minor_breaks = c(2012, 2014, 2016)) +
+  labs(x = "Year", y = "Mean higher moment value") +
   geom_hline(yintercept = 0, linetype = "dashed", colour = "grey") +
     scale_colour_manual(name = "", values = c("grey", "pink", "lightblue", "red", "blue", "orange")) +
     facet_grid(happymoment ~ trait_fancy, scale = "free") +
