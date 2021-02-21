@@ -83,7 +83,7 @@ rda_plan <- drake_plan(
            TTtreat = factor(TTtreat, levels = c("control", "OTC", "warm1", "warm3", "control_L"))),
   
   #prc
-  fit_Warming_fixed = prc(response = trait_warm_fat_fixed %>% select(`C %`:`Thickness mm`), 
+  fit_Warming_fixed = prc(response = trait_warm_fat_fixed %>% select(`C %`:`SLA cm2/g`), 
                           treatment = trait_warm_fat_fixed$TTtreat, 
                           time = trait_warm_fat_fixed$year, 
                           scale = TRUE),
@@ -127,7 +127,7 @@ rda_plan <- drake_plan(
            TTtreat = factor(TTtreat, levels = c("control", "OTC", "warm1", "warm3", "control_L"))),
   
   #prc
-  fit_Warming_plastic = prc(response = trait_warm_fat_plastic %>% select(`C %`:`Thickness mm`),
+  fit_Warming_plastic = prc(response = trait_warm_fat_plastic %>% select(`C %`:`SLA cm2/g`),
                             treatment = trait_warm_fat_plastic$TTtreat, 
                             time = trait_warm_fat_plastic$year, 
                             scale = TRUE),
@@ -171,7 +171,7 @@ rda_plan <- drake_plan(
            TTtreat = factor(TTtreat, levels = c("control", "cool1", "cool3", "control_H"))),
   
   #prc
-  fit_Cool_fixed = prc(response = trait_cool_fat_fixed %>% select(`C %`:`Thickness mm`),
+  fit_Cool_fixed = prc(response = trait_cool_fat_fixed %>% select(`C %`:`SLA cm2/g`),
                        treatment = trait_cool_fat_fixed$TTtreat,
                        time = trait_cool_fat_fixed$year,
                        scale = TRUE),
@@ -215,7 +215,7 @@ rda_plan <- drake_plan(
            TTtreat = factor(TTtreat, levels = c("control", "cool1", "cool3", "control_H"))),
   
   #prc
-  fit_Cool_plastic = prc(response = trait_cool_fat_plastic %>% select(`C %`:`Thickness mm`),
+  fit_Cool_plastic = prc(response = trait_cool_fat_plastic %>% select(`C %`:`SLA cm2/g`),
                          treatment = trait_cool_fat_plastic$TTtreat,
                          time = trait_cool_fat_plastic$year,
                          scale = TRUE),
@@ -272,7 +272,7 @@ rda_plan <- drake_plan(
   ) %>% 
     filter(TTtreat != "control_L") %>% 
     nest(data = -datatype) %>% 
-    mutate(mod = map(data, ~ prc(response = .x %>% select(`C %`:`Thickness mm`),
+    mutate(mod = map(data, ~ prc(response = .x %>% select(`C %`:`SLA cm2/g`),
                                        treatment = .x$TTtreat,
                                        time = .x$year,
                                        scale = TRUE))) %>% 
@@ -306,7 +306,7 @@ rda_plan <- drake_plan(
   ) %>% 
     filter(TTtreat != "control_H") %>% 
     nest(data = -datatype) %>% 
-    mutate(mod = map(data, ~ prc(response = .x %>% select(`C %`:`Thickness mm`),
+    mutate(mod = map(data, ~ prc(response = .x %>% select(`C %`:`SLA cm2/g`),
                                  treatment = .x$TTtreat,
                                  time = .x$year,
                                  scale = TRUE))) %>% 
