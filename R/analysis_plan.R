@@ -22,20 +22,25 @@ analysis_plan <- drake_plan(
     
     .id = "direction"
   ) %>% 
-    select(-c(ci_low_mean:ci_high_Kurt)) %>% 
+    select(-c(ci_low_mean:ci_high_kurt)) %>% 
     group_by(direction, plasticity, year, trait_trans, TTtreat, Site, Block) %>% 
     summarise(mean = mean(mean, na.rm = TRUE)) %>% 
-    pivot_wider(names_from = "TTtreat", values_from = "mean") %>% 
-    mutate(warm1 = warm1 - control,
-           cool1 = cool1 - control,
-           OTC = OTC - control,
-           warm3 = warm3 - control,
-           cool3 = cool3 - control) %>% 
-    select(-control) %>% 
-    pivot_longer(cols = c(warm1:OTC), names_to = "TTtreat", values_to = "mean") %>% 
-    filter(!is.na(mean)) %>% 
+    group_by(direction, plasticity, year, trait_trans, Site, Block) %>%
+    filter(any(TTtreat == "control")) %>%
+    mutate(control = mean[TTtreat == "control"],
+           delta = mean -control) %>%
+    # pivot_wider(names_from = "TTtreat", values_from = "mean") %>%
+    # mutate(warm1 = warm1 - control,
+    #        cool1 = cool1 - control,
+    #        OTC = OTC - control,
+    #        warm3 = warm3 - control,
+    #        cool3 = cool3 - control) %>%
+    # select(-control) %>%
+    # pivot_longer(cols = c(warm1:OTC), names_to = "TTtreat", values_to = "mean") %>%
+    # filter(!is.na(mean)) %>%
+    group_by(direction, plasticity, trait_trans, Site) %>% 
     #scale
-    mutate(mean = mean / sd(mean)),
+    mutate(delta = delta / sd(delta)),
 
   
   #effect of gradient (control plots, 2016)
@@ -57,15 +62,33 @@ analysis_plan <- drake_plan(
   
   
   #effect of experiments across all elevations
-  treatment_effect = effect_size %>% 
+  treatment_model = effect_size %>% 
+    group_by(direction, plasticity, trait_trans) %>% 
     nest(data = -c(direction, plasticity, trait_trans)) %>% 
-    mutate(mod = map(data, ~lm(mean ~ TTtreat*year, data = .x)),
-           result = map(mod, tidy)) %>% 
-    unnest(result) %>% 
-    mutate(term = plyr::mapvalues(term, from = c("(Intercept)", "TTtreatcool3", "TTtreatOTC", "TTtreatwarm1", "TTtreatwarm3", "year", "TTtreatcool3:year", "TTtreatOTC:year", "TTtreatwarm1:year", "TTtreatwarm3:year"),
-                                  to = c("Tcool1", "Tcool3", "TOTC", "Twarm1", "Twarm3", "cool1", "cool3", "OTC", "warm1", "warm3")),
-           signi = if_else(p.value < 0.05, "significant", "non-signigicant")) %>% 
+    mutate(mod = map(data, ~lm(delta ~ TTtreat*year, data = .x)),
+           result = map(mod, tidy),
+           fitted = map(mod, augment)) %>% 
     select(-data, -mod),
+  
+  treatment_effect = treatment_model %>% 
+    unnest(fitted) %>% 
+    select(-delta, -result, -c(.se.fit:.std.resid)) %>% 
+    rename(delta = .fitted) %>% 
+    distinct() %>% 
+    filter(TTtreat != "control") %>% 
+    left_join(treatment_model %>% 
+                unnest(result) %>% 
+                filter(grepl(":year", term)) %>% 
+                mutate(TTtreat = plyr::mapvalues(term, from = c("TTtreatwarm1:year", "TTtreatcool1:year", "TTtreatwarm3:year", "TTtreatcool3:year", "TTtreatOTC:year"),
+                                              to = c("warm1", "cool1", "warm3", "cool3", "OTC"))), 
+              by = c("direction", "plasticity", "trait_trans", "TTtreat")) %>% 
+    mutate(signi = if_else(p.value < 0.05, "significant", "non-signigicant")),
+                
+    
+    # mutate(term = plyr::mapvalues(term, from = c("(Intercept)", "TTtreatcool3", "TTtreatOTC", "TTtreatwarm1", "TTtreatwarm3", "year", "TTtreatcool3:year", "TTtreatOTC:year", "TTtreatwarm1:year", "TTtreatwarm3:year"),
+    #                               to = c("Tcool1", "Tcool3", "TOTC", "Twarm1", "Twarm3", "cool1", "cool3", "OTC", "warm1", "warm3")),
+    #        signi = if_else(p.value < 0.05, "significant", "non-signigicant")) %>% 
+    # select(-data, -mod),
   
   
   #effect of experiments by elevations
@@ -93,30 +116,40 @@ analysis_plan <- drake_plan(
     ungroup() %>% 
     select(plasticity:TTtreat, mean, var, skew, kurt) %>% 
     pivot_longer(cols = c(mean, var, skew, kurt), names_to = "happymoment", values_to = "value"),
-  
 
+  
+  # dd <- sum_boot_moment_fixed %>% 
+  #   ungroup() %>% 
+  #   select(trait_trans, year, TTtreat, var) %>% 
+  #   group_by(trait_trans, TTtreat) %>% 
+  #   mutate(var_ranked = rank(var))
+  #   
+  # fit <- lm(var_ranked ~ year * TTtreat, dd)
+  # check_model_assumption(fit, dd)
+  
   #using non-parametric test (kruskal-wallies) to test if treatments differ each other? (only last year)
-  happymoment_TTtreat = happymoments %>%
-    filter(year == 2016,
-           plasticity == "fixed") %>% 
+  happymoment_analysis = sum_boot_moment_fixed %>% 
+    pivot_longer(cols = c(mean, var, skew, kurt), names_to = "happymoment", values_to = "value") %>% 
+    filter(happymoment != "mean") %>% 
       nest(data = -c(trait_trans, happymoment)) %>% 
-    mutate(mod = map(data, ~ kruskal.test(value ~ TTtreat, data = .x)),
+    mutate(mod = map(data, ~lm(value ~ year * TTtreat, data = .x)),
            result = map(mod, broom::tidy)) %>% 
-    unnest(result) %>% 
-    select(-data, -mod),
+    # mutate(mod = map(data, ~ kruskal.test(value ~ TTtreat, data = .x)),
+    #        result = map(mod, broom::tidy)) %>% 
+    unnest(result),
   
   #test difference among treatments if kruskal-wallies is significant
-  group_test = happymoment_TTtreat %>% 
-    filter(p.value <= 0.05) %>% 
-    distinct(trait_trans, happymoment),
-  
-  happymoments_Diff = happymoments %>%
-    filter(year == 2016,
-           plasticity == "fixed") %>% 
-    inner_join(group_test) %>% 
-    nest(data = -c(trait_trans, happymoment)) %>% 
-    mutate(mod = map(data, ~ pairwise.wilcox.test(.x$value, .x$TTtreat, p.adjust.method = "BH")),
-           result = map(mod, broom::tidy)) %>% 
-    unnest(result)
+  # group_test = happymoment_TTtreat %>% 
+  #   filter(p.value <= 0.05) %>% 
+  #   distinct(trait_trans, happymoment),
+  # 
+  # happymoments_Diff = happymoments %>%
+  #   filter(year == 2016,
+  #          plasticity == "fixed") %>% 
+  #   inner_join(group_test) %>% 
+  #   nest(data = -c(trait_trans, happymoment)) %>% 
+  #   mutate(mod = map(data, ~ pairwise.wilcox.test(.x$value, .x$TTtreat, p.adjust.method = "BH")),
+  #          result = map(mod, broom::tidy)) %>% 
+  #   unnest(result)
 
 )
