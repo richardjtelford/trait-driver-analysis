@@ -10,7 +10,7 @@ fancy_trait_name_dictionary <- function(dat){
                               dN15_permil = "dN15 ‰",
                               Dry_Mass_g_log = "Dry mass g",
                               LDMC = "LDMC",
-                              Leaf_Area_cm2_log = "Leaf area cm2",
+                              Leaf_Area_cm2_log = "Area cm2",
                               N_percent = "N %",
                               NP_ratio = "NP",
                               P_percent = "P %",
