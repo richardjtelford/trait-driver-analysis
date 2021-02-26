@@ -162,7 +162,7 @@ plot_plan <- drake_plan(
     # simplify figure by only showing traits with significant slope
     filter(!trait_trans %in% c("SLA_cm2_g", "NP_ratio", "LDMC", "CN_ratio")) %>%
     mutate(direction = factor(direction, levels = c("divergence", "convergence")),
-           trait_fancy = factor(trait_fancy, levels = c("Positive slope", "dN15 ‰", "C %", "Log(area cm2)", "Log(Dry mass g)", "Negative slope", "P %", "N %", "Log(Thickness mm)", "dC13 ‰")),
+           trait_fancy = factor(trait_fancy, levels = c("Positive slope", "dN15 ‰", "C %", "Area cm2", "Dry mass g", "Negative slope", "P %", "N %", "Thickness mm", "dC13 ‰")),
            TTtreat = factor(TTtreat, levels = c("cool3", "cool1", "OTC", "warm1", "warm3"))) %>% 
     ggplot(aes(x = year, y = delta, colour = TTtreat, linetype = signi)) +
     geom_rect(data = . %>% filter(trait_trans %in% c("Positive slope", "Negative slope")), 
@@ -327,7 +327,7 @@ happymoment_data = sum_boot_moment_fixed %>%
   group_by(TTtreat, trait_trans, trait_fancy, happymoment, year) %>%
   summarise(mean = mean(value),
             se = sd(value, na.rm = TRUE)/sqrt(n())) %>% 
-  mutate(trait_fancy = factor(trait_fancy, levels = c("Log(area cm2)", "Log(Thickness mm)", "C %", "P %", "dC13 ‰", "dN15 ‰"))),
+  mutate(trait_fancy = factor(trait_fancy, levels = c("Area cm2", "Thickness mm", "C %", "P %", "dC13 ‰", "dN15 ‰"))),
 
   mean_plot = happymoment_data %>% 
   filter(happymoment == "mean") %>%
