@@ -49,7 +49,12 @@ bootstrap_moment_plan <- drake_plan(
     fancy_trait_name_dictionary(),
   
   #plastic
-  sum_boot_moment_plastic = trait_summarise_boot_moments(bootstrapped_trait_moments_plastic) %>% rename("destBlockID" = "blockID", "destSiteID" = "Site", "TTtreat" = "Treatment_comm") %>% 
+  sum_boot_moment_plastic = trait_summarise_boot_moments(bootstrapped_trait_moments_plastic) %>%
+    ungroup() %>% 
+    select(-Site, -blockID) %>% 
+    # rescue true destination site and block
+    left_join(community %>% select(destSiteID, destBlockID, turfID) %>% distinct(), by = "turfID") %>% 
+    rename("TTtreat" = "Treatment_comm") %>% 
     fancy_trait_name_dictionary(),
   
   #summarise bootstrap moments with climate
