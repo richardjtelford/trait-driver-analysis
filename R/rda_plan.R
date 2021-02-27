@@ -117,7 +117,7 @@ rda_plan <- drake_plan(
   #make fat table
   trait_warm_fat_plastic = sum_boot_moment_plastic %>% 
     ungroup() %>% 
-    select(destSiteID:TTtreat, trait_fancy, mean, -trait_trans) %>%
+    select(year:TTtreat, mean, trait_fancy, destSiteID, destBlockID) %>%
     filter(TTtreat %in% c("control", "warm1", "warm3", "OTC")) %>%
     filter(originSiteID == "H" | originSiteID == "L" & TTtreat == "control") %>% 
     spread(key = trait_fancy, value = mean, fill = 0) %>% 
@@ -204,7 +204,7 @@ rda_plan <- drake_plan(
   #fat table
   trait_cool_fat_plastic = sum_boot_moment_plastic %>% 
     ungroup() %>% 
-    select(destSiteID:TTtreat, trait_fancy, mean, -trait_trans) %>%
+    select(year:TTtreat, trait_fancy, mean, destSiteID, destBlockID) %>%
     filter(TTtreat %in% c("control", "cool1", "cool3")) %>%
     filter(originSiteID == "L" | originSiteID == "H" & TTtreat == "control") %>% 
     distinct() %>% 
