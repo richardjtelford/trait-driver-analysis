@@ -29,15 +29,6 @@ analysis_plan <- drake_plan(
     filter(any(TTtreat == "control")) %>%
     mutate(control = mean[TTtreat == "control"],
            delta = mean -control) %>%
-    # pivot_wider(names_from = "TTtreat", values_from = "mean") %>%
-    # mutate(warm1 = warm1 - control,
-    #        cool1 = cool1 - control,
-    #        OTC = OTC - control,
-    #        warm3 = warm3 - control,
-    #        cool3 = cool3 - control) %>%
-    # select(-control) %>%
-    # pivot_longer(cols = c(warm1:OTC), names_to = "TTtreat", values_to = "mean") %>%
-    # filter(!is.na(mean)) %>%
     group_by(direction, plasticity, trait_trans, Site) %>% 
     #scale
     mutate(delta = delta / sd(delta)),
@@ -83,12 +74,6 @@ analysis_plan <- drake_plan(
                                               to = c("warm1", "cool1", "warm3", "cool3", "OTC"))), 
               by = c("direction", "plasticity", "trait_trans", "TTtreat")) %>% 
     mutate(signi = if_else(p.value < 0.05, "significant", "non-signigicant")),
-                
-    
-    # mutate(term = plyr::mapvalues(term, from = c("(Intercept)", "TTtreatcool3", "TTtreatOTC", "TTtreatwarm1", "TTtreatwarm3", "year", "TTtreatcool3:year", "TTtreatOTC:year", "TTtreatwarm1:year", "TTtreatwarm3:year"),
-    #                               to = c("Tcool1", "Tcool3", "TOTC", "Twarm1", "Twarm3", "cool1", "cool3", "OTC", "warm1", "warm3")),
-    #        signi = if_else(p.value < 0.05, "significant", "non-signigicant")) %>% 
-    # select(-data, -mod),
   
   
   #effect of experiments by elevations
