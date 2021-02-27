@@ -42,14 +42,23 @@ analysis_plan <- drake_plan(
            TTtreat %in% c("control"),
            plasticity == "fixed") %>% 
     select(originSiteID:mean, variable, value, -n) %>% 
+    group_by(trait_trans) %>% 
     nest(data = -c(trait_trans)) %>% 
     mutate(mod = map(data, ~lm(mean ~ value, data = .x)),
-           result = map(mod, tidy)) %>%
+           result = map(mod, tidy)) %>% 
     unnest(result) %>% 
-    mutate(term = plyr::mapvalues(term, from = c("(Intercept)", "value"),
-                                  to = c("intercept", "slope"))) %>% 
-    rename(traits = trait_trans, 'standard error' = std.error, 'P value' = p.value) %>% 
-    select(-data, -mod),
+    filter(term == "value") %>% 
+    rename('standard error' = std.error, 'P value' = p.value) %>% 
+    select(-data, -mod, -term) %>% 
+    mutate(signi = case_when(`P value` < 0.05 ~ "significant",
+                             `P value` > 0.05 ~ "non-significant"),
+           slope = case_when(`P value` < 0.05 & estimate > 0 ~ "positive slope",
+                             `P value` < 0.05 & estimate < 0 ~ "negative slope",
+                             `P value` > 0.05 ~ "no slope"),
+           slope = factor(slope, levels = c("positive slope", "no slope", "negative slope"))) %>% 
+    fancy_trait_name_dictionary() %>% 
+    # get right order
+    arrange(slope, desc(estimate)),
   
   
   #effect of experiments across all elevations
