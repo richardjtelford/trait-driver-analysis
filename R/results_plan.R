@@ -2,9 +2,10 @@ results_plan <- drake_plan(
   
   #trait climate regressions table
   moments_by_climate_table = trait_climate_regression %>% 
-    mutate(traits = factor(traits, levels = c("dN15_permil", "Leaf_Area_cm2_log", "Dry_Mass_g_log", "C_percent", "SLA_cm2_g", "NP_ratio", "LDMC", "P_percent", "N_percent", "dC13_permil", "Thickness_mm_log", "CN_ratio"))) %>% 
+    mutate(trait_fancy = factor(trait_fancy, levels = trait_order$trait_fancy)) %>% 
+    ungroup() %>% 
+    select(trait_fancy, estimate:'P value') %>% 
     rename(p = 'P value') %>% 
-    select(traits, term:p) %>% 
     mutate(estimate = round(estimate, 2),
            `standard error` = round(`standard error`, 2),
            statistic = round(statistic, 2),
