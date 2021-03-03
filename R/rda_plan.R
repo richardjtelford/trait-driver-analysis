@@ -325,6 +325,24 @@ rda_plan <- drake_plan(
         comm_cool = rda_cool_c, 
         trait_cool = rda_cool_t
       )
-    )
+    ),
+  
+  
+  # RDA propotion converged
+  rda_proportions = bind_rows(warm_comm_none = fortify(fit_warm_comm),
+            cool_comm_none = fortify(fit_cool_comm),
+            warm_trait_fixed = fortify(fit_Warming_fixed), 
+            warm_trait_plastic = fortify(fit_Warming_plastic),
+            cool_trait_fixed = fortify(fit_Cool_fixed),
+            cool_trait_plastic = fortify(fit_Cool_plastic),
+            .id = "treatment_response_process") %>% 
+    filter(Time == 2016) %>% 
+    separate(treatment_response_process, into = c("Treatment", "Variable", "Process"), sep = "_") %>% 
+    group_by(Treatment, Variable, Process) %>% 
+    mutate(top = Response[n()],
+           Proportion = Response/top) %>% 
+    filter(!Label %in% c("control_L|2016", "control_H|2016")) %>% 
+    mutate(Process = if_else(Process == "none", NA_character_, Process)) %>% 
+    select(-Score, -Label, -Time, -Response, -top)
   
 )

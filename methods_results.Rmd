@@ -2,11 +2,11 @@
 title: "Assessing generality in trait-based ecology and theory by using experimental warming and transplant communities spanning a broad temperature gradient"
 
 author: |
-  | Brian J. Enquist^[Corresponding author: brian.enquist@uoa.com] $^1$, Brian S. Maitner$^1$, Aud H. Halbritter$^4,$^5$,
-  | Richard J.Telford$^4,5$, Lorah Seltzer$^1$, Vanessa Buzzard$^1$,
+  | Brian J. Enquist^[Corresponding author: brian.enquist@uoa.com] $^1$, Brian S. Maitner$^1$, Aud H. Halbritter$^{4,5}$,
+  | Richard J.Telford$^{4,5}$, Lorah Seltzer$^1$, Vanessa Buzzard$^1$,
   | Jonathan Henn, Sean Michaletz, Inge H.J. Althuizen$^4$,
   | Kine Blom$^4$, Alex Brummer, Julia Chacon$^1$,
-  | Javiera Seaman Espinosa, Bárbara William Garcia$^4$, Ragnhild Gya$^4,5$,
+  | Javiera Seaman Espinosa, Bárbara William Garcia$^4$, Ragnhild Gya$^{4,5}$,
   | Elisabeth Nesheim Hauge$^4$, Hai He, Francesca Jaroszynska$^4$,
   | Blake L. Joyce7, Kari Klanderud$^3$, Frida Knoop$^4$,
   | Hanna Lee, Rebecca Lehman, Miguel Muñoz Mazon,
@@ -14,27 +14,33 @@ author: |
   | Ahui Peng$^6$, Christine Pötsch$^4$, Claire Ponsac, Fei Ran$^6$,
   | Ruben Roos$^3$, Christien Steyn, Megan Kathleen
   | Sullivan, Xiangyang Sun$^6$, Jesslyn Tjendra$^4$, Yao Xiao$^6$,
-  | Li Zhang$^6$, Xiaoxiang Zhao$^6$, Yan Yang$^6$ & Vigdis Vandvik$^4,5$
-  
+  | Li Zhang$^6$, Xiaoxiang Zhao$^6$, Yan Yang$^6$ & Vigdis Vandvik$^{4,5}$
+
 address: |
  | $^1$ Department of Ecology and Evolutionary Biology, University of Arizona, AZ, USA
  | $^2$ The Santa Fe Institute, Santa Fe, NM, USA
- | $^3$ Faculty of Environmental Sciences and Natural Resource Management, Norwegian University of Life Sciences, Norway, 
- | $^4$ Department of Biological Sciences, University of Bergen, Norway, 
+ | $^3$ Faculty of Environmental Sciences and Natural Resource Management, Norwegian University of Life Sciences, Norway,
+ | $^4$ Department of Biological Sciences, University of Bergen, Norway,
  | $^5$ Bjerknes Centre for Climate Research, University of Bergen, Norway
  | $^6$ Institute of Mountain Hazards and Environment (CAS), China.
  | $^7$ University Information Technology Services, University of Arizona, AZ, USA
 
-  
+
 date: "`r format(Sys.Date(), '%d %B %Y')`"
 
 output: 
+  #pdf_document
   bookdown::pdf_book:
     dev: cairo_pdf
     toc: no
     number_sections: false
+    latex_engine: lualatex
   fig_caption: yes
   extra_dependencies: ["flafter"]
+  header-includes:
+    - \usepackage{caption}
+    - \usepackage{booktabs}
+    - \usepackage{longtable}
 classoption: a4paper
 bibliography: Rmd/TDT2.bib
 csl: Rmd/elsevier-harvard_rjt.csl
@@ -49,6 +55,8 @@ library("cairoDevice")
 
 ```
 
+\newpage
+
 ## Methods
 
 This section contains the experimental design and all the references used for the data analysis of this manuscript.
@@ -59,6 +67,19 @@ This section contains the experimental design and all the references used for th
 knitr::include_graphics("./images/ChinaMountain.pdf")
 
 ```
+
+
+\newpage
+
+Here is another conceptual figure.
+
+
+```{r concept-fig, eval = TRUE, echo = FALSE,  out.width = '100%', fig.cap="Conceptual figure showing the experimetnal design with traits changing along a gradienta and transplanting traits along the gradient. Trait imputation, bootstrapping and higher moments. And divergence - convergence."}
+
+knitr::include_graphics("./images/TDT.png")
+
+```
+
 
 ### Software
 
@@ -80,32 +101,46 @@ This section contains all figures and tables of the main manuscript. The figures
 
 ### Trait-climate correlations
 
+This figure shows the correlation of trait mean and temperature, representing the elevational gradient.
+
+
 ```{r trait-climate, eval = TRUE, echo = FALSE, fig.cap="Relationship between functional traits and summer air temperature (2m above ground). The trait values are bootstrapped community weighted traits from control plots in 2016. The regression line is shown (grey dashed) and significant relationships are indicated with a solid red line. The shaded area displays the confidence interval. The traits are sorted from positive slope, no significant to negative slope."}
 readd(moments_by_climate_plot)
 ```
 
-<!-- \newpage -->
+\newpage
 
-<!-- ```{r trait-climate-table, eval = TRUE, echo = FALSE} -->
-<!-- loadd(moments_by_climate_table) -->
+Regression results of the climate-trait relationship.
 
-<!-- moments_by_climate_table %>% -->
-<!--    kableExtra::kable(caption = "Results from regression of traits and summer air temperature. Shown are estimates, standard error, statistics and P value. Significant P values are indicated with asterisks: ** P value < 0.01, * p < 0.05") -->
-<!-- ``` -->
+```{r trait-climate-table, eval = TRUE, echo = FALSE}
+loadd(moments_by_climate_table)
+
+moments_by_climate_table %>%
+  kableExtra::kable(caption = "Results from regression of traits and summer air temperature. Shown are estimates, standard error, statistics and P value. Significant P values are indicated with asterisks: ** P value < 0.01, * p < 0.05")
+
+```
+
+\newpage
 
 
-```{r trait_ordination_plot, eval = TRUE, echo = FALSE, fig.width = 8,fig.height = 7, fig.cap="Multivariate Principal Component Analysis of community trait composition for each of the elevational gradient sites and experimental transplants. "}
+This is a principle componant analysis showing plant community composition for the different treatments in all sites.
+
+```{r trait_ordination_plot, eval = TRUE, echo = FALSE, fig.width = 8,fig.height = 7, fig.cap="Multivariate principal component analysis of community composition for each climate treatment along the elevational gradient sites."}
 readd(ordination)
 ```
 
 
 \newpage
 
-### Extinction and colonization
+### Colonization and extinction
+
+Here we present the number of species that colonize and go extinct in the different climate treatments.
 
 ```{r colo_ext_plot, eval = TRUE, echo = FALSE, fig.cap="Realized (closed bar) and expected (open bar) colonization (up) or extinction (down) for each climate treatment. Colonization and extinction are expressed as mean number of species per plot and treatment."}
 readd(colo_extinction_plot)
 ```
+
+Here we present the abundance of species that colonize and go extinct in the different climate treatments.
 
 ```{r colo_ext_plot2, eval = TRUE, echo = FALSE, fig.cap="Realized (closed bar) and expected (open bar) colonization (up) or extinction (down) for each climate treatment. Colonization and extinction are expressed as mean abundance per plot and treatment."}
 readd(colo_ext_abundance_plot)
@@ -128,12 +163,21 @@ readd(TraitRDA)
 
 
 ```{r rda_result, eval = TRUE, echo = FALSE}
-loadd(result_rda)
 
+loadd(result_rda)
 result_rda %>%
   kableExtra::kable(caption = "Results from RDA, testing difference in species or fixed/plastic trait composition over time among climate treatments and the origin control turfs using a permutation test with 999 permutations.")
 
 ```
+
+```{r rda_proportion, eval = TRUE, echo = FALSE}
+
+loadd(rda_proportions)
+rda_proportions %>%
+  kableExtra::kable(caption = "Proportion convergence towards destination site after 4 years of climate warming or cooling.", digits = 2)
+
+```
+
 
 
 ```{r happymoment_plot, eval = TRUE, echo = FALSE, fig.cap="Mean and higher traits moments (variance, skewness and kurtosis) for dN15, leaf area and leaf thickness over time. Shwon are mean values for each time period and climate treatment with standard error."}
@@ -148,7 +192,7 @@ This section contains all plots and tables of the supplementary material of this
 
 ### Colonization and extinction over time
 
-```{r col-ext-time-plot, eval = TRUE, echo = FALSE, fig.cap="Number of species colonizing and going extinct over time in each climate treatment."}
+```{r col-ext-time-plot, eval = FALSE, echo = FALSE, fig.cap="Number of species colonizing and going extinct over time in each climate treatment."}
 readd(col_ext_over_time_plot)
 ```
 
@@ -163,10 +207,11 @@ readd(conv_div_no_slope_plot)
 
 ### Stats for convergence and divergence analysis
 
-```{r conv-div_table, eval = TRUE, echo = FALSE}
+```{r conv-div_table, eval = FALSE, echo = FALSE}
 loadd(treatment_effect_table)
 treatment_effect_table %>%
-   kableExtra::kable(caption = "Results Testing for convergence and divergence in each pair-wise trait value as a function of year since transplant. Significant P values are indicated with asterisks: ** P value < 0.01, * p < 0.05")
+   kableExtra::kable("latex", longtable = TRUE, booktabs = TRUE, caption = "Results Testing for convergence and divergence in each pair-wise trait value as a function of year since transplant. Significant P values are indicated with asterisks: ** P value < 0.01, * p < 0.05") %>% 
+  kableExtra::kable_styling(latex_options = c("hold_position", "repeat_header"))
 ```
 
 
@@ -179,7 +224,7 @@ readd(euclidean_distance_plot)
 ```
 
 
-```{r eucledian_table, eval = TRUE, echo = FALSE}
+```{r eucledian_table, eval = FALSE, echo = FALSE}
 loadd(euclidean_dist_table)
 
 euclidean_dist_table %>%
