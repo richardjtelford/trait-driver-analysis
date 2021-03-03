@@ -77,21 +77,24 @@ colonization_extinction_plan <- drake_plan(
   
   
   #colonization and extinction over time
-  first_transplant_all_years = community2 %>% 
-    filter(year != 2016,
+  transplant_all_years = community2 %>% 
+    filter(year != 2012, 
            TTtreat != "control") %>%
     select(turfID, destBlockID, TTtreat, year, species),
   
   #extinciton = first - last year
-  extinction_all = anti_join(first_transplant_all_years, last_transplant, by = c("turfID", "destBlockID", "TTtreat", "species")) %>% 
+  extinction_all = anti_join(crossing(first_transplant %>% select(-year), year), transplant_all_years,
+                             by = c("destBlockID", "TTtreat", "species", "year")) %>% 
     count(destBlockID, TTtreat, year) %>% 
     group_by(TTtreat, year) %>% 
     summarise(nr_species = mean(n),
-              se = sd(n)/sqrt(n())),
+              se = sd(n)/sqrt(n()),
+              .groups = "drop_last"),
   
   #colonization = last - first year
-  year = c(2012, 2013, 2014, 2015),
-  colonization_all = anti_join(crossing(last_transplant, year), first_transplant_all_years, by = c("turfID", "destBlockID", "TTtreat", "species", "year")) %>% 
+  year = c(2013, 2014, 2015, 2016),
+  colonization_all = anti_join(transplant_all_years, crossing(first_transplant %>% select(-year), year), 
+                               by = c("destBlockID", "TTtreat", "species", "year")) %>% 
     group_by(destBlockID, TTtreat, year) %>% 
     count() %>% 
     group_by(TTtreat, year) %>% 

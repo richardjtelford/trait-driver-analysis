@@ -98,11 +98,14 @@ plot_plan <- drake_plan(
           .id = "process") %>% 
     mutate(TTtreat = factor(TTtreat, levels = c("local", "cool3", "cool1", "OTC", "warm1", "warm3")),
            TTtreat = recode(TTtreat, "control" = "local")) %>% 
-    left_join(predicted %>% select(TTtreat, predicted_nr_colonization, predicted_nr_extinction), by = "TTtreat") %>% 
-    mutate(proportion = if_else(process == "extiction", nr_species * 100 / predicted_nr_extinction, nr_species * 100 / predicted_nr_colonization)) %>% 
+    left_join(predicted %>% 
+                select(TTtreat:predicted_nr_extinction) %>% 
+                pivot_longer(cols = predicted_nr_colonization:predicted_nr_extinction, names_to = c("x", "process"), values_to = "predicted", names_sep = "_nr_"),
+              by = c("TTtreat", "process")) %>% 
+    mutate(proportion = nr_species / predicted) %>% 
     ggplot(aes(x = year, y = proportion, colour = TTtreat)) +
     #ggplot(aes(x = year, y = nr_species, ymin = nr_species - se, ymax = nr_species + se, colour = TTtreat)) +
-    geom_point(position = position_dodge(width = 0.15)) +
+    geom_point() + #position = position_dodge(width = 0.15)
     geom_line() +
     #geom_errorbar(position = position_dodge(width = 0.15), width = 0) +
     scale_colour_manual(name = "", values = c("grey", "blue","lightblue", "orange", "pink", "red")) +
@@ -144,9 +147,9 @@ plot_plan <- drake_plan(
     conv_div_plot = fancy_trait_name_dictionary(treatment_effect) %>% 
     bind_rows(pred_pos, pred_neg) %>% 
     # simplify figure by only showing traits with significant slope
-    filter(!trait_trans %in% c("SLA_cm2_g", "NP_ratio", "LDMC", "CN_ratio")) %>%
+    filter(!trait_trans %in% c("SLA_cm2_g", "NP_ratio", "LDMC")) %>%
     mutate(direction = factor(direction, levels = c("divergence", "convergence")),
-           trait_fancy = factor(trait_fancy, levels = c("Positive slope", "dN15 ‰", "C %", "Area cm2", "Dry mass g", "Negative slope", "P %", "N %", "Thickness mm", "dC13 ‰")),
+           trait_fancy = factor(trait_fancy, levels = c("Positive slope", "dN15 ‰", "Area cm2", "Dry mass g", "C %", "Negative slope", "P %", "N %", "Thickness mm", "dC13 ‰", "CN")),
            TTtreat = factor(TTtreat, levels = c("cool3", "cool1", "OTC", "warm1", "warm3"))) %>% 
     ggplot(aes(x = year, y = delta, colour = TTtreat, linetype = signi)) +
     geom_rect(data = . %>% filter(trait_trans %in% c("Positive slope", "Negative slope")), 
@@ -167,7 +170,7 @@ plot_plan <- drake_plan(
   conv_div_no_slope_plot = fancy_trait_name_dictionary(treatment_effect) %>% 
     bind_rows(pred_no) %>% 
     # only traits without significant slope
-    filter(trait_trans %in% c("No sign. slope", "SLA_cm2_g", "NP_ratio", "LDMC", "CN_ratio")) %>%
+    filter(trait_trans %in% c("No sign. slope", "SLA_cm2_g", "NP_ratio", "LDMC")) %>%
     mutate(direction = factor(direction, levels = c("divergence", "convergence")),
            trait_fancy = factor(trait_fancy, levels = c("No sign. slope", "SLA cm2/g", "NP", "LDMC", "CN")),
            TTtreat = factor(TTtreat, levels = c("cool3", "cool1", "OTC", "warm1", "warm3"))) %>%
