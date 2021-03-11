@@ -337,12 +337,13 @@ rda_plan <- drake_plan(
             cool_trait_plastic = fortify(fit_Cool_plastic),
             .id = "treatment_response_process") %>% 
     filter(Time == 2016) %>% 
-    separate(treatment_response_process, into = c("Treatment", "Variable", "Process"), sep = "_") %>% 
-    group_by(Treatment, Variable, Process) %>% 
+    separate(treatment_response_process, into = c("Climate", "Variable", "Process"), sep = "_") %>% 
+    group_by(Climate, Variable, Process) %>% 
     mutate(top = Response[n()],
            Proportion = Response/top) %>% 
     filter(!Label %in% c("control_L|2016", "control_H|2016")) %>% 
-    mutate(Process = if_else(Process == "none", NA_character_, Process)) %>% 
-    select(-Score, -Label, -Time, -Response, -top)
+    mutate(Process = if_else(Process == "none", "", Process)) %>% 
+    ungroup() %>% 
+    select(Treatment, Variable, Process, Proportion)
   
 )
