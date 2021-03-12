@@ -307,14 +307,74 @@ plot_plan <- drake_plan(
   
   
 ## HIGHER MOMENTS
+
+# Trait-climate-skewness
+change_skew = sum_boot_moment_fixed %>% 
+  # remove non-slope traits
+  filter(!trait_trans %in% c("SLA_cm2_g", "NP_ratio", "LDMC")) %>%
+  ungroup() %>% 
+  select(-c(global, n, mean:ci_high_var, ci_low_skew:ci_high_kurt)) %>%
+  filter(year %in% c(2012, 2016),
+         TTtreat != "control") %>%
+  pivot_wider(names_from = year, values_from = skew, names_prefix = "Y") %>% 
+  mutate(delta = Y2016 - Y2012) %>% 
+  inner_join(treatment_effect %>% 
+               filter(direction == "divergence",
+                      signi == "significant") %>% 
+               ungroup() %>% 
+               distinct(trait_trans, TTtreat), by = c("trait_trans", "TTtreat")),
+
+skew_warm = change_skew %>% 
+  filter(TTtreat %in% c("warm1", "warm3", "OTC")) %>% 
+  group_by(trait_trans, trait_fancy, TTtreat) %>% 
+  summarise(delta = mean(delta, na.rm = TRUE)) %>% 
+  left_join(trait_climate_regression %>% select(trait_trans, estimate, signi, slope),
+          by = "trait_trans") %>% 
+  ggplot(aes(x = estimate, y = delta, colour = TTtreat)) +
+  annotate("rect", xmin = 0, xmax = Inf, ymin = -Inf, ymax = 0, alpha = 0.1, fill = "red") +
+  annotate("rect", xmin = -Inf, xmax = 0, ymin = 0, ymax = Inf, alpha = 0.1, fill = "red") +
+  geom_text(aes(x = estimate, y = delta + 0.05, label = trait_fancy, colour = TTtreat), show.legend = FALSE) +
+  geom_point() +
+  geom_hline(yintercept = 0, colour = "grey", linetype = "dashed") +
+  geom_vline(xintercept = 0, colour = "grey", linetype = "dashed") +
+  #scale_shape_manual(values = c(1, 16)) +
+  scale_colour_manual(values = c("pink", "red", "orange")) +
+  labs(x = "Trait change with MAT", y = "Change in skewness") +
+  theme_minimal() +
+  theme(legend.position = "top"),
+
+skew_cool = change_skew %>% 
+  filter(TTtreat %in% c("cool1", "cool3")) %>% 
+  group_by(trait_trans, trait_fancy, TTtreat) %>% 
+  summarise(delta = mean(delta, na.rm = TRUE)) %>% 
+  left_join(trait_climate_regression %>% select(trait_trans, estimate, signi, slope),
+            by = "trait_trans") %>% 
+  ggplot(aes(x = estimate, y = delta, colour = TTtreat)) +
+  annotate("rect", xmin = -Inf, xmax = 0, ymin = 0, ymax = -Inf, alpha = 0.1, fill = "blue") +
+  annotate("rect", xmin = 0, xmax = Inf, ymin = 0, ymax = Inf, alpha = 0.1, fill = "blue") +
+  geom_text(aes(x = estimate, y = delta + 0.05, label = trait_fancy, colour = TTtreat), show.legend = FALSE) +
+  geom_point() +
+  geom_hline(yintercept = 0, colour = "grey", linetype = "dashed") +
+  geom_vline(xintercept = 0, colour = "grey", linetype = "dashed") +
+  #scale_shape_manual(values = c(1, 16)) +
+  scale_colour_manual(values = c("lightblue", "blue")) +
+  labs(x = "Trait change with MAT", y = "") +
+  theme_minimal()  +
+  theme(legend.position = "top"),
+
+skewness_plot = skew_warm + skew_cool,
+
+
+
+
 happymoment_data = sum_boot_moment_fixed %>% 
   pivot_longer(cols = c(mean, var, skew, kurt), names_to = "happymoment", values_to = "value") %>% 
-    filter(trait_trans %in% c("dN15_permil", "Leaf_Area_cm2_log", "Thickness_mm_log", "C_percent", "P_percent", "dC13_permil")) %>%
+    filter(trait_trans %in% c("dN15_permil", "Leaf_Area_cm2_log", "Thickness_mm_log", "P_percent", "dC13_permil")) %>%
   mutate(happymoment = recode(happymoment, "var" = "variance", "skew" = "skewness", "kurt" = "kurtosis")) %>% 
   group_by(TTtreat, trait_trans, trait_fancy, happymoment, year) %>%
   summarise(mean = mean(value),
             se = sd(value, na.rm = TRUE)/sqrt(n())) %>% 
-  mutate(trait_fancy = factor(trait_fancy, levels = c("Area cm2", "Thickness mm", "C %", "P %", "dC13 ‰", "dN15 ‰"))),
+  mutate(trait_fancy = factor(trait_fancy, levels = c("Area cm2", "Thickness mm", "P %", "dC13 ‰", "dN15 ‰"))),
 
   mean_plot = happymoment_data %>% 
   filter(happymoment == "mean") %>%
@@ -347,15 +407,19 @@ happymoment_data = sum_boot_moment_fixed %>%
     theme(legend.position = "none",
           strip.text.x = element_blank()),
 
+  skew_plot2 = skew_plot + 
+  scale_x_continuous(breaks = c(2013, 2015), minor_breaks = c(2012, 2014, 2016)),
+
   kurt_plot = mean_plot %+% (happymoment_data %>% 
-                               filter(happymoment == "skewness")) +
+                               filter(happymoment == "kurtosis")) +
     geom_hline(yintercept = 0, linetype = "dashed", colour = "grey") +
     scale_x_continuous(breaks = c(2013, 2015), minor_breaks = c(2012, 2014, 2016)) +
     labs(x = "Year", y = "Kurtosis") +
     theme(legend.position = "none",
           strip.text.x = element_blank()),
 
+half_happymoment_plot = mean_plot / skew_plot2 + plot_layout(guides = "collect") & theme(legend.position = "top"),
 
-happymoment_plot = mean_plot / var_plot / skew_plot / kurt_plot + plot_layout(guides = "collect") & theme(legend.position = "top")
+full_happymoment_plot = mean_plot / var_plot / skew_plot / kurt_plot + plot_layout(guides = "collect") & theme(legend.position = "top")
   
 )
