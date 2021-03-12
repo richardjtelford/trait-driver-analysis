@@ -319,8 +319,7 @@ change_skew = sum_boot_moment_fixed %>%
   pivot_wider(names_from = year, values_from = skew, names_prefix = "Y") %>% 
   mutate(delta = Y2016 - Y2012) %>% 
   inner_join(treatment_effect %>% 
-               filter(direction == "divergence",
-                      signi == "significant") %>% 
+               filter(signi == "significant") %>% 
                ungroup() %>% 
                distinct(trait_trans, TTtreat), by = c("trait_trans", "TTtreat")),
 
