@@ -180,8 +180,12 @@ rda_proportions %>%
 
 
 
-```{r happymoment_plot, eval = TRUE, echo = FALSE, fig.cap="Mean and higher traits moments (variance, skewness and kurtosis) for dN15, leaf area and leaf thickness over time. Shwon are mean values for each time period and climate treatment with standard error."}
-readd(happymoment_plot)
+```{r skewness_plot, eval = TRUE, echo = FALSE, fig.cap="xxx"}
+readd(skewness_plot)
+```
+
+```{r half_happymoment_plot, eval = TRUE, echo = FALSE, fig.cap="Mean and higher traits moments (variance, skewness and kurtosis) for dN15, leaf area and leaf thickness over time. Shwon are mean values for each time period and climate treatment with standard error."}
+readd(half_happymoment_plot)
 ```
 
 
@@ -192,7 +196,7 @@ This section contains all plots and tables of the supplementary material of this
 
 ### Colonization and extinction over time
 
-```{r col-ext-time-plot, eval = FALSE, echo = FALSE, fig.cap="Number of species colonizing and going extinct over time in each climate treatment."}
+```{r col-ext-time-plot, eval = TRUE, echo = FALSE, fig.cap="Number of species colonizing and going extinct over time in each climate treatment."}
 readd(col_ext_over_time_plot)
 ```
 
@@ -233,6 +237,12 @@ euclidean_dist_table %>%
 ```
 
 
+
+### All the happy moments
+
+```{r full_happymoment_plot, eval = TRUE, echo = FALSE, fig.cap="Mean and higher traits moments (variance, skewness and kurtosis) for dN15, leaf area and leaf thickness over time. Shwon are mean values for each time period and climate treatment with standard error."}
+readd(full_happymoment_plot)
+```
 
 
 ## References
