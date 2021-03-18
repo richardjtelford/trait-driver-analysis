@@ -184,7 +184,7 @@ rda_proportions %>%
 readd(skewness_plot)
 ```
 
-```{r half_happymoment_plot, eval = TRUE, echo = FALSE, fig.cap="Mean and higher traits moments (variance, skewness and kurtosis) for dN15, leaf area and leaf thickness over time. Shwon are mean values for each time period and climate treatment with standard error."}
+```{r half_happymoment_plot, eval = TRUE, echo = FALSE, fig.cap="Change in mean and skewness for leaf area, thickness, phosphorus, and C and N isotopes in each treatment and over time. Shown are mean values for each time period and climate treatment with standard error."}
 readd(half_happymoment_plot)
 ```
 
@@ -193,6 +193,14 @@ readd(half_happymoment_plot)
 ## Supplementary
 
 This section contains all plots and tables of the supplementary material of this manuscript.
+
+
+### Trait change over time
+
+```{r temp_trait_hist, eval = TRUE, echo = FALSE, fig.cap="Histogram for mean trait value over time."}
+readd(temporal_trait_histograms)
+```
+
 
 ### Colonization and extinction over time
 
@@ -221,6 +229,7 @@ treatment_effect_table %>%
 
 \newpage
 
+
 ### Eucledian distance analysis
 
 ```{r eucledian_plot, eval = TRUE, echo = FALSE, fig.cap="Euclidean distance in functional trait composition since transplant (2012 - 2016) for control plots and treatments at each site. The colours indicate the different treatments control (grey), transplant to 1.75°C warmer (red), transplant to 0.5°C warmer (pink), OTC (orange), transplant to 0.5°C colder (light blue), transplant to 1.75°C colder (dark blue). The two columns show two scenarios of trait plasticity. Divergence reflects a conservative scenario, where treatments are compared to the origin control and do not allow for trait plasticity. Contrary, convergence reflects full plasticity where treatments are compared to the destination controls."}
@@ -240,7 +249,7 @@ euclidean_dist_table %>%
 
 ### All the happy moments
 
-```{r full_happymoment_plot, eval = TRUE, echo = FALSE, fig.cap="Mean and higher traits moments (variance, skewness and kurtosis) for dN15, leaf area and leaf thickness over time. Shwon are mean values for each time period and climate treatment with standard error."}
+```{r full_happymoment_plot, eval = TRUE, echo = FALSE, fig.cap="Change in mean, variance, skewness, kurtosis and range for leaf area, thickness, phosphorus, and C and N isotopes in each treatment and over time. Shown are mean values for each time period and climate treatment with standard error."}
 readd(full_happymoment_plot)
 ```
 
