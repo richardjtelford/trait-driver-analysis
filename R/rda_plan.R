@@ -342,8 +342,11 @@ rda_plan <- drake_plan(
     mutate(top = Response[n()],
            Proportion = Response/top) %>% 
     filter(!Label %in% c("control_L|2016", "control_H|2016")) %>% 
-    mutate(Process = if_else(Process == "none", "", Process)) %>% 
+    mutate(Process = if_else(Process == "none", "", Process),
+           Variable = if_else(Variable == "comm", "community", Variable),
+           Variable = if_else(Variable == "trait", " trait", Variable),
+           Variable = paste0(Process, Variable)) %>% 
     ungroup() %>% 
-    select(Treatment, Variable, Process, Proportion)
+    select(Variable, Treatment, Proportion)
   
 )
