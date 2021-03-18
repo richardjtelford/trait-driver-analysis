@@ -192,54 +192,20 @@ plot_plan <- drake_plan(
   
   
   
-  #Histograms - shows need for cleaning
-  trait_histograms = bind_rows(
-    fixed = sum_boot_moment_fixed,
-    plastic = sum_boot_moment_plastic, 
-    .id = "plasticity") %>%
+  #HISTOGRAMM
+  temporal_trait_histograms = sum_boot_moment_fixed %>%
     ungroup() %>%  
-    filter(TTtreat == "control") %>% 
-    ggplot(aes(x = mean, fill = originSiteID)) + 
+    filter(TTtreat %in% c("warm3", "cool3"),
+           trait_trans %in% c("dN15_permil", "Leaf_Area_cm2_log", "Thickness_mm_log", "dC13_permil")) %>% 
+    ggplot(aes(x = mean, fill = factor(year))) + 
     geom_density(alpha = 0.5) + 
-    facet_grid(plasticity ~ trait_trans, scales = "free"),
+    scale_fill_brewer(palette = "Reds") +
+    facet_grid(TTtreat ~ trait_trans, scales = "free") +
+    theme_bw(),
   
   #trait coverage
   #trait_coverage = autoplot(imputed_traits_div),
   
-  #trait site ordinations - convergence with fixed traits
-  # A_H = two_site_pca(data = sum_boot_moment_fixed, low = "A", high = "H"),
-  # M_A = two_site_pca(data = sum_boot_moment_fixed, low = "M", high = "A"),
-  # L_M = two_site_pca(data = sum_boot_moment_fixed, low = "L", high = "M"),
-  # L_H = two_site_pca(data = sum_boot_moment_fixed, low = "L", high = "H"),
-  # 
-  # ordination_plot = bind_rows(A_H = A_H[[1]],
-  #                                M_A = M_A[[1]],
-  #                                L_M = L_M[[1]],
-  #                                L_H = L_H[[1]],
-  #                                .id = "comparison") %>% 
-  #   ggplot(aes(x = PC1, y = PC2, colour = TTtreat, shape = destSiteID, group = turfID, linetype = destSiteID)) + 
-  #   geom_point(aes(size = ifelse(year == min(year), "First", "Other"))) +
-  #   geom_path() +
-  #   #coord_equal() +
-  #   scale_size_discrete(range = c(1, 2.5), limits = c("Other", "First"), breaks = c("First", "Other")) +
-  #   scale_colour_manual(values = c("grey50", "pink", "lightblue", "red", "blue", "orange")) +
-  #   scale_x_continuous(expand = c(.15, 0)) +
-  #   labs(x = "PC 1", y = "PC 2", shape = "Site", colour = "Treatment", size = "Year", linetype = "Site", title = "Convergence") +
-  #   facet_wrap(~ comparison) +
-  #   theme_minimal(),
-  
-  # arrows = ggplot(A_H[[1]], aes(x = PC1, y = PC2, group = turfID)) +
-  #   geom_segment(data = A_H[[2]], 
-  #                aes(x = 0, y = 0, xend = PC1, yend = PC2), 
-  #                arrow = arrow(length = unit(0.2, "cm")), 
-  #                colour = "grey80",
-  #                inherit.aes = FALSE) +
-  #   geom_text(data = A_H[[2]], 
-  #             aes(x = PC1 * 1.1,y = PC2 * 1.1, label = Label), 
-  #             size = 3,
-  #             inherit.aes = FALSE, colour = "grey80") +
-  #   scale_x_continuous(expand = c(.2, 0)) +
-  #   theme_minimal(),
   
   
   #trait treatment ordinations - convergence with fixed traits
@@ -283,27 +249,6 @@ plot_plan <- drake_plan(
   ordination = cowplot::ggdraw(ordination_plot) +
     cowplot::draw_plot(arrows, .43, 0.04, .33, .43),
     
-  
-  
-  #other plots
-  #control means by site
-  # control_mean_boxplot = bootstrapped_trait_moments_div %>% 
-  #   filter(TTtreat == "control") %>% 
-  #   ggplot(aes(x = Site, y = mean, group = blockID)) + 
-  #   geom_boxplot() +
-  #   labs(title = "Divergence") + 
-  #   facet_wrap(~trait_trans, scales = "free_y"),
-  
-  #H1Q1: gradient predicts treatment effect
-  # gradient_treatment_plot = treatment_effect %>% 
-  #   left_join(trait_climate_regression %>% filter(term == "slope"), by = "trait_trans", suffix = c(".treatment", ".gradient")) %>% 
-  #   mutate(term.treatment = factor(term.treatment, levels = c("warm3", "warm1", "OTC", "cool1", "cool3"))) %>% 
-  #   ggplot(aes(x = estimate.gradient, y = estimate.treatment, colour = trait_trans)) +
-  #   geom_point() +
-  #   geom_abline(slope = 1, intercept = 0, colour = "grey", linetype = "dashed") +
-  #   #scale_colour_manual(values = c("lightblue", "blue", "orange", "pink", "red"), name = "") +
-  #   facet_grid(direction ~ term.treatment, scales = "free_y") +
-  #   theme_bw(),
   
   
 ## HIGHER MOMENTS
