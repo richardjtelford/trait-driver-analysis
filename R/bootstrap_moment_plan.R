@@ -44,12 +44,22 @@ bootstrap_moment_plan <- drake_plan(
 
   #summarise bootstrap moments
   #fixed
-  sum_boot_moment_fixed = trait_summarise_boot_moments(bootstrapped_trait_moments_fixed) %>% 
+  sum_boot_moment_fixed = trait_summarise_boot_moments(bootstrapped_trait_moments_fixed, sd_mult = 1.96) %>% 
+    # calculate range
+    left_join(bootstrapped_trait_moments_fixed %>% 
+                group_by(Site, blockID, destBlockID, destSiteID, turfID, trait_trans, year, Treatment_comm) %>% 
+                summarise(range = max(mean) - min(mean)),
+              by = c("Site", "blockID", "destBlockID", "destSiteID", "turfID", "trait_trans", "year", "Treatment_comm")) %>% 
     rename("originBlockID" = "blockID", "originSiteID" = "Site", "TTtreat" = "Treatment_comm") %>% 
     fancy_trait_name_dictionary(),
   
   #plastic
-  sum_boot_moment_plastic = trait_summarise_boot_moments(bootstrapped_trait_moments_plastic) %>%
+  sum_boot_moment_plastic = trait_summarise_boot_moments(bootstrapped_trait_moments_plastic, sd_mult = 1.96) %>%
+    # calculate range
+    left_join(bootstrapped_trait_moments_plastic %>% 
+                group_by(Site, blockID, originBlockID, originSiteID, turfID, trait_trans, year, Treatment_comm) %>% 
+                summarise(range = max(mean)  - min(mean)),
+              by = c("Site", "blockID", "originBlockID", "originSiteID", "turfID", "trait_trans", "year", "Treatment_comm")) %>% 
     ungroup() %>% 
     select(-Site, -blockID) %>% 
     # rescue true destination site and block
