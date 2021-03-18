@@ -313,7 +313,7 @@ change_skew = sum_boot_moment_fixed %>%
   # remove non-slope traits
   filter(!trait_trans %in% c("SLA_cm2_g", "NP_ratio", "LDMC")) %>%
   ungroup() %>% 
-  select(-c(global, n, mean:ci_high_var, ci_low_skew:ci_high_kurt)) %>%
+  select(-c(global, n, mean:ci_high_var, ci_low_skew:range)) %>%
   filter(year %in% c(2012, 2016),
          TTtreat != "control") %>%
   pivot_wider(names_from = year, values_from = skew, names_prefix = "Y") %>% 
@@ -367,22 +367,32 @@ skewness_plot = skew_warm + skew_cool,
 
 
 happymoment_data = sum_boot_moment_fixed %>% 
-  pivot_longer(cols = c(mean, var, skew, kurt), names_to = "happymoment", values_to = "value") %>% 
+  pivot_longer(cols = c(mean, var, skew, kurt, range), names_to = "happymoment", values_to = "value") %>% 
     filter(trait_trans %in% c("dN15_permil", "Leaf_Area_cm2_log", "Thickness_mm_log", "P_percent", "dC13_permil")) %>%
   mutate(happymoment = recode(happymoment, "var" = "variance", "skew" = "skewness", "kurt" = "kurtosis")) %>% 
   group_by(TTtreat, trait_trans, trait_fancy, happymoment, year) %>%
   summarise(mean = mean(value),
             se = sd(value, na.rm = TRUE)/sqrt(n())) %>% 
-  mutate(trait_fancy = factor(trait_fancy, levels = c("Area cm2", "Thickness mm", "P %", "dC13 ‰", "dN15 ‰"))),
+  mutate(trait_fancy = factor(trait_fancy, levels = c("Area cm2", "Thickness mm", "P %", "dC13 ‰", "dN15 ‰"))) %>% 
+  left_join(treatment_effect %>% 
+               filter(plasticity == "fixed",
+                      direction == "divergence",
+                      year == 2016,
+                      signi == "significant") %>% 
+               ungroup() %>% 
+               select(trait_trans, TTtreat, signi), by = c("TTtreat", "trait_trans")) %>% 
+  mutate(signi = if_else(is.na(signi), "non-significant", signi)),
 
   mean_plot = happymoment_data %>% 
   filter(happymoment == "mean") %>%
-  ggplot(aes(x = year, y = mean, ymin = mean - se, ymax = mean + se, colour = TTtreat)) +
+  mutate(TTtreat = factor(TTtreat, levels = c("control", "cool1", "cool3", "OTC", "warm1", "warm3"))) %>% 
+  ggplot(aes(x = year, y = mean, ymin = mean - se, ymax = mean + se, colour = TTtreat, alpha = signi)) +
   geom_line() +
   geom_errorbar(position = position_dodge(width = 0.15), width = 0) +
   scale_x_continuous(labels = NULL) +
   labs(x = "", y = "Mean") +
-  scale_colour_manual(name = "", values = c("grey", "pink", "lightblue", "red", "blue", "orange")) +
+  scale_colour_manual(name = "", values = c("grey", "lightblue", "blue", "orange", "pink", "red")) +
+  scale_alpha_manual(name = "", values = c(0.4, 1)) +
   scale_y_continuous(breaks = scales::breaks_extended(n = 4)) +
   facet_wrap(~ trait_fancy, nrow = 1, scales = "free_y") +
   guides(colour = guide_legend(nrow = 1)) +
@@ -391,7 +401,7 @@ happymoment_data = sum_boot_moment_fixed %>%
         legend.margin = margin(t = 0, unit = "cm"),
         plot.margin = unit(c(0.1,0.1,-0.3,0.5), "cm"),
         text = element_text(size = 10),
-        strip.text.x = element_text(size = 5)),
+        strip.text.x = element_text(size = 7)),
 
   var_plot = mean_plot %+% (happymoment_data %>% 
                               filter(happymoment == "variance")) + 
@@ -417,8 +427,16 @@ happymoment_data = sum_boot_moment_fixed %>%
     theme(legend.position = "none",
           strip.text.x = element_blank()),
 
+range_plot = mean_plot %+% (happymoment_data %>% 
+                             filter(happymoment == "range")) +
+  geom_hline(yintercept = 0, linetype = "dashed", colour = "grey") +
+  scale_x_continuous(breaks = c(2013, 2015), minor_breaks = c(2012, 2014, 2016)) +
+  labs(x = "Year", y = "Range") +
+  theme(legend.position = "none",
+        strip.text.x = element_blank()),
+
 half_happymoment_plot = mean_plot / skew_plot2 + plot_layout(guides = "collect") & theme(legend.position = "top"),
 
-full_happymoment_plot = mean_plot / var_plot / skew_plot / kurt_plot + plot_layout(guides = "collect") & theme(legend.position = "top")
+full_happymoment_plot = mean_plot / var_plot / skew_plot / kurt_plot /range_plot + plot_layout(guides = "collect") & theme(legend.position = "top")
   
 )
