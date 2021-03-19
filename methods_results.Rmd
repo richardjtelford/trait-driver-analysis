@@ -150,6 +150,11 @@ readd(colo_ext_abundance_plot)
 
 ### Convergence and divergence
 
+
+```{r temp_trait_hist, eval = TRUE, echo = FALSE, fig.cap="Histogram for mean trait value over time."}
+readd(temporal_trait_histograms)
+```
+
 ```{r conv-div_plot, eval = TRUE, echo = FALSE, fig.height=7, fig.cap="Testing for convergence and divergence in each pair-wise trait value as a function of year since transplant. Temporal variation in effect sizes for each measured trait. The first column shows traits divergence and the second column trait convergence. The grey panels labeled with Positive slope, No slope and Negative slopes show the predicted outcome according to TDT, depending on the traits relationship with summer air temperature (see New Fig. 2). The colour of the lines indicates the transplant treatment: transplant to 1.75°C warmer (red), transplant to 0.5°C warmer (pink), OTC (orange), transplant to 0.5°C colder (light blue), transplant to 1.75°C colder (dark blue). Solid lines indicate a significant change in effect size over time."}
 readd(conv_div_plot)
 ```
@@ -195,16 +200,9 @@ readd(half_happymoment_plot)
 This section contains all plots and tables of the supplementary material of this manuscript.
 
 
-### Trait change over time
-
-```{r temp_trait_hist, eval = TRUE, echo = FALSE, fig.cap="Histogram for mean trait value over time."}
-readd(temporal_trait_histograms)
-```
-
-
 ### Colonization and extinction over time
 
-```{r col-ext-time-plot, eval = TRUE, echo = FALSE, fig.cap="Number of species colonizing and going extinct over time in each climate treatment."}
+```{r col-ext-time-plot, eval = FALSE, echo = FALSE, fig.cap="Number of species colonizing and going extinct over time in each climate treatment."}
 readd(col_ext_over_time_plot)
 ```
 
