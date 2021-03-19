@@ -43,10 +43,10 @@ rda_plan <- drake_plan(
     # group_by(species) %>%
     # filter(n() > 3) %>% 
     pivot_wider(names_from = species, values_from = cover, values_fill = list(cover = 0)) %>% 
-    mutate(TTtreat = case_when(TTtreat == "control" & originSiteID == "H" ~ "control (High alpine)",
+    mutate(TTtreat = case_when(TTtreat == "control" & originSiteID == "H" ~ "control (High Alpine)",
                                TRUE ~ as.character(TTtreat)),
            year = factor(year),
-           TTtreat = factor(TTtreat, levels = c("control", "cool1", "cool3", "control (High alpine)"))),
+           TTtreat = factor(TTtreat, levels = c("control", "cool1", "cool3", "control (High Alpine)"))),
   
   #prc
   fit_cool_comm = prc(response = comm_cool_fat %>% select(-c(originSiteID:flag)), 
@@ -159,10 +159,10 @@ rda_plan <- drake_plan(
     filter(originSiteID == "L" | originSiteID == "H" & TTtreat == "control") %>% 
     distinct() %>% 
     spread(key = trait_fancy, value = mean, fill = 0) %>% 
-    mutate(TTtreat = case_when(TTtreat == "control" & originSiteID == "H" ~ "control (High alpine)",
+    mutate(TTtreat = case_when(TTtreat == "control" & originSiteID == "H" ~ "control (High Alpine)",
                                TRUE ~ as.character(TTtreat)),
            year = factor(year),
-           TTtreat = factor(TTtreat, levels = c("control", "cool1", "cool3", "control (High alpine)"))),
+           TTtreat = factor(TTtreat, levels = c("control", "cool1", "cool3", "control (High Alpine)"))),
   
   #prc
   fit_Cool_fixed = prc(response = trait_cool_fat_fixed %>% select(`C %`:`SLA cm2/g`),
@@ -201,10 +201,10 @@ rda_plan <- drake_plan(
     filter(originSiteID == "L" | originSiteID == "H" & TTtreat == "control") %>% 
     distinct() %>% 
     spread(key = trait_fancy, value = mean, fill = 0) %>% 
-    mutate(TTtreat = case_when(TTtreat == "control" & originSiteID == "H" ~ "control (High alpine)",
+    mutate(TTtreat = case_when(TTtreat == "control" & originSiteID == "H" ~ "control (High Alpine)",
                                TRUE ~ as.character(TTtreat)),
            year = factor(year),
-           TTtreat = factor(TTtreat, levels = c("control", "cool1", "cool3", "control (High alpine)"))),
+           TTtreat = factor(TTtreat, levels = c("control", "cool1", "cool3", "control (High Alpine)"))),
   
   #prc
   fit_Cool_plastic = prc(response = trait_cool_fat_plastic %>% select(`C %`:`SLA cm2/g`),
