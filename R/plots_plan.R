@@ -193,15 +193,26 @@ plot_plan <- drake_plan(
   
   
   #HISTOGRAMM
-  temporal_trait_histograms = sum_boot_moment_fixed %>%
+  hist_warm = sum_boot_moment_fixed %>%
     ungroup() %>%  
-    filter(TTtreat %in% c("warm3", "cool3"),
-           trait_trans %in% c("dN15_permil", "Leaf_Area_cm2_log", "Thickness_mm_log", "dC13_permil")) %>% 
+    filter(TTtreat %in% c("warm3"),
+           trait_trans %in% c("Thickness_mm_log")) %>% 
     ggplot(aes(x = mean, fill = factor(year))) + 
     geom_density(alpha = 0.5) + 
-    scale_fill_brewer(palette = "Reds") +
-    facet_grid(TTtreat ~ trait_trans, scales = "free") +
-    theme_bw(),
+    scale_fill_brewer(palette = "Reds", name = "") +
+    labs(title = "Leaf thickness") +
+    facet_wrap(~ TTtreat) +
+    theme_bw() +
+    theme(legend.position = "top"),
+  
+  hist_cool = hist_warm %+% (sum_boot_moment_fixed %>%
+                               ungroup() %>%  
+                               filter(TTtreat %in% c("cool3"),
+                                      trait_trans %in% c("Thickness_mm_log"))) +
+    scale_fill_brewer(palette = "Blues", name = "") +
+    labs(y = "", title = ""),
+  
+  temporal_trait_histograms = hist_warm + hist_cool,
   
   #trait coverage
   #trait_coverage = autoplot(imputed_traits_div),
@@ -318,29 +329,27 @@ happymoment_data = sum_boot_moment_fixed %>%
   group_by(TTtreat, trait_trans, trait_fancy, happymoment, year) %>%
   summarise(mean = mean(value),
             se = sd(value, na.rm = TRUE)/sqrt(n())) %>% 
-  mutate(trait_fancy = factor(trait_fancy, levels = c("Area cm2", "Thickness mm", "P %", "dC13 ‰", "dN15 ‰"))) %>% 
+  mutate(trait_fancy = factor(trait_fancy, levels = c("Area cm2", "Thickness mm", "P %", "dC13 ‰", "dN15 ‰"))) %>%
   left_join(treatment_effect %>% 
-               filter(plasticity == "fixed",
-                      direction == "divergence",
-                      year == 2016,
-                      signi == "significant") %>% 
-               ungroup() %>% 
-               select(trait_trans, TTtreat, signi), by = c("TTtreat", "trait_trans")) %>% 
+              filter(signi == "significant") %>% 
+              ungroup() %>% 
+              select(trait_trans, TTtreat, signi), by = c("TTtreat", "trait_trans")) %>% 
   mutate(signi = if_else(is.na(signi), "non-significant", signi)),
 
   mean_plot = happymoment_data %>% 
   filter(happymoment == "mean") %>%
   mutate(TTtreat = factor(TTtreat, levels = c("control", "cool1", "cool3", "OTC", "warm1", "warm3"))) %>% 
-  ggplot(aes(x = year, y = mean, ymin = mean - se, ymax = mean + se, colour = TTtreat, alpha = signi)) +
+  ggplot(aes(x = year, y = mean, ymin = mean - se, ymax = mean + se, colour = TTtreat, linetype = signi, alpha = signi)) +
   geom_line() +
   geom_errorbar(position = position_dodge(width = 0.15), width = 0) +
   scale_x_continuous(labels = NULL) +
   labs(x = "", y = "Mean") +
   scale_colour_manual(name = "", values = c("grey", "lightblue", "blue", "orange", "pink", "red")) +
+  scale_linetype_manual(name = "", values = c("dashed", "solid")) +
   scale_alpha_manual(name = "", values = c(0.4, 1)) +
   scale_y_continuous(breaks = scales::breaks_extended(n = 4)) +
-  facet_wrap(~ trait_fancy, nrow = 1, scales = "free_y") +
   guides(colour = guide_legend(nrow = 1)) +
+  facet_wrap(~ trait_fancy, nrow = 1, scales = "free_y") +
   theme_minimal() +
   theme(legend.position = "top",
         legend.margin = margin(t = 0, unit = "cm"),
@@ -362,13 +371,13 @@ happymoment_data = sum_boot_moment_fixed %>%
           strip.text.x = element_blank()),
 
   skew_plot2 = skew_plot + 
-  scale_x_continuous(breaks = c(2013, 2015), minor_breaks = c(2012, 2014, 2016)),
+  scale_x_continuous(breaks = c(2013, 2015), minor_breaks = c(2012, 2014, 2016)) +
+  labs(x = "Year"),
 
   kurt_plot = mean_plot %+% (happymoment_data %>% 
                                filter(happymoment == "kurtosis")) +
     geom_hline(yintercept = 0, linetype = "dashed", colour = "grey") +
-    scale_x_continuous(breaks = c(2013, 2015), minor_breaks = c(2012, 2014, 2016)) +
-    labs(x = "Year", y = "Kurtosis") +
+    labs(x = "", y = "Kurtosis") +
     theme(legend.position = "none",
           strip.text.x = element_blank()),
 
