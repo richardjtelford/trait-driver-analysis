@@ -200,7 +200,21 @@ readd(half_happymoment_plot)
 This section contains all plots and tables of the supplementary material of this manuscript.
 
 
-### Colonization and extinction over time
+### Trait change over time
+
+```{r hist-all-1, eval = TRUE, echo = FALSE, fig.height=7, fig.cap="Histogram for mean trait values over time."}
+readd(temporal_trait_histograms_all_1)
+```
+
+```{r hist-all-2, eval = TRUE, echo = FALSE, fig.height=7, fig.cap="Histogram for mean trait values over time."}
+readd(temporal_trait_histograms_all_2)
+```
+
+```{r hist-all-3, eval = TRUE, echo = FALSE, fig.cap="Histogram for mean trait values over time."}
+readd(temporal_trait_histograms_all_3)
+```
+
+<!-- ### Colonization and extinction over time -->
 
 ```{r col-ext-time-plot, eval = FALSE, echo = FALSE, fig.cap="Number of species colonizing and going extinct over time in each climate treatment."}
 readd(col_ext_over_time_plot)
