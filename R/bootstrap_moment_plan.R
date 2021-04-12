@@ -15,7 +15,7 @@ bootstrap_moment_plan <- drake_plan(
                                     taxon_col = c("Taxon", "Genus"), 
                                     value_col = "value_trans", 
                                     abundance_col = "cover", 
-                                    min_n_leaves = 5,
+                                    min_n_in_sample = 5,
                                     other_col = c("year", "turfID", "destBlockID", "destSiteID")),
   
   #plastic
@@ -34,13 +34,13 @@ bootstrap_moment_plan <- drake_plan(
                                       taxon_col = c("Taxon", "Genus"),
                                       value_col = "value_trans",
                                       abundance_col = "cover",
-                                      min_n_leaves = 5,
+                                      min_n_in_sample = 5,
                                       other_col = c("year", "turfID", "originBlockID", "originSiteID")),
   
   #traits moments 
-  bootstrapped_trait_moments_fixed  = trait_np_bootstrap(imputed_traits_fixed, nrep = 100),
+  bootstrapped_trait_moments_fixed  = trait_np_bootstrap(imputed_traits_fixed, nrep = 200),
   
-  bootstrapped_trait_moments_plastic  = trait_np_bootstrap(imputed_traits_plastic, nrep = 100),
+  bootstrapped_trait_moments_plastic  = trait_np_bootstrap(imputed_traits_plastic, nrep = 200),
 
   #summarise bootstrap moments
   #fixed
