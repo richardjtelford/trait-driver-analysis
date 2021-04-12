@@ -30,9 +30,9 @@ rda_plan <- drake_plan(
     ggtitle("species community") +
     theme_minimal() +
     theme(legend.position = "bottom",
+          legend.key.size = unit(0.3, "cm"),
           legend.title = element_blank(),
           text = element_text(size = 8)),
-
   
   #cool
   comm_cool_fat = community %>% 
@@ -60,9 +60,10 @@ rda_plan <- drake_plan(
     scale_y_continuous(breaks = pretty(fortify(fit_cool_comm)$Response, n = 5)) +
     theme_minimal() +
     theme(legend.position = "bottom",
+          legend.key.size = unit(0.3, "cm"),
           legend.title = element_blank(),
           text = element_text(size = 8)),
-  
+
   
   ## traits
   
