@@ -183,6 +183,12 @@ rda_proportions %>%
 
 ```
 
+```{r rda_res, eval = TRUE, echo = FALSE}
+
+loadd(result_rda)
+
+```
+
 
 
 ```{r skewness_plot, eval = TRUE, echo = FALSE, fig.cap="xxx"}
