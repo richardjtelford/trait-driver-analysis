@@ -37,8 +37,8 @@ autoplot.prcWithoutSP <- function(object, select, xlab, ylab,
     scale_x_continuous(breaks=c(2012, 2014, 2016)) +
     theme(legend.position = legend.position, 
           legend.title = element_blank(),
-          text = element_text(size=15),
-          axis.text = element_text(size = 15)) #+
+          text = element_text(size=18),
+          axis.text = element_text(size = 18)) #+
     #scale_x_continuous(breaks = as.numeric(TimeLevs), minor_breaks = NULL)
   
   ## add labels

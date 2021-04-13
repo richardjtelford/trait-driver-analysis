@@ -31,8 +31,7 @@ rda_plan <- drake_plan(
     theme_minimal() +
     theme(legend.position = "bottom",
           legend.key.size = unit(0.3, "cm"),
-          legend.title = element_blank(),
-          text = element_text(size = 8)),
+          legend.title = element_blank()),
   
   #cool
   comm_cool_fat = community %>% 
@@ -61,8 +60,7 @@ rda_plan <- drake_plan(
     theme_minimal() +
     theme(legend.position = "bottom",
           legend.key.size = unit(0.3, "cm"),
-          legend.title = element_blank(),
-          text = element_text(size = 8)),
+          legend.title = element_blank()),
 
   
   ## traits
@@ -92,8 +90,7 @@ rda_plan <- drake_plan(
     scale_y_continuous(breaks = pretty(fortify(fit_Warming_fixed)$Response, n = 5)) +
     ggtitle("fixed traits") +
     theme_minimal() +
-    theme(legend.position = "none",
-          text = element_text(size = 8)),
+    theme(legend.position = "none"),
   
   wf3 = fortify(fit_Warming_fixed) %>% 
     filter(Score == "Species") %>% 
@@ -134,8 +131,7 @@ rda_plan <- drake_plan(
     scale_y_continuous(breaks = pretty(fortify(fit_Warming_plastic)$Response, n = 5)) +
     ggtitle("plastic traits") +
     theme_minimal() +
-    theme(legend.position = "none",
-          text = element_text(size = 8)),
+    theme(legend.position = "none"),
   
   wp3 = fortify(fit_Warming_plastic) %>% 
     filter(Score == "Species") %>% 
@@ -177,8 +173,7 @@ rda_plan <- drake_plan(
     scale_y_continuous(breaks = pretty(fortify(fit_Cool_fixed)$Response, n = 5)) +
     #ggtitle("fixed") +
     theme_minimal() +
-    theme(legend.position = "none",
-          text = element_text(size = 8)),
+    theme(legend.position = "none"),
   
   cf3 = fortify(fit_Cool_fixed) %>% 
     filter(Score == "Species") %>% 
@@ -219,8 +214,7 @@ rda_plan <- drake_plan(
     scale_y_continuous(breaks = pretty(fortify(fit_Cool_plastic)$Response, n = 5)) +
     #ggtitle("plastic") +
     theme_minimal() +
-    theme(legend.position = "none",
-          text = element_text(size = 8)),
+    theme(legend.position = "none"),
   
   cp3 = fortify(fit_Cool_plastic) %>% 
     filter(Score == "Species") %>% 
@@ -244,6 +238,7 @@ rda_plan <- drake_plan(
                                                       plot_layout(widths = c(4, 4, 1, 4, 1), 
                                                                   guides = 'keep', heights = c(10, 0.3))),
 
+  ggsave("TraitRDA.png", device = "png", dpi = 150)
   
   #permutation test
   #warm
