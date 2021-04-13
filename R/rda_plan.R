@@ -237,8 +237,6 @@ rda_plan <- drake_plan(
                                                    guide_area() +
                                                       plot_layout(widths = c(4, 4, 1, 4, 1), 
                                                                   guides = 'keep', heights = c(10, 0.3))),
-
-  ggsave("TraitRDA.png", device = "png", dpi = 150)
   
   #permutation test
   #warm
