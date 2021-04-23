@@ -37,6 +37,7 @@ data/
 *.jpg
 *.md
 *2.bib
+*.ai
 
 # renv library
 renv/library/

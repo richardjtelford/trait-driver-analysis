@@ -2,62 +2,118 @@
 plot_plan <- drake_plan(
   
   ## ----trait-climate
-  
-  #moments by climate in original plots
-  trait_order = trait_climate_regression %>% 
-    filter(term == "slope") %>% 
-    select(traits, estimate, `P value`) %>% 
-    mutate(signi = case_when(`P value` < 0.05 ~ "significant",
-                             `P value` > 0.05 ~ "non-significant"),
-           slope = case_when(`P value` < 0.05 & estimate > 0 ~ "positive slope",
-                             `P value` < 0.05 & estimate < 0 ~ "negative slope",
-                             `P value` > 0.05 ~ "no slope"),
-           slope = factor(slope, levels = c("positive slope", "no slope", "negative slope"))) %>% 
-    arrange(slope, desc(estimate)),
-  
   # without Wet_Mass_g_log to make nice plot with 3x4 panels (same as dry mass anyway)
+  # trait order
+  trait_order = trait_climate_regression %>% ungroup() %>% select(trait_fancy),
   moments_by_climate_plot = summarised_boot_moments_climate %>% 
-    rename(traits = trait_trans) %>% 
     filter(year == 2016,
            TTtreat %in% c("control"),
            plasticity == "fixed") %>% 
     ungroup() %>% 
-    left_join(trait_climate_regression %>% 
-                filter(term == "slope"), 
-              by = "traits") %>% 
-    select(originSiteID:mean, term, estimate, `P value`, value) %>% 
-    mutate(signi = if_else(`P value` < 0.05, "significant", "non-signigicant"),
-           traits = factor(traits, levels = trait_order$traits)) %>% 
+    left_join(trait_climate_regression, by = c("trait_trans", "trait_fancy")) %>% 
+    mutate(originSiteID = recode(originSiteID, "H" = "High Alpine", "A" = "Alpine", "M" = "Middle", "L" = "Lowland"),
+           trait_fancy = factor(trait_fancy, levels = trait_order$trait_fancy)) %>%
     ggplot(aes(x = value, y = mean, linetype = signi, colour = signi)) +
     geom_point(aes(shape = originSiteID), colour = "grey") +
     geom_smooth(method = "lm") +
     scale_linetype_manual(name = "", values = c("dashed", "solid")) +
     scale_colour_manual(name = "", values = c("grey50", "red")) +
+    scale_shape_manual(name = "", values = c(17, 16, 15, 18)) +
     labs(y = "Mean trait value", x = "Summer air temperature in °C") +
-    facet_wrap(~traits, scales = "free_y") +
+    facet_wrap(~ trait_fancy, scales = "free_y") +
     theme_minimal() +
     theme(legend.position="top"),
   
   ## ----
-  
   #colonization extinction plot
-  colo_extinciton_plot = bind_rows(
+  ex = textGrob("\u2190 Extinctions", gp = gpar(fontsize = 9), rot = 90),
+  col = textGrob(paste0("Colonizations ", "\u2192"), gp = gpar(fontsize = 9), rot = 90),
+  legend = tibble(x1 = c(5, 5), x2 = c(6, 6), y1 = c(10.5, 5), y2 = c(10.5, 5),
+         TTtreat = c("warm1", "warm1"), t = c("expected","realized"), 
+         c = c("blue", "blue"), f = c("blue", "white")),
+  colo_extinction_plot = bind_rows(
     extinction = extinction,
     colonization = colonization,
     .id = "process"
   ) %>% 
     group_by(process, TTtreat) %>% 
     summarise(count = mean(n)) %>% 
-    mutate(var = paste(TTtreat, process, sep = "_"),
-           TTtreat = factor(TTtreat, levels = c("cool3", "cool1", "OTC", "warm1", "warm3"))) %>% 
-    ggplot(aes(y = count, x = var, fill = TTtreat, alpha = process)) +
-    geom_bar(stat="identity") +
-    geom_point(aes(x = var, y = predicted), data = predicted) +
-    scale_fill_manual(name = "", values = c("blue","lightblue", "orange", "pink", "red")) +
-    scale_alpha_manual(name = "", values = c(1, 0.5)) +
-    labs(x = "", y = "Species turnover") +
+    mutate(TTtreat = factor(TTtreat, levels = c("local", "cool3", "cool1", "OTC", "warm1", "warm3"))) %>% 
+    pivot_wider(names_from = process, values_from = count) %>% 
+    ggplot(aes(x = TTtreat)) +
+    geom_col(aes(x = TTtreat, y = predicted_nr_colonization, colour = TTtreat), fill = "white", data = predicted) +
+    geom_col(aes(x = TTtreat, y = -predicted_nr_extinction, colour = TTtreat), fill = "white", data = predicted) +
+    geom_col(aes(y = colonization, fill = TTtreat), alpha = 0.6) +
+    geom_col(aes(y = - extinction, fill = TTtreat), alpha = 0.6) +
+    scale_fill_manual(name = "", values = c("grey", "blue","lightblue", "orange", "pink", "red")) +
+    scale_colour_manual(name = "", values = c("grey", "blue","lightblue", "orange", "pink", "red")) +
+    geom_hline(yintercept = 0, colour = "grey") +
+    #geom_rect(data = legend, aes(xmin = TTtreat, xmax = TTtreat, ymin = y1, ymax = y2, colour = c, fill = f)) +
+    geom_text(data = legend, aes(x = x2, y = y2, label = t), size = 3) +
+    labs(x = "", y = "", title = "Number of species") +
+    annotation_custom(ex, xmin = 0.1, xmax= 0.1, ymin = -6, ymax = -6) +
+    annotation_custom(col, xmin = 0.1, xmax= 0.1, ymin = 8, ymax = 8) +
+    coord_cartesian(xlim = c(1, 6), clip="off") +
     theme_minimal() +
-    theme(axis.text.x = element_blank()),
+    theme(legend.position = "none",
+          axis.line = element_line(colour = "black"),
+          panel.grid.major.x = element_blank()),
+  
+  #colonization extinction with abundnace plot 
+  legend2 = tibble(x1 = c(5, 5), x2 = c(6, 6), y1 = c(58, 20), y2 = c(58, 20),
+                  TTtreat = c("warm1", "warm1"), t = c("expected","realized"), 
+                  c = c("blue", "blue"), f = c("blue", "white")),
+  colo_ext_abundance_plot = bind_rows(
+    extinction = extinction,
+    colonization = colonization,
+    .id = "process"
+  ) %>% 
+    group_by(process, TTtreat) %>% 
+    summarise(sum = mean(abundance)) %>% 
+    mutate(TTtreat = factor(TTtreat, levels = c("local", "cool3", "cool1", "OTC", "warm1", "warm3"))) %>% 
+    pivot_wider(names_from = process, values_from = sum) %>% 
+    ggplot(aes(x = TTtreat)) +
+    geom_col(aes(x = TTtreat, y = predicted_abundance_colonization, colour = TTtreat), fill = "white", data = predicted) +
+    geom_col(aes(x = TTtreat, y = -predicted_abundance_extinction, colour = TTtreat), fill = "white", data = predicted) +
+    geom_col(aes(y = colonization, fill = TTtreat), alpha = 0.6) +
+    geom_col(aes(y = - extinction, fill = TTtreat), alpha = 0.6) +
+    scale_fill_manual(name = "", values = c("grey", "blue","lightblue", "orange", "pink", "red")) +
+    scale_colour_manual(name = "", values = c("grey", "blue","lightblue", "orange", "pink", "red")) +
+    geom_hline(yintercept = 0, colour = "grey") +
+    #geom_rect(data = legend, aes(xmin = TTtreat, xmax = TTtreat, ymin = y1, ymax = y2, colour = c, fill = f)) +
+    geom_text(data = legend2, aes(x = x2, y = y2, label = t), size = 3) +
+    labs(x = "", y = "", title = "Abundance") +
+    annotation_custom(ex, xmin = 0.1, xmax= 0.1, ymin = -40, ymax = -40) +
+    annotation_custom(col, xmin = 0.1, xmax= 0.1, ymin = 30, ymax = 30) +
+    coord_cartesian(xlim = c(1, 6), clip="off") +
+    theme_minimal() +
+    theme(legend.position = "none",
+          axis.line = element_line(colour = "black"),
+          panel.grid.major.x = element_blank()),
+  
+  #colonization extinction over time plot
+  col_ext_over_time_plot = bind_rows(
+          extinction = extinction_all,
+          colonization = colonization_all,
+          .id = "process") %>% 
+    mutate(TTtreat = factor(TTtreat, levels = c("local", "cool3", "cool1", "OTC", "warm1", "warm3")),
+           TTtreat = recode(TTtreat, "control" = "local")) %>% 
+    left_join(predicted %>% 
+                select(TTtreat:predicted_nr_extinction) %>% 
+                pivot_longer(cols = predicted_nr_colonization:predicted_nr_extinction, names_to = c("x", "process"), values_to = "predicted", names_sep = "_nr_"),
+              by = c("TTtreat", "process")) %>% 
+    mutate(proportion = nr_species / predicted) %>% 
+    ggplot(aes(x = year, y = proportion, colour = TTtreat)) +
+    #ggplot(aes(x = year, y = nr_species, ymin = nr_species - se, ymax = nr_species + se, colour = TTtreat)) +
+    geom_point() + #position = position_dodge(width = 0.15)
+    geom_line() +
+    #geom_errorbar(position = position_dodge(width = 0.15), width = 0) +
+    scale_colour_manual(name = "", values = c("grey", "blue","lightblue", "orange", "pink", "red")) +
+    labs(x = "", y = "Proportion") +
+    facet_wrap(~ process) +
+    theme_minimal(),
+  
+  
   
   #H1Q2+3: Conv/div (univariate)
   
@@ -67,126 +123,230 @@ plot_plan <- drake_plan(
                     TTtreat = c(rep(c("warm3", "warm3", "warm1", "warm1", "cool3", "cool3", "cool1", "cool1"), 4)),
                     year = rep(c(2012, 2016), 16),
                     trait_trans = rep("Positive slope", 32),
-                    mean = c(0,1,0,0.5,0,-1,0,-0.5,0,1,0,0.5,0,-1,0,-0.5,-1,0,-0.5,0,1,0,0.5,0,-1,0,-0.5,0,1,0,0.5,0),
+                    trait_fancy = rep("Positive slope", 32),
+                    delta = c(0,1,0,0.5,0,-1,0,-0.5,0,1,0,0.5,0,-1,0,-0.5,-1,0,-0.5,0,1,0,0.5,0,-1,0,-0.5,0,1,0,0.5,0),
                     signi = rep("significant", 32)),
   pred_neg = tibble(direction = c(rep("divergence", 16), rep("convergence", 16)),
                     plasticity = c(rep("fixed", 8), rep("plastic", 8), rep("fixed", 8), rep("plastic", 8)),
                     TTtreat = c(rep(c("warm3", "warm3", "warm1", "warm1", "cool3", "cool3", "cool1", "cool1"), 4)),
                     year = rep(c(2012, 2016), 16),
                     trait_trans = rep("Negative slope", 32),
-                    mean = c(0,-1,0,-0.5,0,1,0,0.5,0,-1,0,-0.5,0,1,0,0.5,1,0,0.5,0,-1,0,-0.5,0,1,0,0.5,0,-1,0,-0.5,0),
+                    trait_fancy = rep("Negative slope", 32),
+                    delta = c(0,-1,0,-0.5,0,1,0,0.5,0,-1,0,-0.5,0,1,0,0.5,1,0,0.5,0,-1,0,-0.5,0,1,0,0.5,0,-1,0,-0.5,0),
                     signi = rep("significant", 32)),
   pred_no = tibble(direction = c(rep("divergence", 4), rep("convergence", 4)),
                    plasticity = c(rep(c("fixed", "fixed", "plastic", "plastic"), 2)),
                    TTtreat = c(rep("none", 8)),
                    year = rep(c(2012, 2016), 4),
                    trait_trans = rep("No sign. slope", 8),
-                   mean = rep(0, 8),
+                   trait_fancy = rep("No sign. slope", 8),
+                   delta = rep(0, 8),
                    signi = rep("non-signigicant", 8)),
   
   #divergence-convergence plot
-  conv_div_plot = effect_size %>% 
-    filter(year %in% c(2012, 2016)) %>% 
-    ungroup() %>% 
-    group_by(direction, plasticity, TTtreat, year, trait_trans) %>% 
-    summarise(mean = mean(mean)) %>% 
-    left_join(treatment_effect, by = c("direction", "plasticity", "trait_trans", "TTtreat" = "term")) %>% 
+    conv_div_plot = fancy_trait_name_dictionary(treatment_effect) %>% 
     bind_rows(pred_pos, pred_neg) %>% 
     # simplify figure by only showing traits with significant slope
-    filter(!trait_trans %in% c("SLA_cm2_g", "NP_ratio", "LDMC", "CN_ratio")) %>%
+    filter(!trait_trans %in% c("SLA_cm2_g", "NP_ratio", "LDMC")) %>%
     mutate(direction = factor(direction, levels = c("divergence", "convergence")),
-           trait_trans = factor(trait_trans, levels = c("Positive slope", "dN15_permil", "C_percent", "Leaf_Area_cm2_log", "Dry_Mass_g_log", "Negative slope", "P_percent", "N_percent", "Thickness_mm_log", "dC13_permil")),
+           trait_fancy = factor(trait_fancy, levels = c("Positive slope", "dN15 ‰", "Area cm2", "Dry mass g", "C %", "Negative slope", "P %", "N %", "Thickness mm", "dC13 ‰", "CN")),
            TTtreat = factor(TTtreat, levels = c("cool3", "cool1", "OTC", "warm1", "warm3"))) %>% 
-    ggplot(aes(x = year, y = mean, colour = TTtreat, linetype = signi)) +
-    geom_rect(data = . %>% filter(trait_trans %in% c("Positive slope", "Negative slope")), aes(fill = trait_trans), xmin = -Inf, xmax = Inf, ymin = -Inf, ymax = Inf, alpha = 0.6, fill = "grey75") +
+    ggplot(aes(x = year, y = delta, colour = TTtreat, linetype = signi)) +
+    geom_rect(data = . %>% filter(trait_trans %in% c("Positive slope", "Negative slope")), 
+              aes(fill = trait_trans), xmin = -Inf, xmax = Inf, ymin = -Inf, ymax = Inf, alpha = 0.6, fill = "grey75", show.legend = FALSE) +
     geom_line() +
     scale_colour_manual(values = c("lightblue", "blue", "orange", "pink", "red"), name = "") +
-    scale_linetype_manual(values = c("dotted", "solid"), name = "") +
-    scale_x_continuous(breaks=c(2012, 2014, 2016)) +
-    geom_hline(yintercept = 0, colour = "grey50", linetype = "dashed") +
-    labs(x = "", y = "Mean trait value") +
-    facet_grid(trait_trans ~ direction * plasticity, scales = "free_y") +
+    scale_linetype_manual(values = c("dashed", "solid"), name = "") +
+    scale_x_continuous(breaks = c(2013, 2015)) +
+    geom_hline(yintercept = 0, colour = "grey50", linetype = "dotted") +
+    labs(x = "Year", y = "Mean trait value") +
+    facet_grid(trait_fancy ~ direction * plasticity, scales = "free_y") +
     theme_bw() +
     theme(legend.position = "top",
-          strip.text.y = element_text(angle=360)),
+          strip.text.y = element_text(angle=360),
+          panel.grid = element_blank()),
   ## ----
   
-  conv_div_no_slope_plot = effect_size %>% 
-    filter(year %in% c(2012, 2016)) %>% 
-    ungroup() %>% 
-    group_by(direction, plasticity, TTtreat, year, trait_trans) %>% 
-    summarise(mean = mean(mean)) %>% 
-    left_join(treatment_effect, by = c("direction", "plasticity", "trait_trans", "TTtreat" = "term")) %>% 
+  conv_div_no_slope_plot = fancy_trait_name_dictionary(treatment_effect) %>% 
     bind_rows(pred_no) %>% 
     # only traits without significant slope
-    filter(trait_trans %in% c("No sign. slope", "SLA_cm2_g", "NP_ratio", "LDMC", "CN_ratio")) %>%
+    filter(trait_trans %in% c("No sign. slope", "SLA_cm2_g", "NP_ratio", "LDMC")) %>%
     mutate(direction = factor(direction, levels = c("divergence", "convergence")),
-           trait_trans = factor(trait_trans, levels = c("No sign. slope", "SLA_cm2_g", "NP_ratio", "LDMC", "CN_ratio")),
-           TTtreat = factor(TTtreat, levels = c("cool3", "cool1", "OTC", "warm1", "warm3"))) %>% 
-    ggplot(aes(x = year, y = mean, colour = TTtreat, linetype = signi)) +
-    geom_rect(data = . %>% filter(trait_trans %in% c("No sign. slope")), aes(fill = trait_trans), xmin = -Inf, xmax = Inf, ymin = -Inf, ymax = Inf, alpha = 0.6, fill = "grey75") +
+           trait_fancy = factor(trait_fancy, levels = c("No sign. slope", "SLA cm2/g", "NP", "LDMC", "CN")),
+           TTtreat = factor(TTtreat, levels = c("cool3", "cool1", "OTC", "warm1", "warm3"))) %>%
+    ggplot(aes(x = year, y = delta, colour = TTtreat, linetype = signi)) +
+    geom_rect(data = . %>% filter(trait_trans %in% c("No sign. slope")), 
+              aes(fill = trait_trans), xmin = -Inf, xmax = Inf, ymin = -Inf, ymax = Inf, alpha = 0.6, fill = "grey75", show.legend = FALSE) +
     geom_line() +
     scale_colour_manual(values = c("lightblue", "blue", "orange", "pink", "red"), name = "") +
-    scale_linetype_manual(values = c("dotted", "solid"), name = "") +
-    scale_x_continuous(breaks=c(2012, 2014, 2016)) +
-    geom_hline(yintercept = 0, colour = "grey50", linetype = "dashed") +
-    labs(x = "", y = "Mean trait value") +
-    facet_grid(trait_trans ~ direction * plasticity, scales = "free_y") +
+    scale_linetype_manual(values = c("dashed", "solid"), name = "") +
+    scale_x_continuous(breaks=c(2013, 2015)) +
+    geom_hline(yintercept = 0, colour = "grey50", linetype = "dotted") +
+    labs(x = "Year", y = "Mean trait value") +
+    facet_grid(trait_fancy ~ direction * plasticity, scales = "free_y") +
     theme_bw() +
     theme(legend.position = "top",
-          strip.text.y = element_text(angle=360)),
+          strip.text.y = element_text(angle=360),
+          panel.grid = element_blank()),
   
   
   
   
-  #Histograms - shows need for cleaning
-  trait_histograms = bind_rows(
-    fixed = sum_boot_moment_fixed,
-    plastic = sum_boot_moment_plastic, 
-    .id = "plasticity") %>%
+  #HISTOGRAMM
+  hist_warm = sum_boot_moment_fixed %>%
     ungroup() %>%  
-    filter(TTtreat == "control") %>% 
-    ggplot(aes(x = mean, fill = originSiteID)) + 
+    filter(TTtreat %in% c("warm3"),
+           trait_trans %in% c("Thickness_mm_log")) %>% 
+    ggplot(aes(x = mean, fill = factor(year))) + 
     geom_density(alpha = 0.5) + 
-    facet_grid(plasticity ~ trait_trans, scales = "free"),
+    scale_fill_brewer(palette = "Reds", name = "") +
+    labs(title = "Leaf thickness") +
+    facet_wrap(~ TTtreat) +
+    theme_bw() +
+    theme(legend.position = "top",
+          legend.key.size = unit(0.3, "cm")),
+  
+  hist_cool = hist_warm %+% (sum_boot_moment_fixed %>%
+                               ungroup() %>%  
+                               filter(TTtreat %in% c("cool3"),
+                                      trait_trans %in% c("Thickness_mm_log"))) +
+    scale_fill_brewer(palette = "Blues", name = "") +
+    labs(y = "", title = ""),
+  
+  temporal_trait_histograms = hist_warm + hist_cool,
+  
+  
+  # Histograms for appendix
+  hist_N15_w = hist_warm %+% (sum_boot_moment_fixed %>%
+                   ungroup() %>%  
+                   filter(TTtreat %in% c("warm3"),
+                          trait_trans %in% c("dN15_permil"))) +
+    labs(title = "dC13 ‰", x = ""),
+  
+  hist_N15_c = hist_warm %+% (sum_boot_moment_fixed %>%
+                               ungroup() %>%  
+                               filter(TTtreat %in% c("cool3"),
+                                      trait_trans %in% c("dN15_permil"))) +
+    scale_fill_brewer(palette = "Blues", name = "") +
+    labs(y = "", title = "", x = ""),
+  
+  hist_area_w = hist_warm %+% (sum_boot_moment_fixed %>%
+                                ungroup() %>%  
+                                filter(TTtreat %in% c("warm3"),
+                                       trait_trans %in% c("Leaf_Area_cm2_log"))) +
+    labs(title = "Area cm2", x = "") +
+    theme(legend.position = "none"),
+  
+  hist_area_c = hist_warm %+% (sum_boot_moment_fixed %>%
+                                ungroup() %>%  
+                                filter(TTtreat %in% c("cool3"),
+                                       trait_trans %in% c("Leaf_Area_cm2_log"))) +
+    scale_fill_brewer(palette = "Blues", name = "") +
+    labs(y = "", title = "", x = "") +
+    theme(legend.position = "none"),
+  
+  hist_mass_w = hist_warm %+% (sum_boot_moment_fixed %>%
+                                 ungroup() %>%  
+                                 filter(TTtreat %in% c("warm3"),
+                                        trait_trans %in% c("Dry_Mass_g_log"))) +
+    labs(title = "Dry mass g") +
+    theme(legend.position = "none"),
+  
+  hist_mass_c = hist_warm %+% (sum_boot_moment_fixed %>%
+                                 ungroup() %>%  
+                                 filter(TTtreat %in% c("cool3"),
+                                        trait_trans %in% c("Dry_Mass_g_log"))) +
+    scale_fill_brewer(palette = "Blues", name = "") +
+    labs(y = "", title = "") +
+    theme(legend.position = "none"),
+  
+  hist_C_w = hist_warm %+% (sum_boot_moment_fixed %>%
+                                 ungroup() %>%  
+                                 filter(TTtreat %in% c("warm3"),
+                                        trait_trans %in% c("C_percent"))) +
+    labs(title = "C %", x = ""),
+  
+  hist_C_c = hist_warm %+% (sum_boot_moment_fixed %>%
+                                 ungroup() %>%  
+                                 filter(TTtreat %in% c("cool3"),
+                                        trait_trans %in% c("C_percent"))) +
+    scale_fill_brewer(palette = "Blues", name = "") +
+    labs(y = "", title = "", x = ""),
+  
+  hist_N_w = hist_warm %+% (sum_boot_moment_fixed %>%
+                              ungroup() %>%  
+                              filter(TTtreat %in% c("warm3"),
+                                     trait_trans %in% c("N_percent"))) +
+    labs(title = "N %", x = "") +
+    theme(legend.position = "none"),
+  
+  hist_N_c = hist_warm %+% (sum_boot_moment_fixed %>%
+                              ungroup() %>%  
+                              filter(TTtreat %in% c("cool3"),
+                                     trait_trans %in% c("N_percent"))) +
+    scale_fill_brewer(palette = "Blues", name = "") +
+    labs(y = "", title = "", x = "") +
+    theme(legend.position = "none"),
+  
+  hist_P_w = hist_warm %+% (sum_boot_moment_fixed %>%
+                              ungroup() %>%  
+                              filter(TTtreat %in% c("warm3"),
+                                     trait_trans %in% c("P_percent"))) +
+    labs(title = "P %") +
+    theme(legend.position = "none"),
+  
+  hist_P_c = hist_warm %+% (sum_boot_moment_fixed %>%
+                              ungroup() %>%  
+                              filter(TTtreat %in% c("cool3"),
+                                     trait_trans %in% c("P_percent"))) +
+    scale_fill_brewer(palette = "Blues", name = "") +
+    labs(y = "", title = "") +
+    theme(legend.position = "none"),
+  
+  hist_C13_w = hist_warm %+% (sum_boot_moment_fixed %>%
+                              ungroup() %>%  
+                              filter(TTtreat %in% c("warm3"),
+                                     trait_trans %in% c("dC13_permil"))) +
+    labs(title = "dC13 ‰", x = ""),
+  
+  hist_C13_c = hist_warm %+% (sum_boot_moment_fixed %>%
+                              ungroup() %>%  
+                              filter(TTtreat %in% c("cool3"),
+                                     trait_trans %in% c("dC13_permil"))) +
+    scale_fill_brewer(palette = "Blues", name = "") +
+    labs(y = "", title = ""),
+  
+  hist_CN_w = hist_warm %+% (sum_boot_moment_fixed %>%
+                              ungroup() %>%  
+                              filter(TTtreat %in% c("warm3"),
+                                     trait_trans %in% c("CN_ratio"))) +
+    labs(title = "CN", x = "") +
+    theme(legend.position = "none"),
+  
+  hist_CN_c = hist_warm %+% (sum_boot_moment_fixed %>%
+                              ungroup() %>%  
+                              filter(TTtreat %in% c("cool3"),
+                                     trait_trans %in% c("CN_ratio"))) +
+    scale_fill_brewer(palette = "Blues", name = "") +
+    labs(y = "", title = "") +
+    theme(legend.position = "none"),
+  
+  
+  temporal_trait_histograms_all_1 = (hist_N15_w + hist_N15_c) / 
+    (hist_area_w + hist_area_c) / 
+    (hist_mass_w + hist_mass_c) ,
+  
+  temporal_trait_histograms_all_2 = (hist_C_w + hist_C_c) /
+    (hist_N_w + hist_N_c) /
+    (hist_P_w + hist_P_c),
+  
+  temporal_trait_histograms_all_3 = (hist_C13_w + hist_C13_c) /
+    (hist_CN_w + hist_CN_c),
+  
   
   #trait coverage
   #trait_coverage = autoplot(imputed_traits_div),
   
-  #trait site ordinations - convergence with fixed traits
-  # A_H = two_site_pca(data = sum_boot_moment_fixed, low = "A", high = "H"),
-  # M_A = two_site_pca(data = sum_boot_moment_fixed, low = "M", high = "A"),
-  # L_M = two_site_pca(data = sum_boot_moment_fixed, low = "L", high = "M"),
-  # L_H = two_site_pca(data = sum_boot_moment_fixed, low = "L", high = "H"),
-  # 
-  # ordination_plot = bind_rows(A_H = A_H[[1]],
-  #                                M_A = M_A[[1]],
-  #                                L_M = L_M[[1]],
-  #                                L_H = L_H[[1]],
-  #                                .id = "comparison") %>% 
-  #   ggplot(aes(x = PC1, y = PC2, colour = TTtreat, shape = destSiteID, group = turfID, linetype = destSiteID)) + 
-  #   geom_point(aes(size = ifelse(year == min(year), "First", "Other"))) +
-  #   geom_path() +
-  #   #coord_equal() +
-  #   scale_size_discrete(range = c(1, 2.5), limits = c("Other", "First"), breaks = c("First", "Other")) +
-  #   scale_colour_manual(values = c("grey50", "pink", "lightblue", "red", "blue", "orange")) +
-  #   scale_x_continuous(expand = c(.15, 0)) +
-  #   labs(x = "PC 1", y = "PC 2", shape = "Site", colour = "Treatment", size = "Year", linetype = "Site", title = "Convergence") +
-  #   facet_wrap(~ comparison) +
-  #   theme_minimal(),
-  
-  # arrows = ggplot(A_H[[1]], aes(x = PC1, y = PC2, group = turfID)) +
-  #   geom_segment(data = A_H[[2]], 
-  #                aes(x = 0, y = 0, xend = PC1, yend = PC2), 
-  #                arrow = arrow(length = unit(0.2, "cm")), 
-  #                colour = "grey80",
-  #                inherit.aes = FALSE) +
-  #   geom_text(data = A_H[[2]], 
-  #             aes(x = PC1 * 1.1,y = PC2 * 1.1, label = Label), 
-  #             size = 3,
-  #             inherit.aes = FALSE, colour = "grey80") +
-  #   scale_x_continuous(expand = c(.2, 0)) +
-  #   theme_minimal(),
   
   
   #trait treatment ordinations - convergence with fixed traits
@@ -196,29 +356,33 @@ plot_plan <- drake_plan(
      otc = treatment_pca(sum_boot_moment_fixed, "OTC", NULL)[[1]],
      .id = "treatment"
      ) %>% 
-    mutate(treatment = fct_relevel(treatment, c("moderate", "extreme", "otc"))) %>% 
+    mutate(treatment = fct_relevel(treatment, c("moderate", "extreme", "otc")),
+           destSiteID = recode(destSiteID, "H" = "High Alpine", "A" = "Alpine", "M" = "Middle", "L" = "Lowland")) %>% 
     ggplot(aes(x = PC1, y = PC2, colour = TTtreat, shape = destSiteID, group = turfID, linetype = destSiteID)) + 
     geom_point(aes(size = ifelse(year == min(year), "First", "Other"))) +
     geom_path() +
     coord_equal() +
     scale_size_discrete(range = c(1, 2.5), limits = c("Other", "First"), breaks = c("First", "Other")) +
     scale_colour_manual(values = c("grey50", "pink", "lightblue", "red", "blue", "orange")) +
+    scale_shape_manual(name = "Site", values = c(17, 16, 15, 18)) +
     scale_x_continuous(expand = c(.15, 0)) +
     labs(x = "PC 1", y = "PC 2", shape = "Site", colour = "Treatment", size = "Year", linetype = "Site", title = "Fixed traits") +
     facet_wrap(~ treatment, ncol = 2) +
     theme_minimal(),
   
-  
+  sum_boot_moment_fixed_fancy = fancy_trait_name_dictionary(sum_boot_moment_fixed) %>% 
+    mutate(trait_trans = trait_fancy) %>% 
+    select(-trait_fancy),
   arrows = ggplot(treatment_pca(sum_boot_moment_fixed, "warm1", "cool1")[[1]], aes(x = PC1, y = PC2, group = turfID)) +
-    geom_segment(data = treatment_pca(sum_boot_moment_fixed, "warm1", "cool1")[[2]], 
+    geom_segment(data = treatment_pca(sum_boot_moment_fixed_fancy, "warm1", "cool1")[[2]], 
                  aes(x = 0, y = 0, xend = PC1, yend = PC2), 
                  arrow = arrow(length = unit(0.2, "cm")), 
-                 colour = "grey80",
+                 colour = "grey50",
                  inherit.aes = FALSE) +
-    geom_text(data = treatment_pca(sum_boot_moment_fixed, "warm1", "cool1")[[2]], 
+    geom_text(data = treatment_pca(sum_boot_moment_fixed_fancy, "warm1", "cool1")[[2]], 
               aes(x = PC1 * 1.1,y = PC2 * 1.1, label = Label), 
               size = 3,
-              inherit.aes = FALSE, colour = "grey80") +
+              inherit.aes = FALSE, colour = "grey50") +
     labs(x = "", y = "") +
     scale_x_continuous(expand = c(.2, 0)) +
     theme_minimal(),
@@ -228,132 +392,145 @@ plot_plan <- drake_plan(
     
   
   
-  #other plots
-  #control means by site
-  # control_mean_boxplot = bootstrapped_trait_moments_div %>% 
-  #   filter(TTtreat == "control") %>% 
-  #   ggplot(aes(x = Site, y = mean, group = blockID)) + 
-  #   geom_boxplot() +
-  #   labs(title = "Divergence") + 
-  #   facet_wrap(~trait_trans, scales = "free_y"),
+## HIGHER MOMENTS
+
+deviation = sum_boot_moment_fixed %>% 
+  filter(!trait_trans %in% c("SLA_cm2_g", "NP_ratio", "LDMC"),
+         year == 2016,
+         TTtreat != "control") %>% 
+  ungroup() %>% 
+  select(originSiteID:TTtreat, mean, -year) %>% 
+  group_by(trait_trans) %>% 
+  mutate(global_mean = mean(mean),
+         deviation = (mean - global_mean) / global_mean * 100),
+
+
+# Trait-climate-skewness
+change_skew = sum_boot_moment_fixed %>% 
+  # remove non-slope traits
+  filter(!trait_trans %in% c("SLA_cm2_g", "NP_ratio", "LDMC")) %>%
+  ungroup() %>% 
+  select(-c(global, n, mean:ci_high_var, ci_low_skew:range)) %>%
+  filter(year %in% c(2012, 2016),
+         TTtreat != "control") %>%
+  pivot_wider(names_from = year, values_from = skew, names_prefix = "Y") %>% 
+  mutate(delta = Y2016 - Y2012) %>% 
+  inner_join(treatment_effect %>% 
+               filter(signi == "significant") %>% 
+               ungroup() %>% 
+               distinct(trait_trans, TTtreat), by = c("trait_trans", "TTtreat")) %>% 
+  left_join(deviation, by = c("originSiteID", "originBlockID", "trait_trans", "turfID", "destBlockID", "destSiteID", "TTtreat")),
+
+skew_warm = change_skew %>% 
+  filter(TTtreat %in% c("warm1", "warm3", "OTC")) %>% 
+  group_by(trait_trans, trait_fancy, TTtreat) %>% 
+  summarise(delta = mean(delta, na.rm = TRUE),
+            deviation = mean(deviation)) %>% 
+  ggplot(aes(x = deviation, y = delta, colour = TTtreat)) +
+  annotate("rect", xmin = 0, xmax = Inf, ymin = -Inf, ymax = 0, alpha = 0.1, fill = "red") +
+  annotate("rect", xmin = -Inf, xmax = 0, ymin = 0, ymax = Inf, alpha = 0.1, fill = "red") +
+  geom_text(aes(x = deviation, y = delta + 0.05, label = trait_fancy, colour = TTtreat), show.legend = FALSE) +
+  geom_point() +
+  geom_hline(yintercept = 0, colour = "grey", linetype = "dashed") +
+  geom_vline(xintercept = 0, colour = "grey", linetype = "dashed") +
+  #scale_shape_manual(values = c(1, 16)) +
+  scale_colour_manual(values = c("pink", "red", "orange")) +
+  labs(x = "% deviation in mean \n from the gradient mean", y = "Change in skewness") +
+  theme_minimal() +
+  theme(legend.position = "top"),
+
+skew_cool = change_skew %>% 
+  filter(TTtreat %in% c("cool1", "cool3")) %>% 
+  group_by(trait_trans, trait_fancy, TTtreat) %>% 
+  summarise(delta = mean(delta, na.rm = TRUE),
+            deviation = mean(deviation, na.rm = TRUE)) %>% 
+  ggplot(aes(x = deviation, y = delta, colour = TTtreat)) +
+  annotate("rect", xmin = -Inf, xmax = 0, ymin = 0, ymax = -Inf, alpha = 0.1, fill = "blue") +
+  annotate("rect", xmin = 0, xmax = Inf, ymin = 0, ymax = Inf, alpha = 0.1, fill = "blue") +
+  geom_text(aes(x = deviation, y = delta + 0.05, label = trait_fancy, colour = TTtreat), show.legend = FALSE) +
+  geom_point() +
+  geom_hline(yintercept = 0, colour = "grey", linetype = "dashed") +
+  geom_vline(xintercept = 0, colour = "grey", linetype = "dashed") +
+  #scale_shape_manual(values = c(1, 16)) +
+  scale_colour_manual(values = c("lightblue", "blue")) +
+  labs(x = "% deviation in mean \n from the gradient mean", y = "") +
+  theme_minimal()  +
+  theme(legend.position = "top"),
+
+skewness_plot = skew_warm + skew_cool,
+
+
+
+
+happymoment_data = sum_boot_moment_fixed %>% 
+  pivot_longer(cols = c(mean, var, skew, kurt, range), names_to = "happymoment", values_to = "value") %>% 
+    filter(trait_trans %in% c("dN15_permil", "Leaf_Area_cm2_log", "Thickness_mm_log", "P_percent", "dC13_permil")) %>%
+  mutate(happymoment = recode(happymoment, "var" = "variance", "skew" = "skewness", "kurt" = "kurtosis")) %>% 
+  group_by(TTtreat, trait_trans, trait_fancy, happymoment, year) %>%
+  summarise(mean = mean(value),
+            se = sd(value, na.rm = TRUE)/sqrt(n())) %>% 
+  mutate(trait_fancy = factor(trait_fancy, levels = c("Area cm2", "Thickness mm", "P %", "dC13 ‰", "dN15 ‰"))) %>%
+  left_join(treatment_effect %>% 
+              filter(signi == "significant") %>% 
+              ungroup() %>% 
+              select(trait_trans, TTtreat, signi), by = c("TTtreat", "trait_trans")) %>% 
+  mutate(signi = if_else(is.na(signi), "non-significant", signi)),
+
+  mean_plot = happymoment_data %>% 
+  filter(happymoment == "mean") %>%
+  mutate(TTtreat = factor(TTtreat, levels = c("control", "cool1", "cool3", "OTC", "warm1", "warm3"))) %>% 
+  ggplot(aes(x = year, y = mean, ymin = mean - se, ymax = mean + se, colour = TTtreat, linetype = signi, alpha = signi)) +
+  geom_line() +
+  geom_errorbar(position = position_dodge(width = 0.15), width = 0) +
+  scale_x_continuous(labels = NULL) +
+  labs(x = "", y = "Mean") +
+  scale_colour_manual(name = "", values = c("grey", "lightblue", "blue", "orange", "pink", "red")) +
+  scale_linetype_manual(name = "", values = c("dashed", "solid")) +
+  scale_alpha_manual(name = "", values = c(0.4, 1)) +
+  scale_y_continuous(breaks = scales::breaks_extended(n = 4)) +
+  guides(colour = guide_legend(nrow = 1)) +
+  facet_wrap(~ trait_fancy, nrow = 1, scales = "free_y") +
+  theme_minimal() +
+  theme(legend.position = "top",
+        legend.margin = margin(t = 0, unit = "cm"),
+        plot.margin = unit(c(0.1,0.1,-0.3,0.5), "cm"),
+        text = element_text(size = 10),
+        strip.text.x = element_text(size = 7)),
+
+  var_plot = mean_plot %+% (happymoment_data %>% 
+                              filter(happymoment == "variance")) + 
+    labs(x = "", y = "Variance") +
+    theme(legend.position = "none",
+          strip.text.x = element_blank()),
   
-  #H1Q1: gradient predicts treatment effect
-  # gradient_treatment_plot = treatment_effect %>% 
-  #   left_join(trait_climate_regression %>% filter(term == "slope"), by = "trait_trans", suffix = c(".treatment", ".gradient")) %>% 
-  #   mutate(term.treatment = factor(term.treatment, levels = c("warm3", "warm1", "OTC", "cool1", "cool3"))) %>% 
-  #   ggplot(aes(x = estimate.gradient, y = estimate.treatment, colour = trait_trans)) +
-  #   geom_point() +
-  #   geom_abline(slope = 1, intercept = 0, colour = "grey", linetype = "dashed") +
-  #   #scale_colour_manual(values = c("lightblue", "blue", "orange", "pink", "red"), name = "") +
-  #   facet_grid(direction ~ term.treatment, scales = "free_y") +
-  #   theme_bw(),
-  
-  #treatment_time_effect %>% 
-    
-  
-  #space/time R2 relationship
-  
-  #temporal trait change
-  #mean
-  # trait_mean_by_time_plot = bootstrapped_trait_moments_div %>% 
-  #   filter(!TTtreat %in% c("control", "local", "OTC")) %>%
-  #   group_by(year, turfID, TTtreat, trait_trans, Site) %>% 
-  #   summarise(mean = mean(mean)) %>% 
-  #   ggplot(aes(x = year, y = mean, colour = TTtreat, group = turfID)) +
-  #   geom_line() +
-  #   facet_grid(trait_trans~Site, scales = "free_y"),
-  
-  ## ----var-ske-kurt
-  #variance
-  # higher_moment_data = happymoments %>%
-  #   filter(trait_trans %in% c("dN15_permil", "Leaf_Area_cm2_log", "C_percent", "Thickness_mm_log")) %>% 
-  #   inner_join(happymoment_effect, by = c("plasticity", "trait_trans", "happymoment", "TTtreat" = "term")) %>% 
-  #   mutate(TTtreat = factor(TTtreat, levels = c("control", "warm3", "warm1", "OTC", "cool1", "cool3"))),
-  #   
-  #   var_plot = higher_moment_data %>% 
-  #   filter(plasticity == "fixed", 
-  #          happymoment == "var") %>% 
-  #   ggplot(aes(x = factor(year), y = value, fill = TTtreat, alpha = signi)) +
-  #   geom_boxplot() +
-  #   scale_fill_manual(values = c("grey50", "pink", "red", "orange", "lightblue",  "blue")) +
-  #   scale_alpha_manual(values = c(0.1, 1)) +
-  #   scale_x_discrete(breaks=c("2012", "2014", "2016")) +
-  #   labs(title = "Temporal change in variance", x = "", y = "Variance") +
-  #   facet_grid(trait_trans ~ TTtreat, scales = "free_y") +
-  #   theme_bw() +
-  #   theme(legend.position = "none",
-  #         strip.text.y = element_text(angle=360)),
-  # 
-  #   #skewness
-  #   skew_plot = var_plot %+% filter(higher_moment_data, 
-  #                       plasticity == "fixed",
-  #                       happymoment == "skew") +
-  #     labs(title = "Temporal change in skewness", x = "", y = "Skewness"),
-  # 
-  #   #kurtois
-  #   kurt_plot = var_plot %+% filter(higher_moment_data, 
-  #                       plasticity == "fixed",
-  #                       happymoment == "kurt") +
-  #     labs(title = "Temporal change in kurtosis", x = "", y = "Kurtosis"),
-  ## ----
-  
-  ### HIGHER MOMENTS
-  higher_moment_CT_plot = happymoment_CT %>% 
-    filter(plasticity == "fixed",
-           trait_trans %in% c("dN15_permil", "Leaf_Area_cm2_log", "Thickness_mm_log"),
-           term != "control") %>% 
-    mutate(happymoment = fct_relevel(happymoment, c("var", "skew", "kurt"))) %>% 
-    ggplot(aes(x = estimate, y = term, xmin = estimate - 1.96 * std.error, xmax = estimate + 1.96 * std.error, colour = term, shape = signi)) +
-    geom_vline(xintercept = 0, colour = "grey", linetype = "dashed") +
-    geom_point(size = 3) +
-    geom_errorbarh(height = 0) +
-    scale_colour_manual(values = c("red", "pink", "orange", "blue", "lightblue")) +
-    scale_shape_manual(values = c(1, 16)) +
-    facet_grid(trait_trans ~ happymoment) +
-    theme_minimal(),
-  
-  # skewness
-  skew_contrast_plot = contrasts %>% 
-    filter(plasticity == "fixed",
-           trait_trans %in% c("dN15_permil", "Leaf_Area_cm2_log", "Thickness_mm_log"),
-           happymoment == "skew",
-           lhs %in% c("cool1 - warm1", "cool3 - warm3", "OTC - warm1")) %>% 
-    ggplot(aes(x = estimate, y = lhs, xmin = conf.low, xmax = conf.high, colour = lhs)) +
-    geom_vline(xintercept = 0, colour = "grey", linetype = "dashed") +
-    geom_point(size = 3) +
-    geom_errorbarh(height = 0) +
-    scale_colour_manual(values = c("pink", "red", "lightblue")) +
-    labs(y = NULL, title = "Skewness contrasts") +
-    facet_wrap(~ trait_trans) +
-    theme_minimal(),
-  
-  # kurtosis
-  kurt_contrast_plot = contrasts %>% 
-    filter(plasticity == "fixed",
-           trait_trans %in% c("dN15_permil", "Leaf_Area_cm2_log", "Thickness_mm_log"),
-           happymoment == "kurt") %>% 
-    ggplot(aes(x = estimate, y = lhs, xmin = conf.low, xmax = conf.high)) +
-    geom_vline(xintercept = 0, colour = "grey", linetype = "dashed") +
-    geom_point(size = 3) +
-    geom_errorbarh(height = 0) +
-    #scale_colour_manual(values = c("pink", "red", "lightblue")) +
-    labs(y = NULL, title = "Skewness contrasts") +
-    facet_wrap(~ trait_trans) +
-    theme_minimal(),
-  
-  
-  pearson_plot = sum_boot_moment_fixed %>% 
-    filter(trait_trans %in% c("dN15_permil"),
-           TTtreat %in% c("warm3", "cool3")) %>% 
-    ggplot(aes(x = skew^2, y = kurt, colour = TTtreat)) +
-    geom_point(alpha = 0.6) +
-    scale_y_reverse() +
-    scale_colour_manual(values = c("red", "blue")) +
-    #scale_colour_manual(values = c("pink", "lightblue")) +
-    labs(x = expression(S^2), y = "K", title = "Pearson plot (skewness vs. kurtosis)") +
-    geom_abline(slope = -1, intercept = 1, linetype = "dashed") +
-    facet_grid( ~ trait_trans) +
-    theme_minimal()
-  
+  skew_plot = mean_plot %+% (happymoment_data %>% 
+                               filter(happymoment == "skewness"))  +
+    geom_hline(yintercept = 0, linetype = "dashed", colour = "grey") +
+    labs(x = "", y = "Skewness") +
+    theme(legend.position = "none",
+          strip.text.x = element_blank()),
+
+  skew_plot2 = skew_plot + 
+  scale_x_continuous(breaks = c(2013, 2015), minor_breaks = c(2012, 2014, 2016)) +
+  labs(x = "Year"),
+
+  kurt_plot = mean_plot %+% (happymoment_data %>% 
+                               filter(happymoment == "kurtosis")) +
+    geom_hline(yintercept = 0, linetype = "dashed", colour = "grey") +
+    labs(x = "", y = "Kurtosis") +
+    theme(legend.position = "none",
+          strip.text.x = element_blank()),
+
+range_plot = mean_plot %+% (happymoment_data %>% 
+                             filter(happymoment == "range")) +
+  geom_hline(yintercept = 0, linetype = "dashed", colour = "grey") +
+  scale_x_continuous(breaks = c(2013, 2015), minor_breaks = c(2012, 2014, 2016)) +
+  labs(x = "Year", y = "Range") +
+  theme(legend.position = "none",
+        strip.text.x = element_blank()),
+
+half_happymoment_plot = mean_plot / skew_plot2 + plot_layout(guides = "collect") & theme(legend.position = "top"),
+
+full_happymoment_plot = mean_plot / var_plot / skew_plot / kurt_plot /range_plot + plot_layout(guides = "collect") & theme(legend.position = "top")
   
 )

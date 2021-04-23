@@ -36,7 +36,7 @@ treatment_pca <- function(data, treat1, treat2){
   #make wide table
   cwm_fat <- data %>% 
     ungroup() %>% 
-    select(originSiteID:mean, -trait_fancy, -n) %>% 
+    select(originSiteID:mean, -n) %>% 
     pivot_wider(names_from = "trait_trans", values_from = "mean") %>% 
     # filter for treatment
     filter(TTtreat %in% c("control", treat1, treat2))

@@ -2,19 +2,19 @@ results_plan <- drake_plan(
   
   #trait climate regressions table
   moments_by_climate_table = trait_climate_regression %>% 
-    mutate(traits = factor(traits, levels = c("dN15_permil", "Leaf_Area_cm2_log", "Dry_Mass_g_log", "C_percent", "SLA_cm2_g", "NP_ratio", "LDMC", "P_percent", "N_percent", "dC13_permil", "Thickness_mm_log", "CN_ratio"))) %>% 
+    mutate(trait_fancy = factor(trait_fancy, levels = trait_order$trait_fancy)) %>% 
+    ungroup() %>% 
+    select(trait_fancy, estimate:'P value') %>% 
     rename(p = 'P value') %>% 
-    select(traits, term:p) %>% 
     mutate(estimate = round(estimate, 2),
            `standard error` = round(`standard error`, 2),
            statistic = round(statistic, 2),
            p = round(p, 3),
-           'P value' = case_when(p < 0.001 ~ paste(p, "***"),
+           'P value' = case_when(p < 0.001 ~ paste("<0.001", "***"),
                                  p < 0.01 ~ paste(p, "**"),
                                  p < 0.05 ~ paste(p, "*"),
                                  p >= 0.05 ~ paste(p, ""))) %>% 
     select(-p),
-  
 
   #divergence convergence table
   treatment_effect_table = treatment_effect %>% 
@@ -25,11 +25,11 @@ results_plan <- drake_plan(
            std.error = round(std.error, 2),
            statistic = round(statistic, 2),
            p.value = round(p.value, 3),
-           p.value = case_when(p.value < 0.001 ~ paste(p.value, "***"),
+           "p value" = case_when(p.value < 0.001 ~ paste("<0.001", "***"),
                                p.value < 0.01 ~ paste(p.value, "**"),
                                p.value < 0.05 ~ paste(p.value, "*"),
                                p.value >= 0.05 ~ paste(p.value, ""))) %>% 
-    knitr::kable(),
+    select(-p.value),
   
   
   #euclidean distance table
@@ -42,10 +42,11 @@ results_plan <- drake_plan(
            std.error = round(std.error, 2),
            statistic = round(statistic, 2),
            p.value = round(p.value, 3),
-           p.value = case_when(p.value < 0.001 ~ paste(p.value, "***"),
-                               p.value < 0.01 ~ paste(p.value, "**"),
-                               p.value < 0.05 ~ paste(p.value, "*"),
-                               p.value >= 0.05 ~ paste(p.value, ""))),
+           "p value" = case_when(p.value < 0.001 ~ paste("<0.001", "***"),
+                                 p.value < 0.01 ~ paste(p.value, "**"),
+                                 p.value < 0.05 ~ paste(p.value, "*"),
+                                 p.value >= 0.05 ~ paste(p.value, ""))) %>% 
+    select(-p.value),
   
   #happymoments results table
   # happymoment_effect_table = happymoment_effect %>% 
