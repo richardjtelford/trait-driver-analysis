@@ -167,7 +167,7 @@ readd(TraitRDA)
 
 
 
-```{r rda_result, eval = TRUE, echo = FALSE}
+```{r rda_result, eval = FALSE, echo = FALSE}
 
 loadd(result_rda)
 result_rda %>%
@@ -175,7 +175,7 @@ result_rda %>%
 
 ```
 
-```{r rda_proportion, eval = TRUE, echo = FALSE}
+```{r rda_proportion, eval = FALSE, echo = FALSE}
 
 loadd(rda_proportions)
 rda_proportions %>%
@@ -198,6 +198,14 @@ readd(half_happymoment_plot)
 ## Supplementary
 
 This section contains all plots and tables of the supplementary material of this manuscript.
+
+
+### Trait correlation
+
+```{r trait-cor, eval = TRUE, echo = FALSE, fig.height=7, fig.cap="Correlation coefficient between each trait combination. Correlation coefficients are shown for trait combinations with a significnat correlarion."}
+readd(trait_corr)
+```
+
 
 
 ### Trait change over time

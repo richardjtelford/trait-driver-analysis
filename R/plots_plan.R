@@ -1,6 +1,41 @@
 
 plot_plan <- drake_plan(
   
+  # trait correlation plot only controls
+  trait_corr_plot_c = get_trait_correlations(sum_boot_moment_fixed, control = TRUE) %>% 
+    ggplot(aes(x = trait1, y = trait2, fill = r, label = round(r_sig, 2))) +
+    geom_tile() +
+    labs(x = NULL, y = NULL, 
+         title = "Control plots",
+         fill = "Pearson's\nCorrelation") +
+    scale_fill_gradient2(mid = "#f7f7f7", low = "#f1a340", 
+                         high = "#998ec3", 
+                         limits = c(-1, 1)) +
+    geom_text() +
+    theme_minimal() +
+    theme(legend.position = "top") +
+    scale_x_discrete(expand=c(0,0)) +
+    scale_y_discrete(expand=c(0,0)),
+  
+  # trait correlation plot all data
+  trait_corr_plot_all = get_trait_correlations(sum_boot_moment_fixed, control = FALSE) %>% 
+    ggplot(aes(x = trait1, y = trait2, fill = r, label = round(r_sig, 2))) +
+    geom_tile() +
+    labs(x = NULL, y = NULL, 
+         title = "Control and treatment plots",
+         fill = "Pearson's\nCorrelation") +
+    scale_fill_gradient2(mid = "#f7f7f7", low = "#f1a340", 
+                         high = "#998ec3", 
+                         limits = c(-1, 1)) +
+    geom_text() +
+    theme_minimal() +
+    theme(legend.position = "none") +
+    scale_x_discrete(expand=c(0,0)) +
+    scale_y_discrete(expand=c(0,0)),
+  
+  trait_corr = (trait_corr_plot_c / trait_corr_plot_all),
+  
+  
   ## ----trait-climate
   # without Wet_Mass_g_log to make nice plot with 3x4 panels (same as dry mass anyway)
   # trait order
@@ -394,32 +429,58 @@ plot_plan <- drake_plan(
   
 ## HIGHER MOMENTS
 
-deviation = sum_boot_moment_fixed %>% 
-  filter(!trait_trans %in% c("SLA_cm2_g", "NP_ratio", "LDMC"),
+deviation = sum_boot_moment_fixed %>%
+  filter(!trait_trans %in% c("SLA_cm2_g", "NP_ratio", "LDMC", "dN15_permil"),
          year == 2016,
-         TTtreat != "control") %>% 
-  ungroup() %>% 
-  select(originSiteID:TTtreat, mean, -year) %>% 
-  group_by(trait_trans) %>% 
+         TTtreat != "control") %>%
+  ungroup() %>%
+  select(originSiteID:TTtreat, mean, -year) %>%
+  group_by(trait_trans, TTtreat) %>%
   mutate(global_mean = mean(mean),
          deviation = (mean - global_mean) / global_mean * 100),
 
-
-# Trait-climate-skewness
-change_skew = sum_boot_moment_fixed %>% 
+  # Trait-climate-skewness
+  change_skew = sum_boot_moment_fixed %>% 
   # remove non-slope traits
-  filter(!trait_trans %in% c("SLA_cm2_g", "NP_ratio", "LDMC")) %>%
+  filter(!trait_trans %in% c("SLA_cm2_g", "NP_ratio", "LDMC", "dN15_permil")) %>%
   ungroup() %>% 
   select(-c(global, n, mean:ci_high_var, ci_low_skew:range)) %>%
+  mutate(block = substr(originBlockID, 2, 2)) %>% 
   filter(year %in% c(2012, 2016),
-         TTtreat != "control") %>%
+         TTtreat != "control",
+         !block %in% c("6", "7")) %>%
   pivot_wider(names_from = year, values_from = skew, names_prefix = "Y") %>% 
   mutate(delta = Y2016 - Y2012) %>% 
   inner_join(treatment_effect %>% 
                filter(signi == "significant") %>% 
                ungroup() %>% 
                distinct(trait_trans, TTtreat), by = c("trait_trans", "TTtreat")) %>% 
-  left_join(deviation, by = c("originSiteID", "originBlockID", "trait_trans", "turfID", "destBlockID", "destSiteID", "TTtreat")),
+  left_join(deviation, by = c("originSiteID", "originBlockID", "trait_trans", 
+                              "turfID", "destBlockID", "destSiteID", "TTtreat")),
+
+# scaled_mean = sum_boot_moment_fixed %>% 
+#   ungroup() %>% 
+#   select(originSiteID:TTtreat, trait_fancy, mean, -year) %>% 
+#   group_by(originSiteID, originBlockID, trait_trans, turfID, destBlockID, destSiteID, TTtreat, trait_fancy) %>% 
+#   mutate(mean_sc = scale(mean)[,1]) %>% 
+#   group_by(trait_trans, TTtreat, trait_fancy) %>% 
+#   summarise(mean_sc = mean(mean_sc)),
+
+# change_skew <- sum_boot_moment_fixed %>% 
+#   ungroup() %>% 
+#   select(originSiteID:TTtreat, skew) %>% 
+#   # remove non-slope traits
+#   filter(!trait_trans %in% c("SLA_cm2_g", "NP_ratio", "LDMC"),
+#          year %in% c(2012, 2016),
+#          TTtreat != "control") %>%
+#   pivot_wider(names_from = year, values_from = skew, names_prefix = "Y") %>% 
+#   mutate(delta = Y2016 - Y2012) %>% 
+#   inner_join(treatment_effect %>% 
+#                filter(signi == "significant") %>% 
+#                ungroup() %>% 
+#                distinct(trait_trans, TTtreat), by = c("trait_trans", "TTtreat")) %>% 
+#   inner_join(scaled_mean, by = c("originSiteID", "originBlockID", "trait_trans", "turfID", "destBlockID", "destSiteID", "TTtreat")),
+
 
 skew_warm = change_skew %>% 
   filter(TTtreat %in% c("warm1", "warm3", "OTC")) %>% 
@@ -427,14 +488,17 @@ skew_warm = change_skew %>%
   summarise(delta = mean(delta, na.rm = TRUE),
             deviation = mean(deviation)) %>% 
   ggplot(aes(x = deviation, y = delta, colour = TTtreat)) +
-  annotate("rect", xmin = 0, xmax = Inf, ymin = -Inf, ymax = 0, alpha = 0.1, fill = "red") +
-  annotate("rect", xmin = -Inf, xmax = 0, ymin = 0, ymax = Inf, alpha = 0.1, fill = "red") +
-  geom_text(aes(x = deviation, y = delta + 0.05, label = trait_fancy, colour = TTtreat), show.legend = FALSE) +
+  annotate("rect", xmin = 0, xmax = Inf, ymin = -Inf, 
+           ymax = 0, alpha = 0.05, fill = "red") +
+  annotate("rect", xmin = -Inf, xmax = 0, ymin = 0, 
+           ymax = Inf, alpha = 0.05, fill = "red") +
+  geom_text(aes(x = deviation - 0.4, y = delta + 0.05, label = trait_fancy, 
+                colour = TTtreat), show.legend = FALSE) +
   geom_point() +
   geom_hline(yintercept = 0, colour = "grey", linetype = "dashed") +
   geom_vline(xintercept = 0, colour = "grey", linetype = "dashed") +
   #scale_shape_manual(values = c(1, 16)) +
-  scale_colour_manual(values = c("pink", "red", "orange")) +
+  scale_colour_manual(values = c("pink1", "red", "orange")) +
   labs(x = "% deviation in mean \n from the gradient mean", y = "Change in skewness") +
   theme_minimal() +
   theme(legend.position = "top"),
@@ -444,10 +508,14 @@ skew_cool = change_skew %>%
   group_by(trait_trans, trait_fancy, TTtreat) %>% 
   summarise(delta = mean(delta, na.rm = TRUE),
             deviation = mean(deviation, na.rm = TRUE)) %>% 
+  bind_cols(text_space = c(0, 0, -0.5, 0, 0.5, 0, 0, 0)) %>% 
+  mutate(text_location = deviation + text_space) %>% 
   ggplot(aes(x = deviation, y = delta, colour = TTtreat)) +
-  annotate("rect", xmin = -Inf, xmax = 0, ymin = 0, ymax = -Inf, alpha = 0.1, fill = "blue") +
-  annotate("rect", xmin = 0, xmax = Inf, ymin = 0, ymax = Inf, alpha = 0.1, fill = "blue") +
-  geom_text(aes(x = deviation, y = delta + 0.05, label = trait_fancy, colour = TTtreat), show.legend = FALSE) +
+  annotate("rect", xmin = -Inf, xmax = 0, ymin = 0, 
+           ymax = -Inf, alpha = 0.1, fill = "blue") +
+  annotate("rect", xmin = 0, xmax = Inf, ymin = 0, 
+           ymax = Inf, alpha = 0.1, fill = "blue") +
+  geom_text(aes(x = text_location, y = delta + 0.1, label = trait_fancy, colour = TTtreat), show.legend = FALSE) +
   geom_point() +
   geom_hline(yintercept = 0, colour = "grey", linetype = "dashed") +
   geom_vline(xintercept = 0, colour = "grey", linetype = "dashed") +
