@@ -40,6 +40,7 @@ plot_plan <- drake_plan(
   # without Wet_Mass_g_log to make nice plot with 3x4 panels (same as dry mass anyway)
   # trait order
   trait_order = trait_climate_regression %>% ungroup() %>% select(trait_fancy),
+  
   moments_by_climate_plot = summarised_boot_moments_climate %>% 
     filter(year == 2016,
            TTtreat %in% c("control"),
@@ -50,7 +51,9 @@ plot_plan <- drake_plan(
            trait_fancy = factor(trait_fancy, levels = trait_order$trait_fancy)) %>%
     ggplot(aes(x = value, y = mean, linetype = signi, colour = signi)) +
     geom_point(aes(shape = originSiteID), colour = "grey") +
-    geom_smooth(method = "lm") +
+    geom_smooth(method = "lm", formula = "y ~ x") +
+    stat_poly_eq(formula = "y ~ x", aes(label = paste(..rr.label..)), parse = TRUE, colour = "black", label.x = "left", label.y = "bottom", size = 3.3) +
+    #geom_text(aes(x = 9, y = 0.5, label = paste0("R^2 = ", adj.r.squared)), colour = "black") +
     scale_linetype_manual(name = "", values = c("dashed", "solid")) +
     scale_colour_manual(name = "", values = c("grey50", "red")) +
     scale_shape_manual(name = "", values = c(17, 16, 15, 18)) +

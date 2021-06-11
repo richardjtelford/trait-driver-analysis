@@ -49,7 +49,7 @@ analysis_plan <- drake_plan(
     unnest(result) %>% 
     filter(term == "value") %>% 
     rename('standard error' = std.error, 'P value' = p.value) %>% 
-    select(-data, -mod, -term) %>% 
+    select(-data, -mod, -term, -r_squ) %>% 
     mutate(signi = case_when(`P value` < 0.05 ~ "significant",
                              `P value` > 0.05 ~ "non-significant"),
            slope = case_when(`P value` < 0.05 & estimate > 0 ~ "positive slope",
@@ -59,6 +59,12 @@ analysis_plan <- drake_plan(
     fancy_trait_name_dictionary() %>% 
     # get right order
     arrange(slope, desc(estimate)),
+  
+  # trait_climate_regression_results_rsqu = trait_climate_regression_results %>% 
+  #   select(-c(term:p.value)) %>% 
+  #   unnest(r_squ) %>% 
+  #   select(trait_trans, adj.r.squared) %>% 
+  #   mutate(adj.r.squared = round(adj.r.squared, 2)),
   
   
   #effect of experiments across all elevations

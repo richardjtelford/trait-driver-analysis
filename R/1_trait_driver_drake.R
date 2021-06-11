@@ -15,6 +15,7 @@ library("patchwork")
 library("gridExtra")
 library("grid")
 library("Hmisc")
+library(ggpmisc)
 
 #drake configuration
 pkgconfig::set_config("drake::strings_in_dots" = "literals")
