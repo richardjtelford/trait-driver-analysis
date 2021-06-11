@@ -30,7 +30,7 @@ results_plan <- drake_plan(
                                p.value < 0.01 ~ paste(p.value, "**"),
                                p.value < 0.05 ~ paste(p.value, "*"),
                                p.value >= 0.05 ~ paste(p.value, ""))) %>% 
-    select(plasticity:direction, trait = trait_fancy, term:std.error, "t value" = statistic, "p value" = p.value),
+    select(plasticity:direction, trait = trait_fancy, term, estimate, "std error" = std.error, "t value" = statistic, "p value" = p.value),
   
   
   #euclidean distance table
@@ -47,7 +47,7 @@ results_plan <- drake_plan(
                                  p.value < 0.01 ~ paste(p.value, "**"),
                                  p.value < 0.05 ~ paste(p.value, "*"),
                                  p.value >= 0.05 ~ paste(p.value, ""))) %>% 
-    select(-p.value),
+    select(plasticity, site = originSiteID, treatment = term, estimate, "std error" = std.error, "t value" = statistic, `p value`),
   
   #happymoments results table
   # happymoment_effect_table = happymoment_effect %>% 
