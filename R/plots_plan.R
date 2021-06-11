@@ -52,7 +52,7 @@ plot_plan <- drake_plan(
     ggplot(aes(x = value, y = mean, linetype = signi, colour = signi)) +
     geom_point(aes(shape = originSiteID), colour = "grey") +
     geom_smooth(method = "lm", formula = "y ~ x") +
-    stat_poly_eq(formula = "y ~ x", aes(label = paste(..rr.label..)), parse = TRUE, colour = "black", label.x = "left", label.y = "bottom", size = 3.3) +
+    stat_poly_eq(formula = "y ~ x", aes(label = paste(..rr.label..)), parse = TRUE, colour = "black", label.x = "right", label.y = "bottom", size = 3.3) +
     #geom_text(aes(x = 9, y = 0.5, label = paste0("R^2 = ", adj.r.squared)), colour = "black") +
     scale_linetype_manual(name = "", values = c("dashed", "solid")) +
     scale_colour_manual(name = "", values = c("grey50", "red")) +
