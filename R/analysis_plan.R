@@ -49,7 +49,7 @@ analysis_plan <- drake_plan(
     unnest(result) %>% 
     filter(term == "value") %>% 
     rename('standard error' = std.error, 'P value' = p.value) %>% 
-    select(-data, -mod, -term, -r_squ) %>% 
+    select(-data, -mod, -term) %>% 
     mutate(signi = case_when(`P value` < 0.05 ~ "significant",
                              `P value` > 0.05 ~ "non-significant"),
            slope = case_when(`P value` < 0.05 & estimate > 0 ~ "positive slope",

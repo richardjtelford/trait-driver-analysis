@@ -4,13 +4,12 @@ results_plan <- drake_plan(
   moments_by_climate_table = trait_climate_regression %>% 
     mutate(trait_fancy = factor(trait_fancy, levels = trait_order$trait_fancy)) %>% 
     ungroup() %>% 
-    select(trait_fancy, estimate:'P value') %>% 
-    rename(p = 'P value') %>% 
+    select(trait = trait_fancy, estimate, `standard error`, `t value` = statistic, p = `P value`) %>% 
     mutate(estimate = round(estimate, 2),
            `standard error` = round(`standard error`, 2),
-           statistic = round(statistic, 2),
+           `t value` = round(`t value`, 2),
            p = round(p, 3),
-           'P value' = case_when(p < 0.001 ~ paste("<0.001", "***"),
+           'p value' = case_when(p < 0.001 ~ paste("<0.001", "***"),
                                  p < 0.01 ~ paste(p, "**"),
                                  p < 0.05 ~ paste(p, "*"),
                                  p >= 0.05 ~ paste(p, ""))) %>% 
