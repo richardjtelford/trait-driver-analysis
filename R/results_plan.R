@@ -16,19 +16,21 @@ results_plan <- drake_plan(
     select(-p),
 
   #divergence convergence table
-  treatment_effect_table = treatment_effect %>% 
-    select(direction, trait_trans, term:p.value) %>% 
-    mutate(term = plyr::mapvalues(term, from = c("Tcool1", "Tcool3", "TOTC", "Twarm1", "Twarm3", "cool1", "cool3", "OTC", "warm1", "warm3"),
-                                  to = c("Tcool1", "Tcool3", "TOTC", "Twarm1", "Twarm3", "cool1*year", "cool3*year", "OTC*year", "warm1*year", "warm3*year"))) %>%
+  treatment_effect_table = treatment_model %>% 
+    fancy_trait_name_dictionary() %>% 
+    unnest(result) %>% 
+    ungroup() %>% 
+    select(direction, plasticity, trait_fancy, term:p.value) %>% 
+    mutate(term = str_remove(term, "TTtreat")) %>% 
     mutate(estimate = round(estimate, 2),
            std.error = round(std.error, 2),
            statistic = round(statistic, 2),
            p.value = round(p.value, 3),
-           "p value" = case_when(p.value < 0.001 ~ paste("<0.001", "***"),
+           p.value = case_when(p.value < 0.001 ~ paste("<0.001", "***"),
                                p.value < 0.01 ~ paste(p.value, "**"),
                                p.value < 0.05 ~ paste(p.value, "*"),
                                p.value >= 0.05 ~ paste(p.value, ""))) %>% 
-    select(-p.value),
+    select(plasticity:direction, trait = trait_fancy, term:std.error, "t value" = statistic, "p value" = p.value),
   
   
   #euclidean distance table
