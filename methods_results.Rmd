@@ -62,7 +62,7 @@ library("cairoDevice")
 This section contains the experimental design and all the references used for the data analysis of this manuscript.
 
 
-```{r mountain, eval = TRUE, echo = FALSE, out.width = '90%', fig.cap="Experimental set up of the Mt. Gongga elevational experiment. There are four experimental study sites across the 1,130m elevational gradient. The arrows reflect the different tuff transplant experiments between these sites. The rectangles depict one of seven experimental blocks at each altitude, where squares reflect transplants and the hexagon an OTC). The colours reflect temperature treatments (orange = ca 1.75°C warmer, red = 5.3°C warmer, light blue =   ca 1.75°C colder, red = 5.3°C colder, green = control).  Within each of the seven blocks at each site, plots were randomly designated to six different experimental treatments: (i) passive warming with an open top chamber (OTC; all sites); (ii) transplanting to a site one step warmer along the gradient (warming; from sites High alpine, Alpine); (iii) Middle alpine transplanting to a site one step colder along the gradient (cooling; from sites Alpine, Middle alpine, and Lowland); (iv) transplanting down the entire gradient (extreme warming; from site High alpine); (v) transplanting up the entire gradient (extreme cooling, from site Lowland); (vi) transplanting within blocks within all sites (to control for the transplanting itself and a local transplant); (vii) an untouched control plot (Control; all sites). Thus, in every site, each OTC has a local unmanipulated control, and each transplanted turf has an “origin” site and a “destination” site, with two types of controls, local transplant and untouched plots."}
+```{r mountain, eval = FALSE, echo = FALSE, out.width = '90%', fig.cap="Experimental set up of the Mt. Gongga elevational experiment. There are four experimental study sites across the 1,130m elevational gradient. The arrows reflect the different tuff transplant experiments between these sites. The rectangles depict one of seven experimental blocks at each altitude, where squares reflect transplants and the hexagon an OTC). The colours reflect temperature treatments (orange = ca 1.75°C warmer, red = 5.3°C warmer, light blue =   ca 1.75°C colder, red = 5.3°C colder, green = control).  Within each of the seven blocks at each site, plots were randomly designated to six different experimental treatments: (i) passive warming with an open top chamber (OTC; all sites); (ii) transplanting to a site one step warmer along the gradient (warming; from sites High alpine, Alpine); (iii) Middle alpine transplanting to a site one step colder along the gradient (cooling; from sites Alpine, Middle alpine, and Lowland); (iv) transplanting down the entire gradient (extreme warming; from site High alpine); (v) transplanting up the entire gradient (extreme cooling, from site Lowland); (vi) transplanting within blocks within all sites (to control for the transplanting itself and a local transplant); (vii) an untouched control plot (Control; all sites). Thus, in every site, each OTC has a local unmanipulated control, and each transplanted turf has an “origin” site and a “destination” site, with two types of controls, local transplant and untouched plots."}
 
 knitr::include_graphics("./images/ChinaMountain.pdf")
 
@@ -71,7 +71,7 @@ knitr::include_graphics("./images/ChinaMountain.pdf")
 
 \newpage
 
-Here is another conceptual figure.
+Map of study location, conceptual figure of the experimental design and bootstrapping approach.
 
 
 ```{r concept-fig, eval = TRUE, echo = FALSE,  out.width = '100%', fig.cap="Conceptual figure showing the experimetnal design with traits changing along a gradienta and transplanting traits along the gradient. Trait imputation, bootstrapping and higher moments. And divergence - convergence."}
@@ -116,14 +116,14 @@ Regression results of the climate-trait relationship.
 loadd(moments_by_climate_table)
 
 moments_by_climate_table %>%
-  kableExtra::kable(caption = "Results from regression of traits and summer air temperature. Shown are estimates, standard error, statistics and P value. Significant P values are indicated with asterisks: ** P value < 0.01, * p < 0.05")
+  kableExtra::kable(caption = "Results from regression of traits and summer air temperature. Shown are estimates (slope), standard error, t value and P value. Significant P values are indicated with asterisks: ** P value < 0.01, * p < 0.05")
 
 ```
 
 \newpage
 
 
-This is a principle componant analysis showing plant community composition for the different treatments in all sites.
+This is a principle component analysis showing plant community composition for the different treatments in all sites.
 
 ```{r trait_ordination_plot, eval = TRUE, echo = FALSE, fig.width = 8,fig.height = 7, fig.cap="Multivariate principal component analysis of community composition for each climate treatment along the elevational gradient sites."}
 readd(ordination)
@@ -161,7 +161,7 @@ readd(conv_div_plot)
 
 \newpage
 
-```{r rda_plot, eval = TRUE, echo = FALSE, fig.cap="Testing for convergence in multivariate community (first column) or trait-space (second and third column) as a function of year since transplant. Results from  Principal Response Curve multivariate RDA analysis. "}
+```{r rda_plot, eval = FALSE, echo = FALSE, fig.cap="Testing for convergence in multivariate community (first column) or trait-space (second and third column) as a function of year since transplant. Results from  Principal Response Curve multivariate RDA analysis. "}
 readd(TraitRDA)
 ```
 
@@ -194,7 +194,7 @@ readd(half_happymoment_plot)
 ```
 
 
-\newpage
+
 ## Supplementary
 
 This section contains all plots and tables of the supplementary material of this manuscript.
@@ -210,15 +210,15 @@ readd(trait_corr)
 
 ### Trait change over time
 
-```{r hist-all-1, eval = TRUE, echo = FALSE, fig.height=7, fig.cap="Histogram for mean trait values over time."}
+```{r hist-all-1, eval = FALSE, echo = FALSE, fig.height=7, fig.cap="Histogram for mean trait values over time."}
 readd(temporal_trait_histograms_all_1)
 ```
 
-```{r hist-all-2, eval = TRUE, echo = FALSE, fig.height=7, fig.cap="Histogram for mean trait values over time."}
+```{r hist-all-2, eval = FALSE, echo = FALSE, fig.height=7, fig.cap="Histogram for mean trait values over time."}
 readd(temporal_trait_histograms_all_2)
 ```
 
-```{r hist-all-3, eval = TRUE, echo = FALSE, fig.cap="Histogram for mean trait values over time."}
+```{r hist-all-3, eval = FALSE, echo = FALSE, fig.cap="Histogram for mean trait values over time."}
 readd(temporal_trait_histograms_all_3)
 ```
 
@@ -239,14 +239,28 @@ readd(conv_div_no_slope_plot)
 
 ### Stats for convergence and divergence analysis
 
-```{r conv-div_table, eval = FALSE, echo = FALSE}
+Results from the statistical analysis of the fixed traits.
+
+```{r conv-div_table-1, eval = TRUE, echo = FALSE}
 loadd(treatment_effect_table)
 treatment_effect_table %>%
-   kableExtra::kable("latex", longtable = TRUE, booktabs = TRUE, caption = "Results Testing for convergence and divergence in each pair-wise trait value as a function of year since transplant. Significant P values are indicated with asterisks: ** P value < 0.01, * p < 0.05") %>% 
-  kableExtra::kable_styling(latex_options = c("hold_position", "repeat_header"))
+  mutate(direction = factor(direction, levels = c("divergence", "convergence")))
+  filter(plasticity == "fixed")
+  #booktab = TRUE, longtable = TRUE,
+   #kableExtra::kable(caption = "Results Testing for convergence and divergence in each pair-wise trait value as a function of year since transplant. Significant P values are indicated with asterisks: ** P value < 0.01, * p < 0.05") #%>% 
+  #kableExtra::kable_styling(latex_options = c("repeat_header"))
 ```
 
 
+Results from the statistical analysis of the plastic traits.
+
+```{r conv-div_table-2, eval = TRUE, echo = FALSE}
+loadd(treatment_effect_table)
+treatment_effect_table %>%
+  mutate(direction = factor(direction, levels = c("divergence", "convergence")))
+  filter(plasticity == "plastic")
+  
+```
 \newpage
 
 
