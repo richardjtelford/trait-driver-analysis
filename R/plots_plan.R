@@ -256,7 +256,7 @@ plot_plan <- drake_plan(
                    ungroup() %>%  
                    filter(TTtreat %in% c("warm3"),
                           trait_trans %in% c("dN15_permil"))) +
-    labs(title = "dC13 ‰", x = ""),
+    labs(title = "dN15 ‰", x = ""),
   
   hist_N15_c = hist_warm %+% (sum_boot_moment_fixed %>%
                                ungroup() %>%  
@@ -367,16 +367,16 @@ plot_plan <- drake_plan(
     theme(legend.position = "none"),
   
   
-  temporal_trait_histograms_all_1 = (hist_N15_w + hist_N15_c) / 
-    (hist_area_w + hist_area_c) / 
-    (hist_mass_w + hist_mass_c) ,
+  temporal_trait_histograms_all_1 = (hist_mass_w + hist_mass_c) / 
+    (hist_area_w + hist_area_c) /
+    (hist_C_w + hist_C_c),
   
-  temporal_trait_histograms_all_2 = (hist_C_w + hist_C_c) /
-    (hist_N_w + hist_N_c) /
-    (hist_P_w + hist_P_c),
+  temporal_trait_histograms_all_2 = (hist_N_w + hist_N_c) /
+    (hist_P_w + hist_P_c) /
+    (hist_CN_w + hist_CN_c),
   
   temporal_trait_histograms_all_3 = (hist_C13_w + hist_C13_c) /
-    (hist_CN_w + hist_CN_c),
+    (hist_N15_w + hist_N15_c),
   
   
   #trait coverage
@@ -515,7 +515,7 @@ skew_cool = change_skew %>%
            ymax = -Inf, alpha = 0.1, fill = "blue") +
   annotate("rect", xmin = 0, xmax = Inf, ymin = 0, 
            ymax = Inf, alpha = 0.1, fill = "blue") +
-  geom_text(aes(x = text_location, y = delta + 0.1, label = trait_fancy, colour = TTtreat), show.legend = FALSE) +
+  #geom_text(aes(x = text_location, y = delta + 0.1, label = trait_fancy, colour = TTtreat), show.legend = FALSE) +
   geom_point() +
   geom_hline(yintercept = 0, colour = "grey", linetype = "dashed") +
   geom_vline(xintercept = 0, colour = "grey", linetype = "dashed") +
