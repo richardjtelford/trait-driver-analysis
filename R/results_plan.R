@@ -49,19 +49,19 @@ results_plan <- drake_plan(
                                  p.value >= 0.05 ~ paste(p.value, ""))) %>% 
     select(plasticity, site = originSiteID, treatment = term, estimate, "std error" = std.error, "t value" = statistic, `p value`),
   
-  #happymoments results table
-  # happymoment_effect_table = happymoment_effect %>% 
-  #   select(plasticity:happymoment, term:p.value) %>% 
-  #   mutate(term = plyr::mapvalues(term, from = c("Tcontrol", "Tcool1", "Tcool3", "TOTC", "Twarm1", "Twarm3", "control", "cool1", "cool3", "OTC", "warm1", "warm3"),
-  #                                 to = c("control", "cool1", "cool3", "OTC", "warm1", "warm3", "control*year", "cool1*year", "cool3*year", "OTC*year", "warm1*year", "warm3*year"))) %>%
-  #   mutate(estimate = round(estimate, 2),
-  #          std.error = round(std.error, 2),
-  #          statistic = round(statistic, 2),
-  #          p.value = round(p.value, 3),
-  #          p.value = case_when(p.value < 0.001 ~ paste(p.value, "***"),
-  #                              p.value < 0.01 ~ paste(p.value, "**"),
-  #                              p.value < 0.05 ~ paste(p.value, "*"),
-  #                              p.value >= 0.05 ~ paste(p.value, ""))) %>% 
-  #   knitr::kable()
+  #happymoments summary table
+  moment_summary = sum_boot_moment_fixed %>% 
+    ungroup() %>% 
+    select(trait_trans, trait_fancy, year, turfID, destBlockID, destSiteID, TTtreat, mean, var, skew, kurt, range) %>% 
+    pivot_longer(cols = c(mean, var, skew, kurt, range), names_to = "moment", values_to = "value") %>% 
+    group_by(trait_trans, trait_fancy, destSiteID, TTtreat, moment) %>% 
+    summarise(se = sd(value)/sqrt(n()),
+              value = mean(value)) %>% 
+    mutate(value = paste0(round(value, 2), " ± ", round(se, 2))) %>% 
+    ungroup() %>% 
+    select(-trait_trans, -se) %>%
+    pivot_wider(names_from = moment, values_from = value) %>% 
+    select(trait = trait_fancy, "dest. site" = destSiteID, treatment = TTtreat, mean, variance = var, skewness = skew, kurtosis = kurt, range)
+
   
 )
