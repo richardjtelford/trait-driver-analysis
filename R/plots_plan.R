@@ -287,44 +287,42 @@ plot_plan <- drake_plan(
                                  ungroup() %>%  
                                  filter(TTtreat %in% c("warm3"),
                                         trait_trans %in% c("Dry_Mass_g_log"))) +
-    labs(title = "Dry mass g") +
-    theme(legend.position = "none"),
+    labs(title = "Dry mass g"),
   
   hist_mass_c = hist_warm %+% (sum_boot_moment_fixed %>%
                                  ungroup() %>%  
                                  filter(TTtreat %in% c("cool3"),
                                         trait_trans %in% c("Dry_Mass_g_log"))) +
     scale_fill_brewer(palette = "Blues", name = "") +
-    labs(y = "", title = "") +
-    theme(legend.position = "none"),
+    labs(y = "", title = ""),
   
   hist_C_w = hist_warm %+% (sum_boot_moment_fixed %>%
                                  ungroup() %>%  
                                  filter(TTtreat %in% c("warm3"),
                                         trait_trans %in% c("C_percent"))) +
-    labs(title = "C %", x = ""),
+    labs(title = "C %", x = "")  +
+    theme(legend.position = "none"),
   
   hist_C_c = hist_warm %+% (sum_boot_moment_fixed %>%
                                  ungroup() %>%  
                                  filter(TTtreat %in% c("cool3"),
                                         trait_trans %in% c("C_percent"))) +
     scale_fill_brewer(palette = "Blues", name = "") +
-    labs(y = "", title = "", x = ""),
+    labs(y = "", title = "", x = "")  +
+    theme(legend.position = "none"),
   
   hist_N_w = hist_warm %+% (sum_boot_moment_fixed %>%
                               ungroup() %>%  
                               filter(TTtreat %in% c("warm3"),
                                      trait_trans %in% c("N_percent"))) +
-    labs(title = "N %", x = "") +
-    theme(legend.position = "none"),
+    labs(title = "N %", x = ""),
   
   hist_N_c = hist_warm %+% (sum_boot_moment_fixed %>%
                               ungroup() %>%  
                               filter(TTtreat %in% c("cool3"),
                                      trait_trans %in% c("N_percent"))) +
     scale_fill_brewer(palette = "Blues", name = "") +
-    labs(y = "", title = "", x = "") +
-    theme(legend.position = "none"),
+    labs(y = "", title = "", x = ""),
   
   hist_P_w = hist_warm %+% (sum_boot_moment_fixed %>%
                               ungroup() %>%  
@@ -369,18 +367,34 @@ plot_plan <- drake_plan(
     labs(y = "", title = "") +
     theme(legend.position = "none"),
   
+  hist_NP_w = hist_warm %+% (sum_boot_moment_fixed %>%
+                               ungroup() %>%  
+                               filter(TTtreat %in% c("warm3"),
+                                      trait_trans %in% c("NP_ratio"))) +
+    labs(title = "NP", x = "") +
+    theme(legend.position = "none"),
   
-  temporal_trait_histograms_all_1 = (hist_mass_w + hist_mass_c) / 
+  hist_NP_c = hist_warm %+% (sum_boot_moment_fixed %>%
+                               ungroup() %>%  
+                               filter(TTtreat %in% c("cool3"),
+                                      trait_trans %in% c("NP_ratio"))) +
+    scale_fill_brewer(palette = "Blues", name = "") +
+    labs(y = "", title = "") +
+    theme(legend.position = "none"),
+  
+  
+  temporal_trait_histograms_all_1 = (hist_mass_w + hist_mass_c) /
     (hist_area_w + hist_area_c) /
     (hist_C_w + hist_C_c),
   
   temporal_trait_histograms_all_2 = (hist_N_w + hist_N_c) /
     (hist_P_w + hist_P_c) /
-    (hist_CN_w + hist_CN_c),
-  
+    (hist_NP_w + hist_NP_c),
+
   temporal_trait_histograms_all_3 = (hist_C13_w + hist_C13_c) /
-    (hist_N15_w + hist_N15_c),
-  
+    (hist_N15_w + hist_N15_c) /
+    (hist_CN_w + hist_CN_c),
+
   
   #trait coverage
   #trait_coverage = autoplot(imputed_traits_div),
@@ -440,7 +454,8 @@ deviation = sum_boot_moment_fixed %>%
   select(originSiteID:TTtreat, mean, -year) %>%
   group_by(trait_trans, TTtreat) %>%
   mutate(global_mean = mean(mean),
-         deviation = (mean - global_mean) / global_mean * 100),
+         deviation = (mean - global_mean) / global_mean * 100) %>% 
+  group_by(trait_trans, TTtreat),
 
   # Trait-climate-skewness
   change_skew = sum_boot_moment_fixed %>% 
@@ -455,7 +470,8 @@ deviation = sum_boot_moment_fixed %>%
   pivot_wider(names_from = year, values_from = skew, names_prefix = "Y") %>% 
   mutate(delta = Y2016 - Y2012) %>% 
   inner_join(treatment_effect %>% 
-               filter(signi == "significant") %>% 
+               filter(signi == "significant", 
+                      year == 2016) %>% 
                ungroup() %>% 
                distinct(trait_trans, TTtreat), by = c("trait_trans", "TTtreat")) %>% 
   left_join(deviation, by = c("originSiteID", "originBlockID", "trait_trans", 
@@ -510,7 +526,7 @@ skew_cool = change_skew %>%
   filter(TTtreat %in% c("cool1", "cool3")) %>% 
   group_by(trait_trans, trait_fancy, TTtreat) %>% 
   summarise(delta = mean(delta, na.rm = TRUE),
-            deviation = mean(deviation, na.rm = TRUE)) %>% 
+            deviation = mean(deviation)) %>% 
   bind_cols(text_space = c(0, 0, -0.5, 0, 0.5, 0, 0, 0)) %>% 
   mutate(text_location = deviation + text_space) %>% 
   ggplot(aes(x = deviation, y = delta, colour = TTtreat)) +
@@ -518,7 +534,7 @@ skew_cool = change_skew %>%
            ymax = -Inf, alpha = 0.1, fill = "blue") +
   annotate("rect", xmin = 0, xmax = Inf, ymin = 0, 
            ymax = Inf, alpha = 0.1, fill = "blue") +
-  #geom_text(aes(x = text_location, y = delta + 0.1, label = trait_fancy, colour = TTtreat), show.legend = FALSE) +
+  geom_text(aes(x = text_location, y = delta + 0.1, label = trait_fancy, colour = TTtreat), show.legend = FALSE) +
   geom_point() +
   geom_hline(yintercept = 0, colour = "grey", linetype = "dashed") +
   geom_vline(xintercept = 0, colour = "grey", linetype = "dashed") +
