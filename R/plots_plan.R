@@ -444,61 +444,7 @@ plot_plan <- drake_plan(
     
   
   
-## HIGHER MOMENTS
-
-deviation = sum_boot_moment_fixed %>%
-  filter(!trait_trans %in% c("SLA_cm2_g", "NP_ratio", "LDMC", "dN15_permil"),
-         year == 2016,
-         TTtreat != "control") %>%
-  ungroup() %>%
-  select(originSiteID:TTtreat, mean, -year) %>%
-  group_by(trait_trans, TTtreat) %>%
-  mutate(global_mean = mean(mean),
-         deviation = (mean - global_mean) / global_mean * 100) %>% 
-  group_by(trait_trans, TTtreat),
-
-  # Trait-climate-skewness
-  change_skew = sum_boot_moment_fixed %>% 
-  # remove non-slope traits
-  filter(!trait_trans %in% c("SLA_cm2_g", "NP_ratio", "LDMC", "dN15_permil")) %>%
-  ungroup() %>% 
-  select(-c(global, n, mean:ci_high_var, ci_low_skew:range)) %>%
-  mutate(block = substr(originBlockID, 2, 2)) %>% 
-  filter(year %in% c(2012, 2016),
-         TTtreat != "control",
-         !block %in% c("6", "7")) %>%
-  pivot_wider(names_from = year, values_from = skew, names_prefix = "Y") %>% 
-  mutate(delta = Y2016 - Y2012) %>% 
-  inner_join(treatment_effect %>% 
-               filter(signi == "significant", 
-                      year == 2016) %>% 
-               ungroup() %>% 
-               distinct(trait_trans, TTtreat), by = c("trait_trans", "TTtreat")) %>% 
-  left_join(deviation, by = c("originSiteID", "originBlockID", "trait_trans", 
-                              "turfID", "destBlockID", "destSiteID", "TTtreat")),
-
-# scaled_mean = sum_boot_moment_fixed %>% 
-#   ungroup() %>% 
-#   select(originSiteID:TTtreat, trait_fancy, mean, -year) %>% 
-#   group_by(originSiteID, originBlockID, trait_trans, turfID, destBlockID, destSiteID, TTtreat, trait_fancy) %>% 
-#   mutate(mean_sc = scale(mean)[,1]) %>% 
-#   group_by(trait_trans, TTtreat, trait_fancy) %>% 
-#   summarise(mean_sc = mean(mean_sc)),
-
-# change_skew <- sum_boot_moment_fixed %>% 
-#   ungroup() %>% 
-#   select(originSiteID:TTtreat, skew) %>% 
-#   # remove non-slope traits
-#   filter(!trait_trans %in% c("SLA_cm2_g", "NP_ratio", "LDMC"),
-#          year %in% c(2012, 2016),
-#          TTtreat != "control") %>%
-#   pivot_wider(names_from = year, values_from = skew, names_prefix = "Y") %>% 
-#   mutate(delta = Y2016 - Y2012) %>% 
-#   inner_join(treatment_effect %>% 
-#                filter(signi == "significant") %>% 
-#                ungroup() %>% 
-#                distinct(trait_trans, TTtreat), by = c("trait_trans", "TTtreat")) %>% 
-#   inner_join(scaled_mean, by = c("originSiteID", "originBlockID", "trait_trans", "turfID", "destBlockID", "destSiteID", "TTtreat")),
+  ## HIGHER MOMENTS
 
 
 skew_warm = change_skew %>% 
@@ -545,6 +491,23 @@ skew_cool = change_skew %>%
   theme(legend.position = "top"),
 
 skewness_plot = skew_warm + skew_cool,
+
+
+deviation_moments = deviation %>% 
+  mutate(elevation = case_when(destSiteID == "H" ~ 4100,
+                               destSiteID == "A" ~ 3850,
+                               destSiteID == "M" ~ 3500,
+                               destSiteID == "L" ~ 3000),
+         moment = factor(moment, levels = c("mean", "var", "skew", "kurt", "range"))) %>% 
+  filter(trait_trans == "C_percent") %>% 
+  ggplot(aes(x = elevation, y = deviation, colour = TTtreat, group = TTtreat)) +
+  geom_point() +
+  geom_smooth(method = "lm") +
+  geom_hline(yintercept = 0, linetype = "dotted", colour = "grey") +
+  scale_colour_manual(values = c("pink", "lightblue", "red", "blue", "orange")) +
+  labs(x = "Elevation (m a.s.l.)", y = "Percentage deviation in moment value from the gradient average") +
+  facet_wrap( ~ moment, scales = "free") +
+  theme_bw()
 
 
 
