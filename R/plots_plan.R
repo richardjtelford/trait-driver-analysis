@@ -383,17 +383,17 @@ plot_plan <- drake_plan(
     theme(legend.position = "none"),
   
   
-  temporal_trait_histograms_all_1 = (hist_mass_w + hist_mass_c) /
-    (hist_area_w + hist_area_c) /
-    (hist_C_w + hist_C_c),
-  
-  temporal_trait_histograms_all_2 = (hist_N_w + hist_N_c) /
-    (hist_P_w + hist_P_c) /
-    (hist_NP_w + hist_NP_c),
-
-  temporal_trait_histograms_all_3 = (hist_C13_w + hist_C13_c) /
-    (hist_N15_w + hist_N15_c) /
-    (hist_CN_w + hist_CN_c),
+  # temporal_trait_histograms_all_1 = (hist_mass_w + hist_mass_c) /
+  #   (hist_area_w + hist_area_c) /
+  #   (hist_C_w + hist_C_c),
+  # 
+  # temporal_trait_histograms_all_2 = (hist_N_w + hist_N_c) /
+  #   (hist_P_w + hist_P_c) /
+  #   (hist_NP_w + hist_NP_c),
+  # 
+  # temporal_trait_histograms_all_3 = (hist_C13_w + hist_C13_c) /
+  #   (hist_N15_w + hist_N15_c) /
+  #   (hist_CN_w + hist_CN_c),
 
   
   #trait coverage
@@ -498,8 +498,9 @@ deviation_moments = deviation %>%
                                destSiteID == "A" ~ 3850,
                                destSiteID == "M" ~ 3500,
                                destSiteID == "L" ~ 3000),
-         moment = factor(moment, levels = c("mean", "var", "skew", "kurt", "range"))) %>% 
-  filter(trait_trans == "C_percent") %>% 
+         moment = recode(moment, "var" = "variance", "skew" = "skewness", "kurt" = "kurtosis"),
+         moment = factor(moment, levels = c("mean", "variance", "skewness", "kurtosis", "range"))) %>% 
+  filter(trait_trans == "Leaf_Area_cm2_log") %>% 
   ggplot(aes(x = elevation, y = deviation, colour = TTtreat, group = TTtreat)) +
   geom_point() +
   geom_smooth(method = "lm") +
@@ -507,7 +508,7 @@ deviation_moments = deviation %>%
   scale_colour_manual(values = c("pink", "lightblue", "red", "blue", "orange")) +
   labs(x = "Elevation (m a.s.l.)", y = "Percentage deviation in moment value from the gradient average") +
   facet_wrap( ~ moment, scales = "free") +
-  theme_bw()
+  theme_bw(),
 
 
 
@@ -571,16 +572,42 @@ happymoment_data = sum_boot_moment_fixed %>%
     theme(legend.position = "none",
           strip.text.x = element_blank()),
 
-range_plot = mean_plot %+% (happymoment_data %>% 
+  range_plot = mean_plot %+% (happymoment_data %>% 
                              filter(happymoment == "range")) +
-  geom_hline(yintercept = 0, linetype = "dashed", colour = "grey") +
-  scale_x_continuous(breaks = c(2013, 2015), minor_breaks = c(2012, 2014, 2016)) +
-  labs(x = "Year", y = "Range") +
-  theme(legend.position = "none",
-        strip.text.x = element_blank()),
+    geom_hline(yintercept = 0, linetype = "dashed", colour = "grey") +
+    scale_x_continuous(breaks = c(2013, 2015), minor_breaks = c(2012, 2014, 2016)) +
+    labs(x = "Year", y = "Range") +
+    theme(legend.position = "none",
+          strip.text.x = element_blank()),
 
-half_happymoment_plot = mean_plot / skew_plot2 + plot_layout(guides = "collect") & theme(legend.position = "top"),
+  half_happymoment_plot = mean_plot / skew_plot2 + plot_layout(guides = "collect") & theme(legend.position = "top"),
 
-full_happymoment_plot = mean_plot / var_plot / skew_plot / kurt_plot /range_plot + plot_layout(guides = "collect") & theme(legend.position = "top")
+  full_happymoment_plot = mean_plot / var_plot / skew_plot / kurt_plot /range_plot + plot_layout(guides = "collect") & 
+  theme(legend.position = "top"),
+
+
+  # Nike plot
+nike_plot_controls = sum_boot_moment_fixed %>% 
+  filter(year == 2016,
+         TTtreat == "control") %>% 
+  mutate(trait_fancy = factor(trait_fancy, levels = c("Dry mass g", "Area cm2", "Thickness mm", "SLA cm2/g", "LDMC", "C %", "N %", "P %", "CN", "NP", "dC13 ‰", "dN15 ‰"))) %>% 
+  ggplot(aes(x = skew, y = kurt, colour = trait_fancy)) +
+  labs(x = "Skewness", y = "Kurtosis", title = "Control") +
+  scale_color_viridis_d(name = "") +
+  geom_point() +
+  theme_minimal(),
+
+
+nike_plot_treatments = sum_boot_moment_fixed %>% 
+  filter(year == 2016,
+         TTtreat != "control") %>% 
+  mutate(trait_fancy = factor(trait_fancy, levels = c("Dry mass g", "Area cm2", "Thickness mm", "SLA cm2/g", "LDMC", "C %", "N %", "P %", "CN", "NP", "dC13 ‰", "dN15 ‰"))) %>% 
+  ggplot(aes(x = skew, y = kurt, colour = trait_fancy)) +
+  labs(x = "Skewness", y = "Kurtosis", title = "Treatments") +
+  scale_color_viridis_d(name = "") +
+  geom_point() +
+  facet_wrap(~ TTtreat) +
+  theme_minimal()
+
   
 )

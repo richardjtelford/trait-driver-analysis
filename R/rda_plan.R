@@ -250,7 +250,7 @@ rda_plan <- drake_plan(
                                  time = .x$year,
                                  scale = TRUE))) %>% 
     mutate(res = map(mod, anova),
-           Variance = map(res, "Variance") %>% map_dbl(1),
+           variance = map(res, "Variance") %>% map_dbl(1),
            Fvalue = map(res, "F") %>% map_dbl(1),
            Pvalue = map(res, "Pr(>F)") %>% map_dbl(1)) %>% 
     select(-data, -mod, -res),
@@ -268,7 +268,7 @@ rda_plan <- drake_plan(
                                        time = .x$year,
                                        scale = TRUE))) %>% 
     mutate(res = map(mod, anova),
-           Variance = map(res, "Variance") %>% map_dbl(1),
+           variance = map(res, "Variance") %>% map_dbl(1),
            Fvalue = map(res, "F") %>% map_dbl(1),
            Pvalue = map(res, "Pr(>F)") %>% map_dbl(1)) %>% 
     select(-data, -mod, -res),
