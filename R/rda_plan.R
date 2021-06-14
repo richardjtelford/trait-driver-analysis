@@ -230,13 +230,13 @@ rda_plan <- drake_plan(
           axis.text.x = element_blank()),
 
   #patchwork together
-  TraitRDA = ((wc2 + wf2 + wf3 + wp2 + wp3) + 
-                guide_area() +
-                plot_layout(widths = c(4, 4, 1, 4, 1),
-                            guides = 'keep', heights = c(10, 0.3))) / ((cc2 + cf2 + cf3 + cp2 + cp3) +
-                                                   guide_area() +
-                                                      plot_layout(widths = c(4, 4, 1, 4, 1), 
-                                                                  guides = 'keep', heights = c(10, 0.3))),
+  # TraitRDA = ((wc2 + wf2 + wf3 + wp2 + wp3) + 
+  #               guide_area() +
+  #               plot_layout(widths = c(4, 4, 1, 4, 1),
+  #                           guides = 'keep', heights = c(10, 0.3))) / ((cc2 + cf2 + cf3 + cp2 + cp3) +
+  #                                                  guide_area() +
+  #                                                     plot_layout(widths = c(4, 4, 1, 4, 1), 
+  #                                                                 guides = 'keep', heights = c(10, 0.3))),
   
   #permutation test
   #warm
@@ -284,7 +284,7 @@ rda_plan <- drake_plan(
                                  time = .x$year,
                                  scale = TRUE))) %>% 
     mutate(res = map(mod, anova),
-           Variance = map(res, "Variance") %>% map_dbl(1),
+           variance = map(res, "Variance") %>% map_dbl(1),
            Fvalue = map(res, "F") %>% map_dbl(1),
            Pvalue = map(res, "Pr(>F)") %>% map_dbl(1)) %>% 
     select(-data, -mod, -res),
@@ -302,7 +302,7 @@ rda_plan <- drake_plan(
                                  time = .x$year,
                                  scale = TRUE))) %>% 
     mutate(res = map(mod, anova),
-           Variance = map(res, "Variance") %>% map_dbl(1),
+           variance = map(res, "Variance") %>% map_dbl(1),
            Fvalue = map(res, "F") %>% map_dbl(1),
            Pvalue = map(res, "Pr(>F)") %>% map_dbl(1)) %>% 
     select(-data, -mod, -res),
@@ -316,7 +316,8 @@ rda_plan <- drake_plan(
         comm_cool = rda_cool_c, 
         trait_cool = rda_cool_t
       )
-    ),
+    ) %>% 
+    rename("F value" = Fvalue, "p value" = Pvalue),
   
   
   # RDA propotion converged
@@ -328,16 +329,18 @@ rda_plan <- drake_plan(
             cool_trait_plastic = fortify(fit_Cool_plastic),
             .id = "treatment_response_process") %>% 
     filter(Time == 2016) %>% 
-    separate(treatment_response_process, into = c("Climate", "Variable", "Process"), sep = "_") %>% 
-    group_by(Climate, Variable, Process) %>% 
+    separate(treatment_response_process, into = c("climate", "variable", "process"), sep = "_") %>% 
+    group_by(climate, variable, process) %>% 
     mutate(top = Response[n()],
-           Proportion = Response/top) %>% 
+           proportion = Response/top) %>% 
     filter(!Label %in% c("control_L|2016", "control_H|2016")) %>% 
-    mutate(Process = if_else(Process == "none", "", Process),
-           Variable = if_else(Variable == "comm", "community", Variable),
-           Variable = if_else(Variable == "trait", " trait", Variable),
-           Variable = paste0(Process, Variable)) %>% 
+    mutate(process = if_else(process == "none", "", process),
+           variable = if_else(variable == "comm", "community", variable),
+           variable = if_else(variable == "trait", " trait", variable),
+           variable = paste0(process, variable)) %>% 
     ungroup() %>% 
-    select(Variable, Treatment, Proportion)
+    select(variable, treatment = Treatment, proportion) %>% 
+    filter(!grepl("control", treatment)) %>% 
+    pivot_wider(names_from = treatment, values_from = proportion)
   
 )
