@@ -25,7 +25,7 @@ source("R/download_plan.R")
 source("R/data_import_plan.R")
 source("R/bootstrap_moment_plan.R")
 source("R/euclidean_distance_plan.R")
-#source("R/rda_plan.R")
+source("R/rda_plan.R")
 source("R/colonization_extinction_plan.R")
 source("R/analysis_plan.R")
 source("R/plots_plan.R")
@@ -54,6 +54,16 @@ manuscript_plan <- drake_plan(
     file_in("Rmd/TDT2.bib")
     rmarkdown::render(
       input = knitr_in("methods_results.Rmd"), 
+      #input = knitr_in("Tables.Rmd"), 
+      clean = FALSE)
+  },
+  
+  #SI
+  supplementary = {
+    file_in("Rmd/elsevier-harvard_rjt.csl")
+    file_in("Rmd/TDT2.bib")
+    rmarkdown::render(
+      input = knitr_in("SI.Rmd"), 
       clean = FALSE)
   }
 )
@@ -63,7 +73,7 @@ trait_plan <- bind_plans(download_plan,
                         import_plan,
                         bootstrap_moment_plan,
                         euclidean_distance_plan,
-                        #rda_plan,
+                        rda_plan,
                         colonization_extinction_plan,
                         analysis_plan,
                         plot_plan,
