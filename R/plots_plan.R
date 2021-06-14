@@ -3,13 +3,14 @@ plot_plan <- drake_plan(
   
   # trait correlation plot only controls
   trait_corr_plot_c = get_trait_correlations(sum_boot_moment_fixed, control = TRUE) %>% 
+    mutate(r = if_else(r == 1, NA_real_, r)) %>% 
     ggplot(aes(x = trait1, y = trait2, fill = r, label = round(r_sig, 2))) +
     geom_tile() +
     labs(x = NULL, y = NULL, 
          title = "Control plots",
          fill = "Pearson's\nCorrelation") +
-    scale_fill_gradient2(mid = "#f7f7f7", low = "#f1a340", 
-                         high = "#998ec3", 
+    scale_fill_gradient2(mid = "#f7f7f7", low = "#f1a340",
+                         high = "#998ec3",
                          limits = c(-1, 1)) +
     geom_text() +
     theme_minimal() +
@@ -19,6 +20,7 @@ plot_plan <- drake_plan(
   
   # trait correlation plot all data
   trait_corr_plot_all = get_trait_correlations(sum_boot_moment_fixed, control = FALSE) %>% 
+    mutate(r = if_else(r == 1, NA_real_, r)) %>% 
     ggplot(aes(x = trait1, y = trait2, fill = r, label = round(r_sig, 2))) +
     geom_tile() +
     labs(x = NULL, y = NULL, 
@@ -381,19 +383,6 @@ plot_plan <- drake_plan(
     scale_fill_brewer(palette = "Blues", name = "") +
     labs(y = "", title = "") +
     theme(legend.position = "none"),
-  
-  
-  # temporal_trait_histograms_all_1 = (hist_mass_w + hist_mass_c) /
-  #   (hist_area_w + hist_area_c) /
-  #   (hist_C_w + hist_C_c),
-  # 
-  # temporal_trait_histograms_all_2 = (hist_N_w + hist_N_c) /
-  #   (hist_P_w + hist_P_c) /
-  #   (hist_NP_w + hist_NP_c),
-  # 
-  # temporal_trait_histograms_all_3 = (hist_C13_w + hist_C13_c) /
-  #   (hist_N15_w + hist_N15_c) /
-  #   (hist_CN_w + hist_CN_c),
 
   
   #trait coverage
