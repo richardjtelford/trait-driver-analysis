@@ -72,13 +72,8 @@ readd(trait_corr)
 
 ### Trait change over time
 
-```{r hist-all-1, eval = FALSE, echo = FALSE, fig.height=7, fig.cap="Histogram for mean trait values over time."}
-readd(hist_mass_w)
-readd(hist_area_w)
-readd(hist_C_w)
-readd(hist_mass_c)
-readd(hist_area_c)
-readd(hist_C_c)
+```{r hist-all-1, eval = TRUE, echo = FALSE, fig.height=7, fig.cap="Histogram for mean trait values over time."}
+loadd(hist_mass_w, hist_area_w, hist_C_w, hist_mass_c, hist_area_c, hist_C_c)
 (hist_mass_w + hist_mass_c) /
 (hist_area_w + hist_area_c) /
 (hist_C_w + hist_C_c)
@@ -86,17 +81,17 @@ readd(hist_C_c)
 ```
 
 ```{r hist-all-2, eval = FALSE, echo = FALSE, fig.height=7, fig.cap="Histogram for mean trait values over time."}
-readd(temporal_trait_histograms_all_2)
-  # temporal_trait_histograms_all_2 = (hist_N_w + hist_N_c) /
-  #   (hist_P_w + hist_P_c) /
-  #   (hist_NP_w + hist_NP_c),
+loadd(hist_N_w, hist_N_c, hist_P_w, hist_P_c, hist_NP_w, hist_NP_c)
+  (hist_N_w + hist_N_c) /
+    (hist_P_w + hist_P_c) /
+    (hist_NP_w + hist_NP_c)
 ```
 
 ```{r hist-all-3, eval = FALSE, echo = FALSE, fig.cap="Histogram for mean trait values over time."}
-readd(temporal_trait_histograms_all_3)
-  # temporal_trait_histograms_all_3 = (hist_C13_w + hist_C13_c) /
-  #   (hist_N15_w + hist_N15_c) /
-  #   (hist_CN_w + hist_CN_c),
+loadd(hist_C13_w, hist_C13_c, hist_N15_w, hist_N15_c, hist_CN_w, hist_CN_c)
+  (hist_C13_w + hist_C13_c) /
+    (hist_N15_w + hist_N15_c) /
+    (hist_CN_w + hist_CN_c)
 ```
 
 <!-- ### Colonization and extinction over time -->
@@ -140,7 +135,9 @@ df_pl = treatment_effect_table %>%
   mutate(direction = factor(direction, levels = c("divergence", "convergence"))) %>% 
   filter(plasticity == "plastic")
 
-kbl(df_pl %>% select(-plasticity, -direction), longtable = TRUE, booktabs = TRUE) %>%
+df_pl %>% 
+  select(-plasticity, -direction) %>% 
+  kbl(longtable = TRUE, booktabs = TRUE) %>%
   pack_rows("convergence", 1, nrow(df_pl %>% filter(direction == "convergence"))) %>% 
   pack_rows("divergence", nrow(df_pl %>% filter(direction == "convergence")) + 1, nrow(df_pl)) %>% 
   kable_styling(latex_options = c("repeat_header"), font_size = 7)
@@ -176,23 +173,29 @@ readd(full_happymoment_plot)
 ```
 
 
+Nike plots showing skewness versus kurtosis for all the controls
+
 ```{r nike_1, eval = TRUE, echo = FALSE, fig.cap="Skewness versus kurtosis for all traits in the control plots across the gradient."}
 readd(nike_plot_controls)
 ```
+
+
+Nike plots showing skewness versus kurtosis for all the treatment plots.
 
 ```{r nike_2, eval = TRUE, echo = FALSE, fig.cap="Skewness versus kurtosis for all traits and treatemnts across the gradient."}
 readd(nike_plot_treatments)
 ```
 
 
-```{r moment_sum, eval = TRUE, echo = FALSE}
-loadd(moment_summary)
-df_moments = moment_summary
+Table with the summary the mean and SE for all happy moments in 2016 at the destination site
 
-# kbl(df_moments, longtable = TRUE, booktabs = TRUE,
-#     caption = "Mean and SE of each moment, trait and destination site combinaiton in 2016.") %>% 
-#   kable_styling(latex_options = c("repeat_header"), font_size = 7)
+
+```{r moment_sum, eval = FALSE, echo = FALSE}
+loadd(moment_summary)
+
+kbl(moment_summary, longtable = TRUE, booktabs = TRUE,
+    caption = "Mean and SE of each moment, trait and destination site combinaiton in 2016.") %>%
+  kable_styling(latex_options = c("repeat_header"), font_size = 7)
   
 ```
-
 
