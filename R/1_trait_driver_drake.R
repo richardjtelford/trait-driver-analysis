@@ -54,7 +54,6 @@ manuscript_plan <- drake_plan(
     file_in("Rmd/TDT2.bib")
     rmarkdown::render(
       input = knitr_in("methods_results.Rmd"), 
-      #input = knitr_in("Tables.Rmd"), 
       clean = FALSE)
   },
   
