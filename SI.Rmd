@@ -80,24 +80,18 @@ loadd(hist_mass_w, hist_area_w, hist_C_w, hist_mass_c, hist_area_c, hist_C_c)
 
 ```
 
-```{r hist-all-2, eval = FALSE, echo = FALSE, fig.height=7, fig.cap="Histogram for mean trait values over time."}
+```{r hist-all-2, eval = TRUE, echo = FALSE, fig.height=7, fig.cap="Histogram for mean trait values over time."}
 loadd(hist_N_w, hist_N_c, hist_P_w, hist_P_c, hist_NP_w, hist_NP_c)
   (hist_N_w + hist_N_c) /
     (hist_P_w + hist_P_c) /
     (hist_NP_w + hist_NP_c)
 ```
 
-```{r hist-all-3, eval = FALSE, echo = FALSE, fig.cap="Histogram for mean trait values over time."}
+```{r hist-all-3, eval = TRUE, echo = FALSE, fig.cap="Histogram for mean trait values over time."}
 loadd(hist_C13_w, hist_C13_c, hist_N15_w, hist_N15_c, hist_CN_w, hist_CN_c)
   (hist_C13_w + hist_C13_c) /
     (hist_N15_w + hist_N15_c) /
     (hist_CN_w + hist_CN_c)
-```
-
-<!-- ### Colonization and extinction over time -->
-
-```{r col-ext-time-plot, eval = FALSE, echo = FALSE, fig.cap="Number of species colonizing and going extinct over time in each climate treatment."}
-readd(col_ext_over_time_plot)
 ```
 
 
