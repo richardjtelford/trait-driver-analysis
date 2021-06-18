@@ -162,8 +162,17 @@ readd(conv_div_plot)
 
 \newpage
 
-```{r rda_plot, eval = FALSE, echo = FALSE, fig.cap="Testing for convergence in multivariate community (first column) or trait-space (second and third column) as a function of year since transplant. Results from  Principal Response Curve multivariate RDA analysis. "}
-readd(TraitRDA)
+```{r rda_plot, eval = TRUE, echo = FALSE, fig.cap="Testing for convergence in multivariate community (first column) or trait-space (second and third column) as a function of year since transplant. Results from  Principal Response Curve multivariate RDA analysis. "}
+loadd(wc2, wf2, wf3, wp2, wp3, cc2, cf2, cf3, cp2, cp3)
+
+#patchwork together
+((wc2 + wf2 + wf3 + wp2 + wp3) +
+                guide_area() +
+                plot_layout(widths = c(4, 4, 1, 4, 1),
+                            guides = 'keep', heights = c(10, 0.3))) / ((cc2 + cf2 + cf3 + cp2 + cp3) +
+                                                   guide_area() +
+                                                      plot_layout(widths = c(4, 4, 1, 4, 1),
+                                                                  guides = 'keep', heights = c(10, 0.3)))
 ```
 
 

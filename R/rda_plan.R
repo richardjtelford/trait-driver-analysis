@@ -228,15 +228,6 @@ rda_plan <- drake_plan(
     theme(panel.background = element_blank(),
           axis.ticks.x = element_blank(),
           axis.text.x = element_blank()),
-
-  #patchwork together
-  # TraitRDA = ((wc2 + wf2 + wf3 + wp2 + wp3) + 
-  #               guide_area() +
-  #               plot_layout(widths = c(4, 4, 1, 4, 1),
-  #                           guides = 'keep', heights = c(10, 0.3))) / ((cc2 + cf2 + cf3 + cp2 + cp3) +
-  #                                                  guide_area() +
-  #                                                     plot_layout(widths = c(4, 4, 1, 4, 1), 
-  #                                                                 guides = 'keep', heights = c(10, 0.3))),
   
   #permutation test
   #warm
