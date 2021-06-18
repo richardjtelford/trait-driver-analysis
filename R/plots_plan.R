@@ -423,7 +423,7 @@ plot_plan <- drake_plan(
     geom_text(data = treatment_pca(sum_boot_moment_fixed_fancy, "warm1", "cool1")[[2]], 
               aes(x = PC1 * 1.1,y = PC2 * 1.1, label = Label), 
               size = 3,
-              inherit.aes = FALSE, colour = "grey50") +
+              inherit.aes = FALSE, colour = "black") +
     labs(x = "", y = "") +
     scale_x_continuous(expand = c(.2, 0)) +
     theme_minimal(),
