@@ -11,6 +11,7 @@ plot_plan <- drake_plan(
          fill = "Pearson's\nCorrelation") +
     scale_fill_gradient2(mid = "#f7f7f7", low = "#f1a340",
                          high = "#998ec3",
+                         na.value = "grey80",
                          limits = c(-1, 1)) +
     geom_text() +
     theme_minimal() +
@@ -28,6 +29,7 @@ plot_plan <- drake_plan(
          fill = "Pearson's\nCorrelation") +
     scale_fill_gradient2(mid = "#f7f7f7", low = "#f1a340", 
                          high = "#998ec3", 
+                         na.value = "grey80",
                          limits = c(-1, 1)) +
     geom_text() +
     theme_minimal() +
