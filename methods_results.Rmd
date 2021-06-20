@@ -49,7 +49,7 @@ csl: Rmd/elsevier-harvard_rjt.csl
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = FALSE, eval = TRUE)
 library("drake")
 library("cairoDevice")
 library(kableExtra)
@@ -62,20 +62,10 @@ library(kableExtra)
 
 This section contains the experimental design and all the references used for the data analysis of this manuscript.
 
-
-```{r mountain, eval = FALSE, echo = FALSE, out.width = '90%', fig.cap="Experimental set up of the Mt. Gongga elevational experiment. There are four experimental study sites across the 1,130m elevational gradient. The arrows reflect the different tuff transplant experiments between these sites. The rectangles depict one of seven experimental blocks at each altitude, where squares reflect transplants and the hexagon an OTC). The colours reflect temperature treatments (orange = ca 1.75°C warmer, red = 5.3°C warmer, light blue =   ca 1.75°C colder, red = 5.3°C colder, green = control).  Within each of the seven blocks at each site, plots were randomly designated to six different experimental treatments: (i) passive warming with an open top chamber (OTC; all sites); (ii) transplanting to a site one step warmer along the gradient (warming; from sites High alpine, Alpine); (iii) Middle alpine transplanting to a site one step colder along the gradient (cooling; from sites Alpine, Middle alpine, and Lowland); (iv) transplanting down the entire gradient (extreme warming; from site High alpine); (v) transplanting up the entire gradient (extreme cooling, from site Lowland); (vi) transplanting within blocks within all sites (to control for the transplanting itself and a local transplant); (vii) an untouched control plot (Control; all sites). Thus, in every site, each OTC has a local unmanipulated control, and each transplanted turf has an “origin” site and a “destination” site, with two types of controls, local transplant and untouched plots."}
-
-knitr::include_graphics("./images/ChinaMountain.pdf")
-
-```
-
-
-\newpage
-
 Map of study location, conceptual figure of the experimental design and bootstrapping approach.
 
 
-```{r concept-fig, eval = TRUE, echo = FALSE,  out.width = '100%', fig.cap="Conceptual figure showing the experimetnal design with traits changing along a gradienta and transplanting traits along the gradient. Trait imputation, bootstrapping and higher moments. And divergence - convergence."}
+```{r concept-fig, out.width = '100%', fig.cap="Conceptual figure showing the experimetnal design with traits changing along a gradienta and transplanting traits along the gradient. Trait imputation, bootstrapping and higher moments. And divergence - convergence."}
 
 knitr::include_graphics("./images/TDT.png")
 
@@ -105,7 +95,7 @@ This section contains all figures and tables of the main manuscript. The figures
 This figure shows the correlation of trait mean and temperature, representing the elevational gradient.
 
 
-```{r trait-climate, eval = TRUE, echo = FALSE, fig.cap="Relationship between functional traits and summer air temperature (2m above ground). The trait values are bootstrapped community weighted traits from control plots in 2016. The regression line is shown (grey dashed) and significant relationships are indicated with a solid red line. The shaded area displays the confidence interval. The traits are sorted from positive slope, no significant to negative slope."}
+```{r trait-climate, fig.cap="Relationship between functional traits and summer air temperature (2m above ground). The trait values are bootstrapped community weighted traits from control plots in 2016. The regression line is shown (grey dashed) and significant relationships are indicated with a solid red line. The shaded area displays the confidence interval. The traits are sorted from positive slope, no significant to negative slope."}
 readd(moments_by_climate_plot)
 ```
 
@@ -113,7 +103,7 @@ readd(moments_by_climate_plot)
 
 Regression results of the climate-trait relationship.
 
-```{r trait-climate-table, eval = TRUE, echo = FALSE}
+```{r trait-climate-table}
 loadd(moments_by_climate_table)
 
 moments_by_climate_table %>%
@@ -126,7 +116,7 @@ moments_by_climate_table %>%
 
 This is a principle component analysis showing plant community composition for the different treatments in all sites.
 
-```{r trait_ordination_plot, eval = TRUE, echo = FALSE, fig.width = 8,fig.height = 7, fig.cap="Multivariate principal component analysis of community composition for each climate treatment along the elevational gradient sites."}
+```{r trait-ordination-plot, fig.width = 8, fig.height = 7, fig.cap="Multivariate principal component analysis of community composition for each climate treatment along the elevational gradient sites."}
 readd(ordination)
 ```
 
@@ -137,13 +127,13 @@ readd(ordination)
 
 Here we present the number of species that colonize and go extinct in the different climate treatments.
 
-```{r colo_ext_plot, eval = TRUE, echo = FALSE, fig.cap="Realized (closed bar) and expected (open bar) colonization (up) or extinction (down) for each climate treatment. Colonization and extinction are expressed as mean number of species per plot and treatment."}
+```{r colo-ext-plot, fig.cap="Realized (closed bar) and expected (open bar) colonization (up) or extinction (down) for each climate treatment. Colonization and extinction are expressed as mean number of species per plot and treatment."}
 readd(colo_extinction_plot)
 ```
 
 Here we present the abundance of species that colonize and go extinct in the different climate treatments.
 
-```{r colo_ext_plot2, eval = TRUE, echo = FALSE, fig.cap="Realized (closed bar) and expected (open bar) colonization (up) or extinction (down) for each climate treatment. Colonization and extinction are expressed as mean abundance per plot and treatment."}
+```{r colo-ext-plot2, fig.cap="Realized (closed bar) and expected (open bar) colonization (up) or extinction (down) for each climate treatment. Colonization and extinction are expressed as mean abundance per plot and treatment."}
 readd(colo_ext_abundance_plot)
 ```
 
@@ -152,17 +142,18 @@ readd(colo_ext_abundance_plot)
 ### Convergence and divergence
 
 
-```{r temp_trait_hist, eval = TRUE, echo = FALSE, fig.cap="Histogram for mean trait value over time."}
+```{r temp-trait-hist, fig.cap="Histogram for mean trait value over time."}
 readd(temporal_trait_histograms)
 ```
 
-```{r conv-div_plot, eval = TRUE, echo = FALSE, fig.height=7, fig.cap="Testing for convergence and divergence in each pair-wise trait value as a function of year since transplant. Temporal variation in effect sizes for each measured trait. The first column shows traits divergence and the second column trait convergence. The grey panels labeled with Positive slope, No slope and Negative slopes show the predicted outcome according to TDT, depending on the traits relationship with summer air temperature (see New Fig. 2). The colour of the lines indicates the transplant treatment: transplant to 1.75°C warmer (red), transplant to 0.5°C warmer (pink), OTC (orange), transplant to 0.5°C colder (light blue), transplant to 1.75°C colder (dark blue). Solid lines indicate a significant change in effect size over time."}
+```{r conv-div-plot, fig.height=7, fig.cap="Testing for convergence and divergence in each pair-wise trait value as a function of year since transplant. Temporal variation in effect sizes for each measured trait. The first column shows traits divergence and the second column trait convergence. The grey panels labeled with Positive slope, No slope and Negative slopes show the predicted outcome according to TDT, depending on the traits relationship with summer air temperature (see New Fig. 2). The colour of the lines indicates the transplant treatment: transplant to 1.75°C warmer (red), transplant to 0.5°C warmer (pink), OTC (orange), transplant to 0.5°C colder (light blue), transplant to 1.75°C colder (dark blue). Solid lines indicate a significant change in effect size over time."}
 readd(conv_div_plot)
 ```
 
 \newpage
 
-```{r rda_plot, eval = TRUE, echo = FALSE, fig.cap="Testing for convergence in multivariate community (first column) or trait-space (second and third column) as a function of year since transplant. Results from  Principal Response Curve multivariate RDA analysis. "}
+```{r rda-plot, fig.cap="Testing for convergence in multivariate community (first column) or trait-space (second and third column) as a function of year since transplant. Results from  Principal Response Curve multivariate RDA analysis. "}
+
 loadd(wc2, wf2, wf3, wp2, wp3, cc2, cf2, cf3, cp2, cp3)
 
 #patchwork together
@@ -177,7 +168,7 @@ loadd(wc2, wf2, wf3, wp2, wp3, cc2, cf2, cf3, cp2, cp3)
 
 
 
-```{r rda_result, eval = TRUE, echo = FALSE}
+```{r rda-result}
 
 loadd(result_rda)
 result_rda %>%
@@ -185,7 +176,7 @@ result_rda %>%
 
 ```
 
-```{r rda_proportion, eval = TRUE, echo = FALSE}
+```{r rda-proportion}
 
 loadd(rda_proportions)
 rda_proportions %>%
@@ -195,11 +186,12 @@ rda_proportions %>%
 
 
 
-```{r skewness_plot, eval = TRUE, echo = FALSE, fig.cap="xxx"}
+```{r skewness-plot, fig.cap="Deviation from global mean vs. change in skewness over time"}
+
 readd(skewness_plot)
 ```
 
-```{r half_happymoment_plot, eval = TRUE, echo = FALSE, fig.cap="Change in mean and skewness for leaf area, thickness, phosphorus, and C and N isotopes in each treatment and over time. Shown are mean values for each time period and climate treatment with standard error."}
+```{r half-happymoment-plot, fig.cap="Change in mean and skewness for leaf area, thickness, phosphorus, and C and N isotopes in each treatment and over time. Shown are mean values for each time period and climate treatment with standard error."}
 readd(half_happymoment_plot)
 ```
 
