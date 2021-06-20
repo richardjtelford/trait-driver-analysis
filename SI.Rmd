@@ -109,7 +109,7 @@ readd(conv_div_no_slope_plot)
 
 Results from the statistical analysis of the fixed traits.
 
-```{r conv-div_table-1}
+```{r conv-div-table-1}
 loadd(treatment_effect_table)
 df_f = treatment_effect_table %>%
   mutate(direction = factor(direction, levels = c("divergence", "convergence"))) %>% 
@@ -126,7 +126,7 @@ df_f %>% select(-plasticity, -direction) %>%
 
 Results from the statistical analysis of the plastic traits.
 
-```{r conv-div_table-2}
+```{r conv-div-table-2}
 loadd(treatment_effect_table)
 df_pl = treatment_effect_table %>%
   mutate(direction = factor(direction, levels = c("divergence", "convergence"))) %>% 
@@ -144,12 +144,12 @@ df_pl %>%
 
 ### Eucledian distance analysis
 
-```{r eucledian_plot, fig.cap="Euclidean distance in functional trait composition since transplant (2012 - 2016) for control plots and treatments at each site. The colours indicate the different treatments control (grey), transplant to 1.75°C warmer (red), transplant to 0.5°C warmer (pink), OTC (orange), transplant to 0.5°C colder (light blue), transplant to 1.75°C colder (dark blue). The two columns show two scenarios of trait plasticity. Divergence reflects a conservative scenario, where treatments are compared to the origin control and do not allow for trait plasticity. Contrary, convergence reflects full plasticity where treatments are compared to the destination controls."}
+```{r eucledian-plot, fig.cap="Euclidean distance in functional trait composition since transplant (2012 - 2016) for control plots and treatments at each site. The colours indicate the different treatments control (grey), transplant to 1.75°C warmer (red), transplant to 0.5°C warmer (pink), OTC (orange), transplant to 0.5°C colder (light blue), transplant to 1.75°C colder (dark blue). The two columns show two scenarios of trait plasticity. Divergence reflects a conservative scenario, where treatments are compared to the origin control and do not allow for trait plasticity. Contrary, convergence reflects full plasticity where treatments are compared to the destination controls."}
 readd(euclidean_distance_plot)
 ```
 
 
-```{r eucledian_table}
+```{r eucledian-table}
 loadd(euclidean_dist_table)
 
 euclidean_dist_table %>%
@@ -165,21 +165,21 @@ This section shows the results from the analysis on the happy moments.
 We show the change in the happy moments over time for each treatment, nike plots fro all controls plots and all the treatments and finally a table with mean and SE for each moment by trait, site and treatment.
 
 
-```{r full_happymoment_plot, fig.cap="Change in mean, variance, skewness, kurtosis and range for leaf area, thickness, phosphorus, and C and N isotopes in each treatment and over time. Shown are mean values for each time period and climate treatment with standard error."}
+```{r full-happymoment-plot, fig.cap="Change in mean, variance, skewness, kurtosis and range for leaf area, thickness, phosphorus, and C and N isotopes in each treatment and over time. Shown are mean values for each time period and climate treatment with standard error."}
 readd(full_happymoment_plot)
 ```
 
 
 Nike plots showing skewness versus kurtosis for all the controls
 
-```{r nike_1, fig.cap="Skewness versus kurtosis for all traits in the control plots across the gradient."}
+```{r nike-1, fig.cap="Skewness versus kurtosis for all traits in the control plots across the gradient."}
 readd(nike_plot_controls)
 ```
 
 
 Nike plots showing skewness versus kurtosis for all the treatment plots.
 
-```{r nike_2, fig.cap="Skewness versus kurtosis for all traits and treatemnts across the gradient."}
+```{r nike-2, fig.cap="Skewness versus kurtosis for all traits and treatemnts across the gradient."}
 readd(nike_plot_treatments)
 ```
 
@@ -187,14 +187,13 @@ readd(nike_plot_treatments)
 Table with the summary the mean and SE for all happy moments in 2016 at the destination site
 
 
-```{r moment_sum}
+```{r moment-sum}
 loadd(moment_summary)
 
 moment_summary %>% 
   kbl(booktabs = TRUE,
-      longtable = TRUE
-      #caption = "Mean and SE of each moment, trait and destination site combination in 2016."
-      ) %>%
+      longtable = TRUE,
+      caption = "Mean and SE of each moment, trait and destination site combination in 2016.") %>%
   kable_styling(latex_options = c("repeat_header"), font_size = 7)
   
 ```
