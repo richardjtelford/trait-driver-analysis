@@ -60,6 +60,12 @@ analysis_plan <- drake_plan(
     # get right order
     arrange(slope, desc(estimate)),
   
+  # trait_climate_regression_results_rsqu = trait_climate_regression_results %>% 
+  #   select(-c(term:p.value)) %>% 
+  #   unnest(r_squ) %>% 
+  #   select(trait_trans, adj.r.squared) %>% 
+  #   mutate(adj.r.squared = round(adj.r.squared, 2)),
+  
   
   #effect of experiments across all elevations
   treatment_model = effect_size %>% 
@@ -102,6 +108,56 @@ analysis_plan <- drake_plan(
   #          result = map(mod, tidy, "fixed")) %>% 
   #   unnest(result),
   
+  
+  
+  ## HIGHER MOMENTS
+  
+  moments_long = sum_boot_moment_fixed %>%
+    filter(year == 2016) %>%
+    ungroup() %>%
+    pivot_longer(cols = c(mean, var, skew, kurt, range), names_to = "moment", values_to = "value") %>% 
+    select(originSiteID:TTtreat, trait_fancy, moment, value, -year),
+  
+  # global mean per site
+  global = moments_long %>% 
+    filter(TTtreat == "control") %>% 
+    group_by(moment, trait_trans, destSiteID) %>%
+    # global mean for the whole gradient for control plots
+    summarise(global_value = mean(value)),
+
+  # deviation from global mean per site and treatment
+  deviation = moments_long %>%
+    filter(TTtreat != "control") %>% 
+    left_join(global, by = c("destSiteID", "trait_trans", "moment")) %>% 
+    group_by(moment, trait_trans, TTtreat, destSiteID) %>%
+    mutate(deviation = (value - global_value) / global_value * 100),
+  
+  # Trait-climate-skewness
+  change_skew = sum_boot_moment_fixed %>% 
+    # remove non-slope traits and dN15 where deviation has no meaning
+    filter(!trait_trans %in% c("SLA_cm2_g", "NP_ratio", "LDMC", "dN15_permil")) %>%
+    ungroup() %>% 
+    select(-c(global, n, mean:ci_high_var, ci_low_skew:range)) %>%
+    mutate(block = substr(originBlockID, 2, 2)) %>% 
+    filter(year %in% c(2012, 2016),
+           TTtreat != "control",
+           # remove block 6 and 7 because of yak damage
+           !block %in% c("6", "7")) %>%
+    pivot_wider(names_from = year, values_from = skew, names_prefix = "Y") %>% 
+    # change in skewness
+    mutate(delta = Y2016 - Y2012) %>% 
+    # only significant traits and treatments
+    inner_join(treatment_effect %>% 
+                 filter(signi == "significant", 
+                        year == 2016) %>% 
+                 ungroup() %>% 
+                 # only need significant traits and treatments
+                 distinct(trait_trans, TTtreat), by = c("trait_trans", "TTtreat")) %>% 
+    left_join(deviation %>% 
+                filter(moment == "mean"),
+                       by = c("originSiteID", "originBlockID", "trait_trans", 
+                                "turfID", "destBlockID", "destSiteID", "TTtreat", "trait_fancy")),
+    
   #happy higher moment - make long table with var, skew and kurt
   happymoments = bind_rows(
     fixed = sum_boot_moment_fixed,

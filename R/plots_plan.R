@@ -3,13 +3,15 @@ plot_plan <- drake_plan(
   
   # trait correlation plot only controls
   trait_corr_plot_c = get_trait_correlations(sum_boot_moment_fixed, control = TRUE) %>% 
+    mutate(r = if_else(r == 1, NA_real_, r)) %>% 
     ggplot(aes(x = trait1, y = trait2, fill = r, label = round(r_sig, 2))) +
     geom_tile() +
     labs(x = NULL, y = NULL, 
          title = "Control plots",
          fill = "Pearson's\nCorrelation") +
-    scale_fill_gradient2(mid = "#f7f7f7", low = "#f1a340", 
-                         high = "#998ec3", 
+    scale_fill_gradient2(mid = "#f7f7f7", low = "#f1a340",
+                         high = "#998ec3",
+                         na.value = "grey80",
                          limits = c(-1, 1)) +
     geom_text() +
     theme_minimal() +
@@ -19,6 +21,7 @@ plot_plan <- drake_plan(
   
   # trait correlation plot all data
   trait_corr_plot_all = get_trait_correlations(sum_boot_moment_fixed, control = FALSE) %>% 
+    mutate(r = if_else(r == 1, NA_real_, r)) %>% 
     ggplot(aes(x = trait1, y = trait2, fill = r, label = round(r_sig, 2))) +
     geom_tile() +
     labs(x = NULL, y = NULL, 
@@ -26,6 +29,7 @@ plot_plan <- drake_plan(
          fill = "Pearson's\nCorrelation") +
     scale_fill_gradient2(mid = "#f7f7f7", low = "#f1a340", 
                          high = "#998ec3", 
+                         na.value = "grey80",
                          limits = c(-1, 1)) +
     geom_text() +
     theme_minimal() +
@@ -40,6 +44,7 @@ plot_plan <- drake_plan(
   # without Wet_Mass_g_log to make nice plot with 3x4 panels (same as dry mass anyway)
   # trait order
   trait_order = trait_climate_regression %>% ungroup() %>% select(trait_fancy),
+  
   moments_by_climate_plot = summarised_boot_moments_climate %>% 
     filter(year == 2016,
            TTtreat %in% c("control"),
@@ -50,7 +55,9 @@ plot_plan <- drake_plan(
            trait_fancy = factor(trait_fancy, levels = trait_order$trait_fancy)) %>%
     ggplot(aes(x = value, y = mean, linetype = signi, colour = signi)) +
     geom_point(aes(shape = originSiteID), colour = "grey") +
-    geom_smooth(method = "lm") +
+    geom_smooth(method = "lm", formula = "y ~ x") +
+    stat_poly_eq(formula = "y ~ x", aes(label = paste(..rr.label..)), parse = TRUE, colour = "black", label.x = "right", label.y = "bottom", size = 3.3) +
+    #geom_text(aes(x = 9, y = 0.5, label = paste0("R^2 = ", adj.r.squared)), colour = "black") +
     scale_linetype_manual(name = "", values = c("dashed", "solid")) +
     scale_colour_manual(name = "", values = c("grey50", "red")) +
     scale_shape_manual(name = "", values = c(17, 16, 15, 18)) +
@@ -256,7 +263,7 @@ plot_plan <- drake_plan(
                    ungroup() %>%  
                    filter(TTtreat %in% c("warm3"),
                           trait_trans %in% c("dN15_permil"))) +
-    labs(title = "dC13 ‰", x = ""),
+    labs(title = "dN15 ‰", x = ""),
   
   hist_N15_c = hist_warm %+% (sum_boot_moment_fixed %>%
                                ungroup() %>%  
@@ -284,44 +291,42 @@ plot_plan <- drake_plan(
                                  ungroup() %>%  
                                  filter(TTtreat %in% c("warm3"),
                                         trait_trans %in% c("Dry_Mass_g_log"))) +
-    labs(title = "Dry mass g") +
-    theme(legend.position = "none"),
+    labs(title = "Dry mass g"),
   
   hist_mass_c = hist_warm %+% (sum_boot_moment_fixed %>%
                                  ungroup() %>%  
                                  filter(TTtreat %in% c("cool3"),
                                         trait_trans %in% c("Dry_Mass_g_log"))) +
     scale_fill_brewer(palette = "Blues", name = "") +
-    labs(y = "", title = "") +
-    theme(legend.position = "none"),
+    labs(y = "", title = ""),
   
   hist_C_w = hist_warm %+% (sum_boot_moment_fixed %>%
                                  ungroup() %>%  
                                  filter(TTtreat %in% c("warm3"),
                                         trait_trans %in% c("C_percent"))) +
-    labs(title = "C %", x = ""),
+    labs(title = "C %", x = "")  +
+    theme(legend.position = "none"),
   
   hist_C_c = hist_warm %+% (sum_boot_moment_fixed %>%
                                  ungroup() %>%  
                                  filter(TTtreat %in% c("cool3"),
                                         trait_trans %in% c("C_percent"))) +
     scale_fill_brewer(palette = "Blues", name = "") +
-    labs(y = "", title = "", x = ""),
+    labs(y = "", title = "", x = "")  +
+    theme(legend.position = "none"),
   
   hist_N_w = hist_warm %+% (sum_boot_moment_fixed %>%
                               ungroup() %>%  
                               filter(TTtreat %in% c("warm3"),
                                      trait_trans %in% c("N_percent"))) +
-    labs(title = "N %", x = "") +
-    theme(legend.position = "none"),
+    labs(title = "N %", x = ""),
   
   hist_N_c = hist_warm %+% (sum_boot_moment_fixed %>%
                               ungroup() %>%  
                               filter(TTtreat %in% c("cool3"),
                                      trait_trans %in% c("N_percent"))) +
     scale_fill_brewer(palette = "Blues", name = "") +
-    labs(y = "", title = "", x = "") +
-    theme(legend.position = "none"),
+    labs(y = "", title = "", x = ""),
   
   hist_P_w = hist_warm %+% (sum_boot_moment_fixed %>%
                               ungroup() %>%  
@@ -366,18 +371,21 @@ plot_plan <- drake_plan(
     labs(y = "", title = "") +
     theme(legend.position = "none"),
   
+  hist_NP_w = hist_warm %+% (sum_boot_moment_fixed %>%
+                               ungroup() %>%  
+                               filter(TTtreat %in% c("warm3"),
+                                      trait_trans %in% c("NP_ratio"))) +
+    labs(title = "NP", x = "") +
+    theme(legend.position = "none"),
   
-  temporal_trait_histograms_all_1 = (hist_N15_w + hist_N15_c) / 
-    (hist_area_w + hist_area_c) / 
-    (hist_mass_w + hist_mass_c) ,
-  
-  temporal_trait_histograms_all_2 = (hist_C_w + hist_C_c) /
-    (hist_N_w + hist_N_c) /
-    (hist_P_w + hist_P_c),
-  
-  temporal_trait_histograms_all_3 = (hist_C13_w + hist_C13_c) /
-    (hist_CN_w + hist_CN_c),
-  
+  hist_NP_c = hist_warm %+% (sum_boot_moment_fixed %>%
+                               ungroup() %>%  
+                               filter(TTtreat %in% c("cool3"),
+                                      trait_trans %in% c("NP_ratio"))) +
+    scale_fill_brewer(palette = "Blues", name = "") +
+    labs(y = "", title = "") +
+    theme(legend.position = "none"),
+
   
   #trait coverage
   #trait_coverage = autoplot(imputed_traits_div),
@@ -417,7 +425,7 @@ plot_plan <- drake_plan(
     geom_text(data = treatment_pca(sum_boot_moment_fixed_fancy, "warm1", "cool1")[[2]], 
               aes(x = PC1 * 1.1,y = PC2 * 1.1, label = Label), 
               size = 3,
-              inherit.aes = FALSE, colour = "grey50") +
+              inherit.aes = FALSE, colour = "black") +
     labs(x = "", y = "") +
     scale_x_continuous(expand = c(.2, 0)) +
     theme_minimal(),
@@ -427,59 +435,7 @@ plot_plan <- drake_plan(
     
   
   
-## HIGHER MOMENTS
-
-deviation = sum_boot_moment_fixed %>%
-  filter(!trait_trans %in% c("SLA_cm2_g", "NP_ratio", "LDMC", "dN15_permil"),
-         year == 2016,
-         TTtreat != "control") %>%
-  ungroup() %>%
-  select(originSiteID:TTtreat, mean, -year) %>%
-  group_by(trait_trans, TTtreat) %>%
-  mutate(global_mean = mean(mean),
-         deviation = (mean - global_mean) / global_mean * 100),
-
-  # Trait-climate-skewness
-  change_skew = sum_boot_moment_fixed %>% 
-  # remove non-slope traits
-  filter(!trait_trans %in% c("SLA_cm2_g", "NP_ratio", "LDMC", "dN15_permil")) %>%
-  ungroup() %>% 
-  select(-c(global, n, mean:ci_high_var, ci_low_skew:range)) %>%
-  mutate(block = substr(originBlockID, 2, 2)) %>% 
-  filter(year %in% c(2012, 2016),
-         TTtreat != "control",
-         !block %in% c("6", "7")) %>%
-  pivot_wider(names_from = year, values_from = skew, names_prefix = "Y") %>% 
-  mutate(delta = Y2016 - Y2012) %>% 
-  inner_join(treatment_effect %>% 
-               filter(signi == "significant") %>% 
-               ungroup() %>% 
-               distinct(trait_trans, TTtreat), by = c("trait_trans", "TTtreat")) %>% 
-  left_join(deviation, by = c("originSiteID", "originBlockID", "trait_trans", 
-                              "turfID", "destBlockID", "destSiteID", "TTtreat")),
-
-# scaled_mean = sum_boot_moment_fixed %>% 
-#   ungroup() %>% 
-#   select(originSiteID:TTtreat, trait_fancy, mean, -year) %>% 
-#   group_by(originSiteID, originBlockID, trait_trans, turfID, destBlockID, destSiteID, TTtreat, trait_fancy) %>% 
-#   mutate(mean_sc = scale(mean)[,1]) %>% 
-#   group_by(trait_trans, TTtreat, trait_fancy) %>% 
-#   summarise(mean_sc = mean(mean_sc)),
-
-# change_skew <- sum_boot_moment_fixed %>% 
-#   ungroup() %>% 
-#   select(originSiteID:TTtreat, skew) %>% 
-#   # remove non-slope traits
-#   filter(!trait_trans %in% c("SLA_cm2_g", "NP_ratio", "LDMC"),
-#          year %in% c(2012, 2016),
-#          TTtreat != "control") %>%
-#   pivot_wider(names_from = year, values_from = skew, names_prefix = "Y") %>% 
-#   mutate(delta = Y2016 - Y2012) %>% 
-#   inner_join(treatment_effect %>% 
-#                filter(signi == "significant") %>% 
-#                ungroup() %>% 
-#                distinct(trait_trans, TTtreat), by = c("trait_trans", "TTtreat")) %>% 
-#   inner_join(scaled_mean, by = c("originSiteID", "originBlockID", "trait_trans", "turfID", "destBlockID", "destSiteID", "TTtreat")),
+  ## HIGHER MOMENTS
 
 
 skew_warm = change_skew %>% 
@@ -507,7 +463,7 @@ skew_cool = change_skew %>%
   filter(TTtreat %in% c("cool1", "cool3")) %>% 
   group_by(trait_trans, trait_fancy, TTtreat) %>% 
   summarise(delta = mean(delta, na.rm = TRUE),
-            deviation = mean(deviation, na.rm = TRUE)) %>% 
+            deviation = mean(deviation)) %>% 
   bind_cols(text_space = c(0, 0, -0.5, 0, 0.5, 0, 0, 0)) %>% 
   mutate(text_location = deviation + text_space) %>% 
   ggplot(aes(x = deviation, y = delta, colour = TTtreat)) +
@@ -526,6 +482,24 @@ skew_cool = change_skew %>%
   theme(legend.position = "top"),
 
 skewness_plot = skew_warm + skew_cool,
+
+
+deviation_moments = deviation %>% 
+  mutate(elevation = case_when(destSiteID == "H" ~ 4100,
+                               destSiteID == "A" ~ 3850,
+                               destSiteID == "M" ~ 3500,
+                               destSiteID == "L" ~ 3000),
+         moment = recode(moment, "var" = "variance", "skew" = "skewness", "kurt" = "kurtosis"),
+         moment = factor(moment, levels = c("mean", "variance", "skewness", "kurtosis", "range"))) %>% 
+  filter(trait_trans == "Leaf_Area_cm2_log") %>% 
+  ggplot(aes(x = elevation, y = deviation, colour = TTtreat, group = TTtreat)) +
+  geom_point() +
+  geom_smooth(method = "lm") +
+  geom_hline(yintercept = 0, linetype = "dotted", colour = "grey") +
+  scale_colour_manual(values = c("pink", "lightblue", "red", "blue", "orange")) +
+  labs(x = "Elevation (m a.s.l.)", y = "Percentage deviation in moment value from the gradient average") +
+  facet_wrap( ~ moment, scales = "free") +
+  theme_bw(),
 
 
 
@@ -589,16 +563,42 @@ happymoment_data = sum_boot_moment_fixed %>%
     theme(legend.position = "none",
           strip.text.x = element_blank()),
 
-range_plot = mean_plot %+% (happymoment_data %>% 
+  range_plot = mean_plot %+% (happymoment_data %>% 
                              filter(happymoment == "range")) +
-  geom_hline(yintercept = 0, linetype = "dashed", colour = "grey") +
-  scale_x_continuous(breaks = c(2013, 2015), minor_breaks = c(2012, 2014, 2016)) +
-  labs(x = "Year", y = "Range") +
-  theme(legend.position = "none",
-        strip.text.x = element_blank()),
+    geom_hline(yintercept = 0, linetype = "dashed", colour = "grey") +
+    scale_x_continuous(breaks = c(2013, 2015), minor_breaks = c(2012, 2014, 2016)) +
+    labs(x = "Year", y = "Range") +
+    theme(legend.position = "none",
+          strip.text.x = element_blank()),
 
-half_happymoment_plot = mean_plot / skew_plot2 + plot_layout(guides = "collect") & theme(legend.position = "top"),
+  half_happymoment_plot = mean_plot / skew_plot2 + plot_layout(guides = "collect") & theme(legend.position = "top"),
 
-full_happymoment_plot = mean_plot / var_plot / skew_plot / kurt_plot /range_plot + plot_layout(guides = "collect") & theme(legend.position = "top")
+  full_happymoment_plot = mean_plot / var_plot / skew_plot / kurt_plot /range_plot + plot_layout(guides = "collect") & 
+  theme(legend.position = "top"),
+
+
+  # Nike plot
+nike_plot_controls = sum_boot_moment_fixed %>% 
+  filter(year == 2016,
+         TTtreat == "control") %>% 
+  mutate(trait_fancy = factor(trait_fancy, levels = c("Dry mass g", "Area cm2", "Thickness mm", "SLA cm2/g", "LDMC", "C %", "N %", "P %", "CN", "NP", "dC13 ‰", "dN15 ‰"))) %>% 
+  ggplot(aes(x = skew, y = kurt, colour = trait_fancy)) +
+  labs(x = "Skewness", y = "Kurtosis", title = "Control") +
+  scale_color_viridis_d(name = "") +
+  geom_point() +
+  theme_minimal(),
+
+
+nike_plot_treatments = sum_boot_moment_fixed %>% 
+  filter(year == 2016,
+         TTtreat != "control") %>% 
+  mutate(trait_fancy = factor(trait_fancy, levels = c("Dry mass g", "Area cm2", "Thickness mm", "SLA cm2/g", "LDMC", "C %", "N %", "P %", "CN", "NP", "dC13 ‰", "dN15 ‰"))) %>% 
+  ggplot(aes(x = skew, y = kurt, colour = trait_fancy)) +
+  labs(x = "Skewness", y = "Kurtosis", title = "Treatments") +
+  scale_color_viridis_d(name = "") +
+  geom_point() +
+  facet_wrap(~ TTtreat) +
+  theme_minimal()
+
   
 )
